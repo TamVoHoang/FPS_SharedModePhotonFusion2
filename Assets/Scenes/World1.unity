@@ -132,7 +132,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 388342396}
-  - component: {fileID: 388342400}
   - component: {fileID: 388342399}
   - component: {fileID: 388342398}
   - component: {fileID: 388342397}
@@ -142,7 +141,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &388342396
 RectTransform:
   m_ObjectHideFlags: 0
@@ -158,9 +157,9 @@ RectTransform:
   - {fileID: 1288565822}
   m_Father: {fileID: 1305673747}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 100, y: -50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 100, y: 50}
   m_SizeDelta: {x: 200, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &388342397
@@ -206,19 +205,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 388342398}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 388342400}
-        m_TargetAssemblyTypeName: ReturnToLobby, Assembly-CSharp
-        m_MethodName: ReturnToTheLobby
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &388342398
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -257,19 +244,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 388342395}
   m_CullTransparentMesh: 1
---- !u!114 &388342400
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 388342395}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 048ee335f073c70458aa0d286af678da, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  networkRunnerHandler: {fileID: 0}
 --- !u!1 &502976692
 GameObject:
   m_ObjectHideFlags: 0
@@ -3840,10 +3814,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4547542750917225897, guid: 539ffc3e64c386a4daa9667ed6257304, type: 3}
-      propertyPath: networkRunnerPF
-      value: 
-      objectReference: {fileID: 1829756197935571816, guid: 2779deaa036403142b1322bb985f52eb, type: 3}
     - target: {fileID: 8198949781839536251, guid: 539ffc3e64c386a4daa9667ed6257304, type: 3}
       propertyPath: m_Name
       value: NetworkRunnerHandler

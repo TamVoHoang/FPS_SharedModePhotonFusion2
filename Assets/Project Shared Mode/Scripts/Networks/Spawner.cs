@@ -13,8 +13,6 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 
     NetworkRunner networkRunner;
 
-    // session lobby
-    string lobbyName = "TestRoom";
     [SerializeField] SessionListUIHandler sessionListUIHandler;
 
     private void Awake() {
@@ -23,9 +21,6 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 
     }
 
-    private void Start() {
-        //networkRunner.JoinSessionLobby(SessionLobby.Shared, lobbyName); // => OnSessionListUpdated()
-    }
 
     public void OnConnectedToServer(NetworkRunner runner) {
         Debug.Log($"___OnConnectedToServer");
@@ -72,7 +67,6 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
             Debug.Log($"Runner.LocalPlayer - {Runner.LocalPlayer}");
 
             Vector3 spawnPosition = Utils.GetRandomSpawnPoint();
-            Debug.Log($"___spawnPos = {spawnPosition}");
 
             NetworkPlayer spawnNetworkPlayer = runner.Spawn(playerPrefab, spawnPosition, Quaternion.identity, player);
             spawnNetworkPlayer.transform.position = spawnPosition;

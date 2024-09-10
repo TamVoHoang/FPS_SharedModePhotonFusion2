@@ -28,8 +28,7 @@ public class NetworkRunnerHandler : MonoBehaviour
 
             //? Neu ko dang o scene mainMenu -> vao thang game
             if(SceneManager.GetActiveScene().name != "MainMenu") {
-                var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, "TestSession", NetAddress.Any(), SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex), null);
-
+                var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, "Test_Session", NetAddress.Any(), SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex), null);
             }
 
             Debug.Log($"___Server NetworkRunner started");
@@ -81,12 +80,12 @@ public class NetworkRunnerHandler : MonoBehaviour
     public void CreateGame(string sessionName, string sceneName) {
         Debug.Log($"Create session {sessionName} scene {sceneName} build Index {SceneUtility.GetBuildIndexByScenePath($"scenes/{sceneName}")}");
         //Join game co san
-        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Host, sessionName, NetAddress.Any(), SceneRef.FromIndex(SceneUtility.GetBuildIndexByScenePath($"scenes/{sceneName}")), null);
+        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionName, NetAddress.Any(), SceneRef.FromIndex(SceneUtility.GetBuildIndexByScenePath($"scenes/{sceneName}")), null);
     }
 
     public void JoinGame(SessionInfo sessionInfo) {
         Debug.Log($"Join session {sessionInfo.Name}");
-        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Client, sessionInfo.Name, NetAddress.Any(), SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex), null);
+        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionInfo.Name, NetAddress.Any(), SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex), null);
 
     }
 }
