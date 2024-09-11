@@ -83,7 +83,6 @@ public class CharacterMovementHandler : NetworkBehaviour
                 Debug.Log($"{Time.time} respawn due to fall {transform.position}");
 
                 //? thong bao khi fall out
-                Debug.Log($"__________________co vao Fall off");
                 networkInGameMessages.SendInGameRPCMessage(networkPlayer.nickName_Network.ToString(), " -> fall off");
                 Respawn();
             }

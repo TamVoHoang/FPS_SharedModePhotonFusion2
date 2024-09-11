@@ -70,6 +70,7 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 
             NetworkPlayer spawnNetworkPlayer = runner.Spawn(playerPrefab, spawnPosition, Quaternion.identity, player);
             spawnNetworkPlayer.transform.position = spawnPosition;
+
         }
     }
 

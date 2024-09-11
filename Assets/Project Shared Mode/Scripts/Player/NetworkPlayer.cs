@@ -1,3 +1,4 @@
+using System.Collections;
 using Fusion;
 using TMPro;
 using UnityEngine;
@@ -8,6 +9,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     // player name
     [Networked]
     public NetworkString<_16> nickName_Network{get; set;} // state authority set bien nay
+
+    [Networked]
+    public bool isPublic {get; set;}
+
     bool isPublicJoinMessageSent = false;
     NetworkInGameMessages networkInGameMessages;
     [SerializeField] TextMeshProUGUI nickName_TM;
@@ -25,7 +30,26 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     private void Awake() {
         localCameraHandler = GetComponentInChildren<LocalCameraHandler>();
         networkInGameMessages = GetComponent<NetworkInGameMessages>();
+    }
 
+    public override void FixedUpdateNetwork()
+    {
+        if(Object.HasStateAuthority) {
+            CheckJoinMessage();
+        }
+            
+    }
+
+
+    void CheckJoinMessage(){
+        if(Input.GetKeyDown(KeyCode.U)) {
+            if(!isPublicJoinMessageSent) {
+                Debug.Log($"__________________co vao join");
+                networkInGameMessages.SendInGameRPCMessage(nickName_Network.ToString(), " -> joined room");
+                isPublicJoinMessageSent = true;
+            }
+        }
+        
     }
 
     //todo nhung thay doi cua bien Network
@@ -45,6 +69,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     {
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
         OnNickNameChanged();// phai co de show ten khi spawn vao world1 scene
+            
+        // khi spawn chan FixUpdateNetwork in CharactermovementHandler run - coll 45 -> player spawn
+        if(Object.HasStateAuthority) {
+            GetComponent<CharacterMovementHandler>().RequestRespawn();
+        }
 
         //? kiem tra co dang spawn tai ready scene hay khong
         bool isReadyScene = SceneManager.GetActiveScene().name == "Ready";
@@ -87,29 +116,25 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
                 Cursor.visible = false;
             }
 
-            // RPC nick_name
             // lay gia tri Gamemanager.playerNickName gan vao
             //RPC_SetNickName(GameManager.Instance.playerNickName);
             RPC_SetNickName(PlayerPrefs.GetString("PlayerNickName_Local"));
 
             //? ko hien playerName cua Local - ko can thay ten minh
             nickName_TM.gameObject.SetActive(false);
-
-            
         }
         else {
             localCameraHandler.localCamera.enabled = false;
             localCameraHandler.gameObject.SetActive(false);
-
             localUI.SetActive(false);
         }
 
-        /* var name = GameManager.Instance.playerNickName; */
-        transform.name = $"P_{Object.Id} -> {nickName_Network.ToString()}";
-        
         //? set player as a player object -> khi player left se chi hien dung ten player roi
         Runner.SetPlayerObject(Object.InputAuthority, Object);
         Debug.Log($"_____________ObjectNetwork = {Object}");
+
+        /* var name = GameManager.Instance.playerNickName; */
+        transform.name = $"P_{Object.Id} -> {nickName_Network.ToString()}";
     }
 
     //? gan nickName_Network cho bien texMeshPro GUI local
@@ -125,6 +150,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         this.nickName_Network = nickName;
 
         //! SEND TO ALL CLIENTS
+        StartCoroutine(Delay());
+    }
+    IEnumerator Delay() {
+        yield return new WaitForSeconds(0.5f);
         if(!isPublicJoinMessageSent) {
             Debug.Log($"__________________co vao join");
             networkInGameMessages.SendInGameRPCMessage(nickName_Network.ToString(), " -> joined room");
@@ -132,21 +161,21 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         }
     }
 
-    void OnDestroy() {
+
+    /* void OnDestroy() {
         // neu this.Object DeSpawn coll 130 - this.Object destroy - se destroy luon localCam cua no
         if(localCameraHandler != null) {
             Debug.Log("SU KIEN ONDESTROY LOCAL CAMERA HANDLER IN NETWORKPLAYER.CS");
             Destroy(localCameraHandler.gameObject);
         }
-
         SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
+    } */
 
-    void OnEnable() {
+    /* void OnEnable() {
         SceneManager.sceneLoaded += OnSceneLoaded;
-    }
+    } */
 
-    void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
+    /* void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
         Debug.Log($"{Time.time} OnSceneLoaded: " + scene.name);
         isPublicJoinMessageSent = false;
         if(scene.name != "Ready") {
@@ -159,11 +188,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
             if(Object.HasStateAuthority)
                 GetComponent<CharacterMovementHandler>().RequestRespawn();
-
         }
-    }
+    } */
 
-    // nut back main menu
+    //? nut back main menu
     public async void ShutdownLeftRoom() {
         await FindObjectOfType<NetworkRunner>().Shutdown();
         SceneManager.LoadScene("MainMenu");
