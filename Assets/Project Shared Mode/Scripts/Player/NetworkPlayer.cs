@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using Fusion;
 using TMPro;
 using UnityEngine;
@@ -14,6 +15,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     public bool isPublic {get; set;}
 
     bool isPublicJoinMessageSent = false;
+
     NetworkInGameMessages networkInGameMessages;
     [SerializeField] TextMeshProUGUI nickName_TM;
     ChangeDetector changeDetector;
@@ -27,32 +29,35 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
     // ui chua crossHair, red image get damage
     [SerializeField] GameObject localUI; // game object = PlayerUICanvas (canvas cua ca player)
+
+    //*  TESTING PLAYER DATA LIST ACTIVE
+    [Networked]
+    [Capacity(10)] // Sets the fixed capacity of the collection
+    [UnitySerializeField] // Show this private property in the inspector.
+    private NetworkDictionary<int, NetworkString<_32>> NetDict => default;
+    //*  TESTING PLAYER DATA LIST ACTIVE
+
     private void Awake() {
         localCameraHandler = GetComponentInChildren<LocalCameraHandler>();
         networkInGameMessages = GetComponent<NetworkInGameMessages>();
     }
 
+    private void Update() {
+        if(Input.GetKeyDown(KeyCode.U)) {
+            PrintActivePlayerList();
+        }
+    }
     public override void FixedUpdateNetwork()
     {
-        if(Object.HasStateAuthority) {
-            CheckJoinMessage();
-        }
-            
+        /* if(Input.GetKeyDown(KeyCode.U)) {
+            PrintActivePlayerList();
+
+            if(Object.HasStateAuthority)
+                StartCoroutine(PlayerLeftRoomManualCO(Object.InputAuthority));
+        } */
     }
 
-
-    void CheckJoinMessage(){
-        if(Input.GetKeyDown(KeyCode.U)) {
-            if(!isPublicJoinMessageSent) {
-                Debug.Log($"__________________co vao join");
-                networkInGameMessages.SendInGameRPCMessage(nickName_Network.ToString(), " -> joined room");
-                isPublicJoinMessageSent = true;
-            }
-        }
-        
-    }
-
-    //todo nhung thay doi cua bien Network
+    //? nhung thay doi cua bien Network
     public override void Render() {
         foreach (var change in changeDetector.DetectChanges(this, out var previousBuffer, out var currentBuffer))
         {
@@ -112,8 +117,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
                 localUI.SetActive(true); // con cua localCamera transform
 
                 //? disable mouse de play
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
+                /* Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false; */
             }
 
             // lay gia tri Gamemanager.playerNickName gan vao
@@ -122,6 +127,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
             //? ko hien playerName cua Local - ko can thay ten minh
             nickName_TM.gameObject.SetActive(false);
+
         }
         else {
             localCameraHandler.localCamera.enabled = false;
@@ -131,7 +137,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
 
         //? set player as a player object -> khi player left se chi hien dung ten player roi
         Runner.SetPlayerObject(Object.InputAuthority, Object);
-        Debug.Log($"_____________ObjectNetwork = {Object}");
+        Debug.Log($"_____Set ObjectNetwork = " + Object.GetComponent<NetworkPlayer>().nickName_Network.ToString());
 
         /* var name = GameManager.Instance.playerNickName; */
         transform.name = $"P_{Object.Id} -> {nickName_Network.ToString()}";
@@ -149,18 +155,49 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         Debug.Log($"[RPC] Set nickName {nickName} for localPlayer");
         this.nickName_Network = nickName;
 
-        //! SEND TO ALL CLIENTS
+        //todo SEND TO ALL CLIENTS
         StartCoroutine(Delay());
+
+        //todo gan playerPref vao trong dictionary
+        NetDict.Add(Object.InputAuthority.PlayerId, nickName_Network.ToString());
     }
     IEnumerator Delay() {
         yield return new WaitForSeconds(0.5f);
         if(!isPublicJoinMessageSent) {
-            Debug.Log($"__________________co vao join");
             networkInGameMessages.SendInGameRPCMessage(nickName_Network.ToString(), " -> joined room");
             isPublicJoinMessageSent = true;
         }
     }
 
+    //? interface IPlayerLeft implement
+    public void PlayerLeft(PlayerRef player) {
+        // thong bao khi roi khoi phong message
+
+        if(Object.HasStateAuthority) {
+            Debug.Log($"________vo kiem tra");
+            Debug.Log($"_____{player.PlayerId}");
+            int key = (int)player.PlayerId;
+            if(NetDict.TryGet(key, out var value)) {
+                networkInGameMessages.SendInGameRPCMessage(value.ToString(), " -> Left");
+                Debug.Log($"_____Player Name Left" + value);
+                NetDict.Remove(player.PlayerId);
+            }
+        }
+        
+        if(player == Object.InputAuthority) {
+            Runner.Despawn(Object);
+            Debug.Log($"___NetworkPlayer Left Room");
+        }
+    }
+
+    IEnumerator PlayerLeftRoomManualCO(PlayerRef player) {
+        yield return new WaitForSeconds(0.1f);
+        if(NetDict.TryGet(player.PlayerId, out var value)) {
+            networkInGameMessages.SendInGameRPCMessage(value.ToString(), " -> Left Maual");
+        }
+
+        //NetDict.Remove(player.PlayerId);
+    }
 
     /* void OnDestroy() {
         // neu this.Object DeSpawn coll 130 - this.Object destroy - se destroy luon localCam cua no
@@ -197,25 +234,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         SceneManager.LoadScene("MainMenu");
     }
 
-    //? interface IPlayerLeft implement
-    public void PlayerLeft(PlayerRef player) {
-        Debug.Log($"___________________PlayerLeft" + player);
-        // thong bao khi roi khoi phong message
-        if(Object.HasStateAuthority) {
-            if(Runner.TryGetPlayerObject(player, out NetworkObject playerLeftNetworkObject)) {
-                if(playerLeftNetworkObject == Object) {
-                    Debug.Log($"__________________co vao left");
-                    Local.GetComponent<NetworkInGameMessages>().SendInGameRPCMessage(playerLeftNetworkObject.GetComponent<NetworkPlayer>()
-                        .nickName_Network.ToString(), " -> Left");
-                }
-            }
-        }
-
-        // Despanw - Destroy khi left
-        if(player == Object.InputAuthority) {
-            Runner.Despawn(Object);
-            Debug.Log($"___NetworkPlayer Left Room");
+    void PrintActivePlayerList() {
+        foreach (var item in NetDict)
+        {
+            Debug.Log($"Player = {item.Key} | name - {item.Value.ToString()}");
         }
     }
-
 }
