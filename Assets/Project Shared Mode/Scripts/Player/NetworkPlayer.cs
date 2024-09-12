@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using Fusion;
 using TMPro;
 using UnityEngine;
@@ -45,16 +44,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     private void Update() {
         if(Input.GetKeyDown(KeyCode.U)) {
             PrintActivePlayerList();
+            StartCoroutine(PlayerLeftRoomManualCO(Object.InputAuthority));
         }
-    }
-    public override void FixedUpdateNetwork()
-    {
-        /* if(Input.GetKeyDown(KeyCode.U)) {
-            PrintActivePlayerList();
-
-            if(Object.HasStateAuthority)
-                StartCoroutine(PlayerLeftRoomManualCO(Object.InputAuthority));
-        } */
     }
 
     //? nhung thay doi cua bien Network
@@ -122,8 +113,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             }
 
             // lay gia tri Gamemanager.playerNickName gan vao
-            //RPC_SetNickName(GameManager.Instance.playerNickName);
-            RPC_SetNickName(PlayerPrefs.GetString("PlayerNickName_Local"));
+            RPC_SetNickName(GameManager.playerNickName);
+            //RPC_SetNickName(PlayerPrefs.GetString("PlayerNickName_Local"));
 
             //? ko hien playerName cua Local - ko can thay ten minh
             nickName_TM.gameObject.SetActive(false);
@@ -172,10 +163,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
     //? interface IPlayerLeft implement
     public void PlayerLeft(PlayerRef player) {
         // thong bao khi roi khoi phong message
-
         if(Object.HasStateAuthority) {
-            Debug.Log($"________vo kiem tra");
-            Debug.Log($"_____{player.PlayerId}");
+            Debug.Log($"_____{player.PlayerId} -> Left");
             int key = (int)player.PlayerId;
             if(NetDict.TryGet(key, out var value)) {
                 networkInGameMessages.SendInGameRPCMessage(value.ToString(), " -> Left");
@@ -196,7 +185,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
             networkInGameMessages.SendInGameRPCMessage(value.ToString(), " -> Left Maual");
         }
 
-        //NetDict.Remove(player.PlayerId);
+        /* NetDict.Remove(player.PlayerId); */
     }
 
     /* void OnDestroy() {
@@ -228,16 +217,17 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft
         }
     } */
 
-    //? nut back main menu
-    public async void ShutdownLeftRoom() {
-        await FindObjectOfType<NetworkRunner>().Shutdown();
-        SceneManager.LoadScene("MainMenu");
-    }
-
     void PrintActivePlayerList() {
         foreach (var item in NetDict)
         {
             Debug.Log($"Player = {item.Key} | name - {item.Value.ToString()}");
         }
     }
+
+    //? nut back main menu
+    public async void ShutdownLeftRoom() {
+        await FindObjectOfType<NetworkRunner>().Shutdown();
+        SceneManager.LoadScene("MainMenu");
+    }
+
 }

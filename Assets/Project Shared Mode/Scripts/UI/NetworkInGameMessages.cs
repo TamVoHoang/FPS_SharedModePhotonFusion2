@@ -27,6 +27,6 @@ public class NetworkInGameMessages : NetworkBehaviour
         if(inGameMessagesUIHandler != null) {
             inGameMessagesUIHandler.OnGameMessageRecieved(message);
         }
+        
     }
-
 }

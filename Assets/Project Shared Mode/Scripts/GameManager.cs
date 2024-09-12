@@ -1,16 +1,8 @@
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public static class GameManager
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    // mainmenu input file nickName gan vao day -> khi spawn this.nickName gan cho RPC_SetNickName() coll 63 NetworkPlayer
+    public static string playerNickName = "";
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

@@ -24,16 +24,38 @@ public class NetworkRunnerHandler : MonoBehaviour
         if(networkRunner == null) // neu ko co networkRunner duoc tim thay tai mainmenu scene thi se dung PF
         {
             networkRunner = Instantiate(networkRunnerPF);
-            networkRunner.name = "Network runner";
+            networkRunner.name = "Network Runner";
 
             //? Neu ko dang o scene mainMenu -> vao thang game
             if(SceneManager.GetActiveScene().name != "MainMenu") {
                 var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, "Test_Session", NetAddress.Any(), SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex), null);
+                //ConnectToSession(networkRunner, GameMode.Shared, "Room", SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex));
+                //ConnectToLobby("Lobby");
             }
 
-            Debug.Log($"___Server NetworkRunner started");
+            Debug.Log($"_____Server NetworkRunner started");
         }
     }
+    
+    //! testing
+    // tao Lobby
+    void ConnectToLobby(string lobbyName) {
+        networkRunner.JoinSessionLobby(SessionLobby.Shared, lobbyName);
+    }
+
+    // this.networkRunner = Instantiate networkRunnerPF (spawner.cs) -> instantiate networkPlayer(nhan vat)
+    async void ConnectToSession(NetworkRunner runner, GameMode gameMode, string sessionName, SceneRef scene) {
+        var sceneManager = GetSceneManager(runner);
+        await runner.StartGame(new StartGameArgs()
+        {
+            GameMode = gameMode,
+            SessionName = sessionName,
+            Scene = scene,
+            PlayerCount = 5,
+            SceneManager = sceneManager
+        });
+    }
+    //! testing
     
     INetworkSceneManager GetSceneManager(NetworkRunner runner) {
         var sceneManager = runner.GetComponents(typeof(MonoBehaviour)).OfType<INetworkSceneManager>().FirstOrDefault();

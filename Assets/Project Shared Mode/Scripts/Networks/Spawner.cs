@@ -8,19 +8,22 @@ using UnityEngine.SceneManagement;
 
 public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 {
-    public GameObject PlayerPrefabGO;
-    public NetworkPlayer playerPrefab;
+    [SerializeField] SessionListUIHandler sessionListUIHandler;
+    //public GameObject PlayerPrefabGO;
+    [SerializeField] NetworkPlayer networkPlayerPrefab;
 
     NetworkRunner networkRunner;
 
-    [SerializeField] SessionListUIHandler sessionListUIHandler;
+
+    //! testing
+    List<SessionInfo> _sessionsList = new List<SessionInfo>();
+    //
 
     private void Awake() {
         networkRunner = GetComponent<NetworkRunner>();
         sessionListUIHandler = FindObjectOfType<SessionListUIHandler>(true);
 
     }
-
 
     public void OnConnectedToServer(NetworkRunner runner) {
         Debug.Log($"___OnConnectedToServer");
@@ -68,9 +71,8 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 
             Vector3 spawnPosition = Utils.GetRandomSpawnPoint();
 
-            NetworkPlayer spawnNetworkPlayer = runner.Spawn(playerPrefab, spawnPosition, Quaternion.identity, player);
+            NetworkPlayer spawnNetworkPlayer = runner.Spawn(networkPlayerPrefab, spawnPosition, Quaternion.identity, player);
             spawnNetworkPlayer.transform.position = spawnPosition;
-
         }
     }
 
@@ -96,9 +98,31 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 
 
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) {
-        Debug.Log($"Session is updated");
+        //! testing
+        this._sessionsList.Clear();
+        this._sessionsList = sessionList;
+        sessionListUIHandler.SessionList = sessionList;
+        //
 
+        Debug.Log($"Session is updated ");
+        if(sessionListUIHandler == null) return;
+        
+        if(sessionList.Count == 0) {
+            Debug.Log("Joined lobby NO session found _ OnSessionListUpdated() Spanwer.cs");
+            sessionListUIHandler.OnNoSessionFound();
+        }
+        else {
+            sessionListUIHandler.ClearList();
 
+            foreach (SessionInfo sessionInfo in sessionList)
+            {
+                sessionListUIHandler.AddToList(sessionInfo);
+                Debug.Log($"sessionName: {sessionInfo.Name} playerCount: {sessionInfo.PlayerCount}");
+            }
+        }
+
+        // sau khi update kiem tra room list -> hien thi nut tao session
+        sessionListUIHandler.ActiveOnCreateSesison_Button();
     }
 
 

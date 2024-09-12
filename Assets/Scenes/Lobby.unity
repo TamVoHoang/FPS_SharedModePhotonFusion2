@@ -378,8 +378,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   createSessionRandom: {fileID: 0}
   sessionListContenParent: {fileID: 1753109116}
-  sessionlistEntryPF: {fileID: 1841863406899977581, guid: b38af91157090de40a1a74c5f3a5b887, type: 3}
-  gamePlayScene: {fileID: 102900000, guid: 9fc0d4010bbf28b4594072e72b8655ab, type: 3}
+  SessionInfoUIListItem: {fileID: 0}
 --- !u!1 &438666930
 GameObject:
   m_ObjectHideFlags: 0
@@ -557,7 +556,7 @@ GameObject:
   - component: {fileID: 741538533}
   - component: {fileID: 741538532}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: Canvas_Lobby_UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1082,7 +1081,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 320.3035}
+  m_AnchoredPosition: {x: 0, y: 320.30344}
   m_SizeDelta: {x: 0, y: 600}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1753109117

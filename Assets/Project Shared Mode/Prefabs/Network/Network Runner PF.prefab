@@ -57,7 +57,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5cc3fa043012242be38bcec4025aa4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerPrefabGO: {fileID: 7314756524467492152, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
-  playerPrefab: {fileID: 8046501135343815372, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
-  lobbyScene: {fileID: 102900000, guid: 8f0401998afbd8845b09c6e72465228d, type: 3}
   sessionListUIHandler: {fileID: 0}
+  networkPlayerPrefab: {fileID: 8046501135343815372, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
