@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Fusion;
 using TMPro;
 using UnityEngine;
@@ -19,19 +18,14 @@ public class SessionListUIHandler : MonoBehaviour
     [SerializeField] List<SessionInfo> sessionList = new List<SessionInfo>();
 
     public List<SessionInfo> SessionList{set => this.sessionList = value; }
+
     private void Awake() {
         ClearList();
 
         OnCreateSesison_Button.interactable = false;
 
         OnRefresh_Button.onClick.AddListener(OnRefreshSessionsListClicked);
-    }
 
-    private void Update() {
-        if(Input.GetKeyDown(KeyCode.F)) {
-            int sessionsCount = sessionList.Count();
-            Debug.Log($"_____SessionsCount = {sessionsCount}");
-        }
     }
 
     //moi lan update se clear va instantiate PF
@@ -49,6 +43,14 @@ public class SessionListUIHandler : MonoBehaviour
         SessionInfoUIListItem sessionInfoUIListItem = Instantiate(sessionItemListPF, verticalLayoutGroup.transform).GetComponent<SessionInfoUIListItem>();
         
         sessionInfoUIListItem.SetInfomation(sessionInfo); //=> dung sessionInfo show name, count, active JoinButton
+
+        //todo neu sessionInfo lock || having enough active Players => now showing joinButton
+        /* if(sessionInfo.IsOpen == false || sessionInfo.PlayerCount >= sessionInfo.MaxPlayers) {
+            sessionInfoUIListItem.joinButton.interactable = false;
+        }
+        else {
+            sessionInfoUIListItem.joinButton.interactable = true;
+        } */
 
         // gan dc ham Action<SessionInfo> OnJoinSession coll 19 | Onclick() coll 35 se goi ham nay chay
         sessionInfoUIListItem.OnJoinSession += AddedSessionInfoListUIItem_OnJoinSession;
@@ -81,7 +83,15 @@ public class SessionListUIHandler : MonoBehaviour
 
     public void ActiveOnCreateSesison_Button() => OnCreateSesison_Button.interactable = true;
 
+
+    //todo do again OnFindGameClicked() MainMenuUIHandler.cs row 68
     void OnRefreshSessionsListClicked() {
+        OnLookingForGameSessions();    // xoa list session - hien chu looking
+        NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
+        networkRunnerHandler.OnJoinLobby();
+        
+        int sessionsCount = sessionList.Count;
+        Debug.Log($"_____SessionsCount = {sessionsCount}");
 
     }
 }

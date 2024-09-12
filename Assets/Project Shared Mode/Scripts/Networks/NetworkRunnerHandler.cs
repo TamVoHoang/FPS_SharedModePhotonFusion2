@@ -74,11 +74,9 @@ public class NetworkRunnerHandler : MonoBehaviour
             Address = address,
             Scene = scene,
 
-            //SessionName = "Test Room", // vao thang ko can sessionInfo
             SessionName = sessionName,
             CustomLobbyName = "OurLobbyID",
-
-            /* Initialized = initialized, */
+            PlayerCount = 10,
             SceneManager = sceneManager,
         });
     }
@@ -101,6 +99,7 @@ public class NetworkRunnerHandler : MonoBehaviour
     }
     public void CreateGame(string sessionName, string sceneName) {
         Debug.Log($"Create session {sessionName} scene {sceneName} build Index {SceneUtility.GetBuildIndexByScenePath($"scenes/{sceneName}")}");
+        
         //Join game co san
         var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionName, NetAddress.Any(), SceneRef.FromIndex(SceneUtility.GetBuildIndexByScenePath($"scenes/{sceneName}")), null);
     }

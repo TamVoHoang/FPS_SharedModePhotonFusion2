@@ -34,6 +34,7 @@ public class SessionInfoUIListItem : MonoBehaviour
 
         bool isJoinButtonActice = true; // enable JoinButton
 
+        //todo neu sessionInfo lock || having enough active Players => now showing joinButton
         if(sessionInfo.PlayerCount >= sessionInfo.MaxPlayers || sessionInfo.IsOpen == false)
             isJoinButtonActice = false;
 

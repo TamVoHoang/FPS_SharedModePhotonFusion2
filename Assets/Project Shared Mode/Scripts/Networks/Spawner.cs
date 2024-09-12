@@ -98,17 +98,15 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 
 
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) {
-        //! testing
-        this._sessionsList.Clear();
-        this._sessionsList = sessionList;
+        //todo testing
         sessionListUIHandler.SessionList = sessionList;
         //
 
-        Debug.Log($"Session is updated ");
+        Debug.Log($"_____Session is updated ");
         if(sessionListUIHandler == null) return;
         
         if(sessionList.Count == 0) {
-            Debug.Log("Joined lobby NO session found _ OnSessionListUpdated() Spanwer.cs");
+            Debug.Log("Joined Lobby NO session found _ OnSessionListUpdated() Spanwer.cs");
             sessionListUIHandler.OnNoSessionFound();
         }
         else {
@@ -118,6 +116,7 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
             {
                 sessionListUIHandler.AddToList(sessionInfo);
                 Debug.Log($"sessionName: {sessionInfo.Name} playerCount: {sessionInfo.PlayerCount}");
+                
             }
         }
 

@@ -2259,31 +2259,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 920500755}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 998901786}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 1493779127}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &920500755
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2436,7 +2412,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: BLAZE BATTLE
+  m_text: BLAZE BATTLEFIELD
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2744,7 +2720,7 @@ MonoBehaviour:
   statusText: {fileID: 2139394551}
   sessionItemListPF: {fileID: 3681355977236125370, guid: efa6e5d43549ae0468d51ec90fe3b556, type: 3}
   OnCreateSesison_Button: {fileID: 64749230}
-  OnRefresh_Button: {fileID: 0}
+  OnRefresh_Button: {fileID: 920500754}
 --- !u!1 &1048960024
 GameObject:
   m_ObjectHideFlags: 0
