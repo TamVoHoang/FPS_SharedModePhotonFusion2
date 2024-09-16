@@ -14,11 +14,6 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 
     NetworkRunner networkRunner;
 
-
-    //! testing
-    List<SessionInfo> _sessionsList = new List<SessionInfo>();
-    //
-
     private void Awake() {
         networkRunner = GetComponent<NetworkRunner>();
         sessionListUIHandler = FindObjectOfType<SessionListUIHandler>(true);
@@ -96,7 +91,6 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
         
     }
 
-
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) {
         //todo testing
         sessionListUIHandler.SessionList = sessionList;
@@ -116,12 +110,12 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
             {
                 sessionListUIHandler.AddToList(sessionInfo);
                 Debug.Log($"sessionName: {sessionInfo.Name} playerCount: {sessionInfo.PlayerCount}");
-                
             }
         }
 
         // sau khi update kiem tra room list -> hien thi nut tao session
         sessionListUIHandler.ActiveOnCreateSesison_Button();
+
     }
 
 

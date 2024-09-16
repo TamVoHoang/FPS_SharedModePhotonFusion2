@@ -89,7 +89,7 @@ public class NetworkRunnerHandler : MonoBehaviour
         Debug.Log("JoinLobby started");
 
         string lobbyID = "OurLobbyID";
-        var result = await networkRunner.JoinSessionLobby(SessionLobby.Custom, lobbyID);
+        var result = await networkRunner.JoinSessionLobby(SessionLobby.Shared, lobbyID);
 
         if(!result.Ok) {
             Debug.Log($"Can Not Join Lobby {lobbyID}");

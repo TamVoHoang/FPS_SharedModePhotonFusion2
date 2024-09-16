@@ -442,9 +442,73 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a5cc3fa043012242be38bcec4025aa4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerPrefabGO: {fileID: 0}
-  playerPrefab: {fileID: 0}
   sessionListUIHandler: {fileID: 0}
+  networkPlayerPrefab: {fileID: 0}
+--- !u!1 &631911066
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 631911068}
+  - component: {fileID: 631911067}
+  - component: {fileID: 631911069}
+  m_Layer: 0
+  m_Name: ActivePlayerDic
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &631911067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 631911066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64ef12ce921aadf4a9f80d2a2a324a96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _NetDict:
+    _items: []
+--- !u!4 &631911068
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 631911066}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &631911069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 631911066}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SortKey: 3966745305
+  ObjectInterest: 1
+  Flags: 262145
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 631911067}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -7359,3 +7423,4 @@ SceneRoots:
   - {fileID: 8345070699672790947}
   - {fileID: 7004140075556567167}
   - {fileID: 1898945640}
+  - {fileID: 631911068}
