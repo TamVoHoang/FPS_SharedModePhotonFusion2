@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public static class Utils
 {
     //random spawnPoint Player
     public static Vector3 GetRandomSpawnPoint() {
-        return new Vector3(Random.Range(-10, 18), 5, Random.Range(0, 5));
+        return new Vector3(Random.Range(-10, 10), 5, Random.Range(0, 5));
     }
 
     // random spawnPoint Weapons

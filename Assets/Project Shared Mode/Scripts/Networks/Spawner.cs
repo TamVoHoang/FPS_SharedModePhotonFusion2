@@ -2,22 +2,29 @@ using System;
 using System.Collections.Generic;
 using Fusion;
 using Fusion.Sockets;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 {
     [SerializeField] SessionListUIHandler sessionListUIHandler;
+    [SerializeField] MainMenuUIHandler mainMenuUIHandler;
+
     //public GameObject PlayerPrefabGO;
     [SerializeField] NetworkPlayer networkPlayerPrefab;
 
-    NetworkRunner networkRunner;
+    //NetworkRunner networkRunner;
+    public string customLobbyName;  // game type
+    [SerializeField] string sceneName;
+    public string SceneName { get { return sceneName; } set { sceneName = value; } }
+
 
     private void Awake() {
-        networkRunner = GetComponent<NetworkRunner>();
+        //networkRunner = GetComponent<NetworkRunner>();
         sessionListUIHandler = FindObjectOfType<SessionListUIHandler>(true);
+        mainMenuUIHandler = FindObjectOfType<MainMenuUIHandler>(true);
 
+        customLobbyName = "OurLobbyID";
+        sceneName = "World1";
     }
 
     public void OnConnectedToServer(NetworkRunner runner) {
@@ -66,9 +73,20 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 
             Vector3 spawnPosition = Utils.GetRandomSpawnPoint();
 
-            NetworkPlayer spawnNetworkPlayer = runner.Spawn(networkPlayerPrefab, spawnPosition, Quaternion.identity, player);
+            NetworkPlayer spawnNetworkPlayer = runner.Spawn(networkPlayerPrefab, spawnPosition, Quaternion.identity, player, InitializeNetworkPlayerBeforeSpawn);
             spawnNetworkPlayer.transform.position = spawnPosition;
         }
+    }
+
+    private void InitializeNetworkPlayerBeforeSpawn(NetworkRunner runner, NetworkObject obj)
+    {
+        NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
+        if(customLobbyName == "OurLobbyID_Team") {
+            Debug.Log($"_____co vao xet bool isEnemy in NetworkPlayer.cs");
+            bool randomBool = UnityEngine.Random.value > 0.5f;
+            obj.GetComponent<NetworkPlayer>().IsEnemy = randomBool;
+        }
+        
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) {
@@ -92,9 +110,11 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
     }
 
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) {
+
         //todo testing
         sessionListUIHandler.SessionList = sessionList;
-        //
+        mainMenuUIHandler.SessionList = sessionList;
+        //todo testing
 
         Debug.Log($"_____Session is updated ");
         if(sessionListUIHandler == null) return;

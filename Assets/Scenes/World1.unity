@@ -443,6 +443,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sessionListUIHandler: {fileID: 0}
+  mainMenuUIHandler: {fileID: 0}
   networkPlayerPrefab: {fileID: 0}
 --- !u!1 &631911066
 GameObject:

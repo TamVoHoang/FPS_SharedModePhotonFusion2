@@ -10,6 +10,8 @@ public class SessionInfoUIListItem : MonoBehaviour
 {
     // session list panel
     [SerializeField] TextMeshProUGUI sessionNameText;
+    [SerializeField] TextMeshProUGUI sceneNameText;
+
     [SerializeField] TextMeshProUGUI playerCountText;
     public Button joinButton;
 

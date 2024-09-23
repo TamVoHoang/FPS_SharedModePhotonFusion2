@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 using Fusion;
 using TMPro;
+using System;
 
 public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 {
@@ -33,6 +34,13 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     NetworkDictionary<int, NetworkString<_32>> NetDict => default;
     Dictionary<int, string> LocalDict = new Dictionary<int, string>();
 
+    // TEAM
+    bool isEnemy;
+    public bool IsEnemy {get => isEnemy; set {isEnemy = value;}}
+
+    [Networked]
+    public NetworkBool isEnemy_Network{ get; set; }
+
     private void Awake() {
         localCameraHandler = GetComponentInChildren<LocalCameraHandler>();
         networkInGameMessages = GetComponent<NetworkInGameMessages>();
@@ -54,6 +62,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
                 case nameof(nickName_Network):
                     OnNickNameChanged();
                     break;
+                case nameof(isEnemy_Network):
+                    OnIsEnemyChanged();
+                    break;
             }
         }
     }
@@ -61,7 +72,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     public override void Spawned()
     {
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
-        OnNickNameChanged();// phai co de show ten khi spawn vao world1 scene
+        OnNickNameChanged();//? phai co de show ten khi spawn vao world1 scene
+        OnIsEnemyChanged();
         
         // khi spawn chan FixUpdateNetwork in CharactermovementHandler run - coll 45 -> player spawn
         if(Object.HasStateAuthority) {
@@ -111,6 +123,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
             // lay gia tri Gamemanager.playerNickName gan vao
             RPC_SetNickName(GameManager.playerNickName);
+            RPC_SetIsEnemyChanged(isEnemy);
             /* RPC_SetNickName(PlayerPrefs.GetString("PlayerNickName_Local")); */
             /* Runner.SetPlayerObject(Object.InputAuthority, Object); */
 
@@ -141,6 +154,13 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
         nickName_TM.text = nickName_Network.ToString();
     }
 
+    private void OnIsEnemyChanged()
+    {
+        if(isEnemy_Network) {
+            nickName_TM.color = Color.red;
+        } else nickName_TM.color = Color.green;
+    }
+
     //? phuong thuc de local player send data cua rieng no len stateAuthority
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     public void RPC_SetNickName(string nickName, RpcInfo info = default) {
@@ -150,6 +170,12 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
         //todo SEND TO ALL CLIENTS
         StartCoroutine(SendPlayerNameJointToAllCO());
     }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    void RPC_SetIsEnemyChanged(bool isEnemy, RpcInfo rpcInfo= default) {
+        this.isEnemy_Network = isEnemy;
+    }
+
 
     //? Add activePlayer into NetDict
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
@@ -170,7 +196,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     public void PlayerLeft(PlayerRef player) {
         // thong bao khi roi khoi phong message
         if(Object.HasStateAuthority) {
-            Debug.Log($"_____{player.PlayerId} -> Left | name = {LocalDict[player.PlayerId]}");
+            //Debug.Log($"_____{player.PlayerId} -> Left | name = {LocalDict[player.PlayerId]}");
 
 
         }
@@ -196,13 +222,13 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
             Destroy(localCameraHandler.gameObject);
         }
         SceneManager.sceneLoaded -= OnSceneLoaded;
-    } */
+    }
 
-    /* void OnEnable() {
+    void OnEnable() {
         SceneManager.sceneLoaded += OnSceneLoaded;
-    } */
+    }
 
-    /* void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
         Debug.Log($"{Time.time} OnSceneLoaded: " + scene.name);
         isPublicJoinMessageSent = false;
         if(scene.name != "Ready") {

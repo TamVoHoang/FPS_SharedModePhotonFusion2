@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Fusion;
 using TMPro;
@@ -18,6 +19,9 @@ public class SessionListUIHandler : MonoBehaviour
     [SerializeField] List<SessionInfo> sessionList = new List<SessionInfo>();
 
     public List<SessionInfo> SessionList{set => this.sessionList = value; }
+    SessionInfo sessionInfo;
+    //others
+    [SerializeField] Button OnQuickPlayClick_Button;
 
     private void Awake() {
         ClearList();
@@ -25,6 +29,7 @@ public class SessionListUIHandler : MonoBehaviour
         OnCreateSesison_Button.interactable = false;
 
         OnRefresh_Button.onClick.AddListener(OnRefreshSessionsListClicked);
+        OnQuickPlayClick_Button.onClick.AddListener(OnQuickPlayClicked);
 
     }
 
@@ -60,7 +65,8 @@ public class SessionListUIHandler : MonoBehaviour
     private void AddedSessionInfoListUIItem_OnJoinSession(SessionInfo sessionInfo)
     {
         NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
-        networkRunnerHandler.JoinGame(sessionInfo);
+        Spawner spawner = FindObjectOfType<Spawner>();
+        networkRunnerHandler.JoinGame(sessionInfo, spawner.customLobbyName);
 
         MainMenuUIHandler mainMenuUIHandler = FindObjectOfType<MainMenuUIHandler>();
         mainMenuUIHandler.OnJoiningServer();
@@ -83,15 +89,55 @@ public class SessionListUIHandler : MonoBehaviour
 
     public void ActiveOnCreateSesison_Button() => OnCreateSesison_Button.interactable = true;
 
-
     //todo do again OnFindGameClicked() MainMenuUIHandler.cs row 68
     void OnRefreshSessionsListClicked() {
         OnLookingForGameSessions();    // xoa list session - hien chu looking
+        /* NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
+        networkRunnerHandler.OnJoinLobby();
+        
+        int sessionsCount = sessionList.Count;
+        Debug.Log($"_____SessionsCount = {sessionsCount}"); */
+
+        StartCoroutine(Delay(2));
+    }
+
+    IEnumerator Delay(float time) {
+        yield return new WaitForSeconds(time);
         NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
         networkRunnerHandler.OnJoinLobby();
         
         int sessionsCount = sessionList.Count;
         Debug.Log($"_____SessionsCount = {sessionsCount}");
+    }
 
+    private void OnQuickPlayClicked()
+    {
+        NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
+        //networkRunnerHandler.OnJoinLobby();
+
+        // auto tim sessionInfo trong update sessionList spawner.cs
+
+        /* foreach (var item in sessionList)
+        {
+            if(item.IsOpen && item.PlayerCount < item.MaxPlayers) {
+                sessionInfo = item;
+            }
+        } */
+
+        sessionInfo = GetRandomSesisonInfo();
+        if(sessionInfo != null) {
+            Spawner spawner = FindObjectOfType<Spawner>();
+            networkRunnerHandler.JoinGame(sessionInfo, spawner.customLobbyName);
+        }
+    }
+
+    SessionInfo GetRandomSesisonInfo() {
+        foreach (var item in sessionList)
+        {
+            if(item.IsOpen && item.PlayerCount < item.MaxPlayers) {
+                return item;
+            }
+        }
+        return null;
     }
 }
