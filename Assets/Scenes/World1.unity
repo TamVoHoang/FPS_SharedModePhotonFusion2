@@ -445,6 +445,8 @@ MonoBehaviour:
   sessionListUIHandler: {fileID: 0}
   mainMenuUIHandler: {fileID: 0}
   networkPlayerPrefab: {fileID: 0}
+  customLobbyName: 
+  sceneName: 
 --- !u!1 &631911066
 GameObject:
   m_ObjectHideFlags: 0

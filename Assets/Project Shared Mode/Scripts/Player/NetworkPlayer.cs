@@ -41,9 +41,17 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     [Networked]
     public NetworkBool isEnemy_Network{ get; set; }
 
+    // Spanwer -> set this.networkRunner and this.scenetoStart
+    NetworkRunner networkRunner;
+    public NetworkRunner NetworkRunner{get => networkRunner;}
+    [SerializeField] string sceneToStart;
+    public string SceneToStart { get => sceneToStart;}
+
     private void Awake() {
         localCameraHandler = GetComponentInChildren<LocalCameraHandler>();
         networkInGameMessages = GetComponent<NetworkInGameMessages>();
+
+        DontDestroyOnLoad(this.gameObject);
     }
 
     private void Update() {
@@ -76,9 +84,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
         OnIsEnemyChanged();
         
         // khi spawn chan FixUpdateNetwork in CharactermovementHandler run - coll 45 -> player spawn
-        if(Object.HasStateAuthority) {
+        /* if(Object.HasStateAuthority) {
             GetComponent<CharacterMovementHandler>().RequestRespawn();
-        }
+        } */
 
         // kiem tra co dang spawn tai ready scene hay khong
         bool isReadyScene = SceneManager.GetActiveScene().name == "Ready";
@@ -127,11 +135,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
             /* RPC_SetNickName(PlayerPrefs.GetString("PlayerNickName_Local")); */
             /* Runner.SetPlayerObject(Object.InputAuthority, Object); */
 
-            //todo gan playerPref vao trong dictionary
+            // gan playerPref vao trong dictionary
             NetDict.Add(Object.InputAuthority.PlayerId, nickName_Network.ToString());
             /* RPC_SendNetDict(Object.InputAuthority.PlayerId, nickName_Network.ToString()); */
 
-            //? ko hien playerName cua Local - ko can thay ten minh
+            // ko hien playerName cua Local - ko can thay ten minh
             nickName_TM.gameObject.SetActive(false);
         }
         else {
@@ -197,8 +205,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
         // thong bao khi roi khoi phong message
         if(Object.HasStateAuthority) {
             //Debug.Log($"_____{player.PlayerId} -> Left | name = {LocalDict[player.PlayerId]}");
-
-
         }
         
         if(player == Object.InputAuthority) {
@@ -215,7 +221,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
         }
     }
 
-    /* void OnDestroy() {
+    void OnDestroy() {
         // neu this.Object DeSpawn coll 130 - this.Object destroy - se destroy luon localCam cua no
         if(localCameraHandler != null) {
             Debug.Log("SU KIEN ONDESTROY LOCAL CAMERA HANDLER IN NETWORKPLAYER.CS");
@@ -238,11 +244,12 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
             if(Object.HasStateAuthority && Object.HasInputAuthority) {
                 Spawned();
             }
+            
 
             if(Object.HasStateAuthority)
                 GetComponent<CharacterMovementHandler>().RequestRespawn();
         }
-    } */
+    }
 
     //? nut back main menu
     public async void ShutdownLeftRoom() {
@@ -261,4 +268,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
         }
     }
 
+    public void SetNetworkRunnerAndSceneToStart(NetworkRunner networkRunner, string scene) {
+        this.networkRunner = networkRunner;
+        this.sceneToStart = scene;
+    }
 }

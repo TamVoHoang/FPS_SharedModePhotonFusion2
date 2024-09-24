@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Fusion;
 using Fusion.Sockets;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 {
@@ -71,10 +72,31 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
             Debug.Log($"playerRef - {player}");
             Debug.Log($"Runner.LocalPlayer - {Runner.LocalPlayer}");
 
+            //? kiem tra co dang spawn tai ready scene hay khong
+            bool isReadyScene = SceneManager.GetActiveScene().name == "Ready";
             Vector3 spawnPosition = Utils.GetRandomSpawnPoint();
+
+            if(isReadyScene) {
+                if(player.PlayerId == 1) {
+                    spawnPosition = new Vector3(0 , 3, 0);
+                    ReadyUIHandler readyUIHandler = FindObjectOfType<ReadyUIHandler>();
+                    readyUIHandler.SetOnLeaveButtonActive(false);
+                    Debug.Log($"Host was Joint  {player.PlayerId} | {spawnPosition}");
+                } else if(player.PlayerId % 2 == 0) {
+                    spawnPosition = new Vector3(player.PlayerId * -0.5f, 3, 0);
+                    Debug.Log($"Client was Joint  {player.PlayerId} | {spawnPosition}");
+                } else if(player.PlayerId % 2 != 0) {
+                    spawnPosition = new Vector3(player.PlayerId * 0.5f - 0.5f, 3, 0);
+                }
+            }
 
             NetworkPlayer spawnNetworkPlayer = runner.Spawn(networkPlayerPrefab, spawnPosition, Quaternion.identity, player, InitializeNetworkPlayerBeforeSpawn);
             spawnNetworkPlayer.transform.position = spawnPosition;
+
+            // gan networkRunner cho NetworkPalyer
+            if(runner.IsSharedModeMasterClient)
+                networkPlayerPrefab.GetComponent<NetworkPlayer>().SetNetworkRunnerAndSceneToStart(runner, this.sceneName);
+            
         }
     }
 
