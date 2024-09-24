@@ -27,6 +27,7 @@ public class ReadyUIHandler : NetworkBehaviour
     ChangeDetector changeDetector;
     
     string sceneToStart;
+
     private void Awake() {
         OnReadyClick_Button.onClick.AddListener(OnReadyClicked);
         OnLeaveClick_Button.onClick.AddListener(OnLeaveReadyRoomButtonClicked);
@@ -89,11 +90,11 @@ public class ReadyUIHandler : NetworkBehaviour
         // khoa session de ko ai vao khi da ready va vao tran dau
         Runner.SessionInfo.IsOpen = false;
 
-        //! ko xoa tag Player khi loadScene
+        //! ko xoa tag Player khi loadScene -> shared mode dang ko chay
         GameObject[] gameObjectsToTransfer = GameObject.FindGameObjectsWithTag("Player");
         foreach (var item in gameObjectsToTransfer) {
             // ko xoa khi load scene
-            DontDestroyOnLoad(item);
+            //DontDestroyOnLoad(item);
             
             // thong bao rpc isReady - set active readyImage
             /* if(!item.GetComponent<CharacterOutfitHandler>().isDoneWithCharacterSelection) {

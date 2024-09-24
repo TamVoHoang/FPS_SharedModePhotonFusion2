@@ -32,6 +32,7 @@ public class SessionInfoUIListItem : MonoBehaviour
     public void SetInfomation(SessionInfo sessionInfo) {
         this.sessionInfo = sessionInfo;
         sessionNameText.text = sessionInfo.Name;
+        //sceneNameText.text = sceneName;
         playerCountText.text = $"{sessionInfo.PlayerCount.ToString()}/{sessionInfo.MaxPlayers.ToString()}";
 
         bool isJoinButtonActice = true; // enable JoinButton

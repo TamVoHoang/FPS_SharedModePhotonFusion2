@@ -22,6 +22,8 @@ public class SessionListUIHandler : MonoBehaviour
     SessionInfo sessionInfo;
     //others
     [SerializeField] Button OnQuickPlayClick_Button;
+    // panel thong bao dang vao game Finding Room ...
+    public GameObject findingRoomPanel;
 
     private void Awake() {
         ClearList();
@@ -124,11 +126,13 @@ public class SessionListUIHandler : MonoBehaviour
             }
         } */
 
-        sessionInfo = GetRandomSesisonInfo();
-        if(sessionInfo != null) {
-            Spawner spawner = FindObjectOfType<Spawner>();
-            networkRunnerHandler.JoinGame(sessionInfo, spawner.customLobbyName);
-        }
+        // sessionInfo = GetRandomSesisonInfo();
+        // if(sessionInfo != null) {
+        //     Spawner spawner = FindObjectOfType<Spawner>();
+        //     networkRunnerHandler.JoinGame(sessionInfo, spawner.customLobbyName);
+        // }
+
+        StartCoroutine(DelayStartRandom(3));
     }
 
     SessionInfo GetRandomSesisonInfo() {
@@ -139,5 +143,30 @@ public class SessionListUIHandler : MonoBehaviour
             }
         }
         return null;
+    }
+
+    IEnumerator DelayStartRandom(float time) {
+        //statusPanel.gameObject.SetActive(true);
+        findingRoomPanel.gameObject.SetActive(true);
+        statusText.gameObject.SetActive(false);
+
+        NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
+        networkRunnerHandler.OnJoinLobby();
+
+        yield return new WaitForSeconds(time);
+        var sessionInfo = GetRandomSesisonInfo();
+        var spawner = FindObjectOfType<Spawner>();
+        if(sessionInfo != null) {
+            statusText.text = $"Join session {sessionInfo.Name}";
+            statusText.gameObject.SetActive(true);
+            networkRunnerHandler.JoinGame(sessionInfo, spawner.customLobbyName);
+        }
+        else {
+            statusText.text = "No sessison to join";
+            statusText.gameObject.SetActive(true);
+        }
+        
+        findingRoomPanel.gameObject.SetActive(false);
+        //statusPanel.gameObject.SetActive(false);
     }
 }

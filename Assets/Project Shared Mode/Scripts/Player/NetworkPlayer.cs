@@ -35,15 +35,15 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     Dictionary<int, string> LocalDict = new Dictionary<int, string>();
 
     // TEAM
-    bool isEnemy;
+    [SerializeField] bool isEnemy;
     public bool IsEnemy {get => isEnemy; set {isEnemy = value;}}
 
     [Networked]
     public NetworkBool isEnemy_Network{ get; set; }
 
     // Spanwer -> set this.networkRunner and this.scenetoStart
-    NetworkRunner networkRunner;
-    public NetworkRunner NetworkRunner{get => networkRunner;}
+    /* NetworkRunner networkRunner;
+    public NetworkRunner NetworkRunner{get => networkRunner;} */
     [SerializeField] string sceneToStart;
     public string SceneToStart { get => sceneToStart;}
 
@@ -104,6 +104,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
                 // OF localPlayer UI
                 localUI.SetActive(false);
 
+                // ON hien nickName if readyScene
+                nickName_TM.gameObject.SetActive(true);
+
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
             }
@@ -124,6 +127,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
                 //? bat local UI | canvas cua ca local player(crossHair, onDamageImage, messages rpc send)
                 localUI.SetActive(true); // con cua localCamera transform
 
+                //? KO hien nickName if ko dang o readyScene
+                nickName_TM.gameObject.SetActive(false);
+
                 //? disable mouse de play
                 /* Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false; */
@@ -131,16 +137,22 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
             // lay gia tri Gamemanager.playerNickName gan vao
             RPC_SetNickName(GameManager.playerNickName);
-            RPC_SetIsEnemyChanged(isEnemy);
             /* RPC_SetNickName(PlayerPrefs.GetString("PlayerNickName_Local")); */
+
+            // kiem tra PlayerPref player (Object.InputAuthority.PlayerID) -> le = green | chan = red
+            /* if(Object.InputAuthority.PlayerId % 2 != 0) isEnemy = false;
+            else isEnemy = true; */
+            RPC_SetIsEnemyChanged(isEnemy);
+
             /* Runner.SetPlayerObject(Object.InputAuthority, Object); */
 
             // gan playerPref vao trong dictionary
             NetDict.Add(Object.InputAuthority.PlayerId, nickName_Network.ToString());
             /* RPC_SendNetDict(Object.InputAuthority.PlayerId, nickName_Network.ToString()); */
 
-            // ko hien playerName cua Local - ko can thay ten minh
-            nickName_TM.gameObject.SetActive(false);
+            //TODO KO HIEN THI NICKNAME O TAT CA CAC SCENE KHI DUOC SPAWN RA
+            /* nickName_TM.gameObject.SetActive(false); */
+            
         }
         else {
             localCameraHandler.localCamera.enabled = false;
@@ -244,7 +256,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
             if(Object.HasStateAuthority && Object.HasInputAuthority) {
                 Spawned();
             }
-            
 
             if(Object.HasStateAuthority)
                 GetComponent<CharacterMovementHandler>().RequestRespawn();
@@ -266,10 +277,17 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
             Debug.Log($"__________________key = {item.Key} | value = {item.Value}");
             LocalDict.Add(item.Key, item.Value.ToString());
         }
+
+        //set bool isEnemy | khi player join vao phong
+        /* if(player == Object.InputAuthority) {
+            if(player.PlayerId % 2 != 0) isEnemy = false;
+            else if(player.PlayerId % 2 == 0) isEnemy = true;
+            RPC_SetIsEnemyChanged(isEnemy);
+        } */
     }
 
-    public void SetNetworkRunnerAndSceneToStart(NetworkRunner networkRunner, string scene) {
-        this.networkRunner = networkRunner;
+    public void SetNetworkRunnerAndSceneToStart(string scene) {
+        /* this.networkRunner = networkRunner; */
         this.sceneToStart = scene;
     }
 }

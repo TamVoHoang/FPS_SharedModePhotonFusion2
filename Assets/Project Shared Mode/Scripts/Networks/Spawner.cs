@@ -16,11 +16,9 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
     //NetworkRunner networkRunner;
     public string customLobbyName;  // game type
     [SerializeField] string sceneName;
-    public string SceneName { get { return sceneName; } set { sceneName = value; } }
-
+    public string SceneName {set { sceneName = value; } }
 
     private void Awake() {
-        //networkRunner = GetComponent<NetworkRunner>();
         sessionListUIHandler = FindObjectOfType<SessionListUIHandler>(true);
         mainMenuUIHandler = FindObjectOfType<MainMenuUIHandler>(true);
 
@@ -95,20 +93,21 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 
             // gan networkRunner cho NetworkPalyer
             if(runner.IsSharedModeMasterClient)
-                networkPlayerPrefab.GetComponent<NetworkPlayer>().SetNetworkRunnerAndSceneToStart(runner, this.sceneName);
-            
+                networkPlayerPrefab.GetComponent<NetworkPlayer>().SetNetworkRunnerAndSceneToStart(this.sceneName);
         }
     }
 
     private void InitializeNetworkPlayerBeforeSpawn(NetworkRunner runner, NetworkObject obj)
     {
-        NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
-        if(customLobbyName == "OurLobbyID_Team") {
+        /* if(customLobbyName == "OurLobbyID_Team") {
             Debug.Log($"_____co vao xet bool isEnemy in NetworkPlayer.cs");
             bool randomBool = UnityEngine.Random.value > 0.5f;
             obj.GetComponent<NetworkPlayer>().IsEnemy = randomBool;
+        } */
+        if(customLobbyName == "OurLobbyID_Team") {
+            if(obj.InputAuthority.PlayerId % 2 != 0) obj.GetComponent<NetworkPlayer>().IsEnemy = false;
+            else obj.GetComponent<NetworkPlayer>().IsEnemy = true;
         }
-        
     }
 
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) {
@@ -132,6 +131,7 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
     }
 
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) {
+        Debug.Log($"_____OnSessionListUpdated_____");
 
         //todo testing
         sessionListUIHandler.SessionList = sessionList;
@@ -152,6 +152,7 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
             {
                 sessionListUIHandler.AddToList(sessionInfo);
                 Debug.Log($"sessionName: {sessionInfo.Name} playerCount: {sessionInfo.PlayerCount}");
+                Debug.Log($"host -" + sessionInfo.Properties);
             }
         }
 
@@ -168,4 +169,6 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
     public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) {
         
     }
+
+
 }

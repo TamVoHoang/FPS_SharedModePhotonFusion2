@@ -45,25 +45,6 @@ public class NetworkRunnerHandler : MonoBehaviour
         }
     }
     
-    //! testing
-    // tao Lobby
-    void ConnectToLobby(string lobbyName) {
-        networkRunner.JoinSessionLobby(SessionLobby.Shared, lobbyName);
-    }
-
-    // this.networkRunner = Instantiate networkRunnerPF (spawner.cs) -> instantiate networkPlayer(nhan vat)
-    async void ConnectToSession(NetworkRunner runner, GameMode gameMode, string sessionName, SceneRef scene) {
-        var sceneManager = GetSceneManager(runner);
-        await runner.StartGame(new StartGameArgs()
-        {
-            GameMode = gameMode,
-            SessionName = sessionName,
-            Scene = scene,
-            PlayerCount = 5,
-            SceneManager = sceneManager
-        });
-    }
-    //! testing
     
     INetworkSceneManager GetSceneManager(NetworkRunner runner) {
         var sceneManager = runner.GetComponents(typeof(MonoBehaviour)).OfType<INetworkSceneManager>().FirstOrDefault();
@@ -115,6 +96,7 @@ public class NetworkRunnerHandler : MonoBehaviour
         
         //Join game co san
         var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionName, customLobbyName, NetAddress.Any(), SceneRef.FromIndex(SceneUtility.GetBuildIndexByScenePath($"scenes/{sceneName}")), null);
+
     }
 
     public void JoinGame(SessionInfo sessionInfo, string customLobbyName) {
