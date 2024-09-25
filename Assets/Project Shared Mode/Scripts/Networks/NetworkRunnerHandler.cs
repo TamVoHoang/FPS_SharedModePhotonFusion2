@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Fusion;
@@ -36,7 +37,7 @@ public class NetworkRunnerHandler : MonoBehaviour
             //? Neu ko dang o scene mainMenu -> vao thang game
             if(SceneManager.GetActiveScene().name != "MainMenu") {
                 playerCount = 2;
-                var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, "Test_Session", "Test_Lobby", NetAddress.Any(), SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex), null);
+                var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, "Test_Session", GameMap.World_1, "Test_Lobby", NetAddress.Any(), SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex), null);
                 /* ConnectToSession(networkRunner, GameMode.Shared, "Room", SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex));
                 ConnectToLobby("Lobby"); */
             }
@@ -54,7 +55,11 @@ public class NetworkRunnerHandler : MonoBehaviour
         return sceneManager;
     }
 
-    protected virtual Task InitializeNetworkRunner(NetworkRunner runner, GameMode gameMode, string sessionName, string customLobbyName, NetAddress address, SceneRef scene, Action<NetworkRunner> initialized) {
+    protected virtual Task InitializeNetworkRunner(NetworkRunner runner, GameMode gameMode, string sessionName, GameMap gameMap,
+            string customLobbyName, NetAddress address, SceneRef scene, Action<NetworkRunner> initialized) {
+        var customProps = new Dictionary<string, SessionProperty>();
+        customProps["mapName"] = (int)gameMap;
+
         var sceneManager = GetSceneManager(runner);
         runner.ProvideInput = true;
 
@@ -69,6 +74,7 @@ public class NetworkRunnerHandler : MonoBehaviour
 
             PlayerCount = playerCount,
             SceneManager = sceneManager,
+            SessionProperties = customProps,
         });
     }
 
@@ -91,16 +97,17 @@ public class NetworkRunnerHandler : MonoBehaviour
         }
     }
 
-    public void CreateGame(string sessionName, string sceneName, string customLobbyName) {
+    public void CreateGame(string sessionName, GameMap gameMap, string sceneName, string customLobbyName) {
         Debug.Log($"Create session {sessionName} scene {sceneName} build Index {SceneUtility.GetBuildIndexByScenePath($"scenes/{sceneName}")}");
         
         //Join game co san
-        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionName, customLobbyName, NetAddress.Any(), SceneRef.FromIndex(SceneUtility.GetBuildIndexByScenePath($"scenes/{sceneName}")), null);
+        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionName, gameMap, customLobbyName, NetAddress.Any(), SceneRef.FromIndex(SceneUtility.GetBuildIndexByScenePath($"scenes/{sceneName}")), null);
 
     }
 
-    public void JoinGame(SessionInfo sessionInfo, string customLobbyName) {
+    public void JoinGame(SessionInfo sessionInfo, string customLobbyName, GameMap gameMap) {
         Debug.Log($"Join session {sessionInfo.Name}");
-        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionInfo.Name, customLobbyName, NetAddress.Any(), SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex), null);
+        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionInfo.Name, gameMap, customLobbyName, NetAddress.Any(), SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex), null);
     }
+    
 }

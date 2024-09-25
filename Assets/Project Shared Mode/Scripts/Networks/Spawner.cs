@@ -5,6 +5,12 @@ using Fusion.Sockets;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+public enum GameMap : int {
+    World_1,
+    World_2,
+    World_3
+}
+
 public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 {
     [SerializeField] SessionListUIHandler sessionListUIHandler;
@@ -17,13 +23,15 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
     public string customLobbyName;  // game type
     [SerializeField] string sceneName;
     public string SceneName {set { sceneName = value; } }
+    public GameMap gameMap;
 
     private void Awake() {
         sessionListUIHandler = FindObjectOfType<SessionListUIHandler>(true);
         mainMenuUIHandler = FindObjectOfType<MainMenuUIHandler>(true);
 
         customLobbyName = "OurLobbyID";
-        sceneName = "World1";
+        sceneName = "World_1";
+        
     }
 
     public void OnConnectedToServer(NetworkRunner runner) {
@@ -93,7 +101,8 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 
             // gan networkRunner cho NetworkPalyer
             if(runner.IsSharedModeMasterClient)
-                networkPlayerPrefab.GetComponent<NetworkPlayer>().SetNetworkRunnerAndSceneToStart(this.sceneName);
+                networkPlayerPrefab.GetComponent<NetworkPlayer>().SetNetworkRunnerAndSceneToStart(gameMap.ToString());
+
         }
     }
 
@@ -150,9 +159,20 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 
             foreach (SessionInfo sessionInfo in sessionList)
             {
-                sessionListUIHandler.AddToList(sessionInfo);
+                string name = null;
+                if (sessionInfo.Properties.TryGetValue("mapName", out var propertyType) 
+                    && propertyType.IsInt) {
+                    var mapName = (int)propertyType.PropertyValue;
+                    string map = ((GameMap)mapName).ToString();
+                    Debug.Log($"_____mapName" + map);
+                    name = map;
+                }
+
+                sessionListUIHandler.AddToList(sessionInfo, name);
                 Debug.Log($"sessionName: {sessionInfo.Name} playerCount: {sessionInfo.PlayerCount}");
                 Debug.Log($"host -" + sessionInfo.Properties);
+
+                
             }
         }
 

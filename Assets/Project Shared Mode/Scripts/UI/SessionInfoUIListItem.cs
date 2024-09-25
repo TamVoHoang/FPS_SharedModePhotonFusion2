@@ -29,10 +29,10 @@ public class SessionInfoUIListItem : MonoBehaviour
         joinButton.onClick.AddListener(OnJoinSessionClicked);
     }
 
-    public void SetInfomation(SessionInfo sessionInfo) {
+    public void SetInfomation(SessionInfo sessionInfo, string mapName) {
         this.sessionInfo = sessionInfo;
         sessionNameText.text = sessionInfo.Name;
-        //sceneNameText.text = sceneName;
+        sceneNameText.text = mapName;
         playerCountText.text = $"{sessionInfo.PlayerCount.ToString()}/{sessionInfo.MaxPlayers.ToString()}";
 
         bool isJoinButtonActice = true; // enable JoinButton

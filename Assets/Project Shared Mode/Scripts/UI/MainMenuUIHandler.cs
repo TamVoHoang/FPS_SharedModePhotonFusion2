@@ -100,9 +100,9 @@ public class MainMenuUIHandler : MonoBehaviour
         Spawner spawner = FindObjectOfType<Spawner>();
 
         // vao thang Game Random character
-        /* networkRunnerHandler.CreateGame(sessionNameInputField.text, "World1"); */ 
+        /* networkRunnerHandler.CreateGame(sessionNameInputField.text, "World1"); */
 
-        networkRunnerHandler.CreateGame(sessionNameInputField.text, "Ready", spawner.customLobbyName);
+        networkRunnerHandler.CreateGame(sessionNameInputField.text, spawner.gameMap, "Ready", spawner.customLobbyName);
 
         HidePanels();
         statusPanel.gameObject.SetActive(true);
@@ -156,11 +156,12 @@ public class MainMenuUIHandler : MonoBehaviour
         networkRunnerHandler.OnJoinLobby();
 
         yield return new WaitForSeconds(time);
+        
         var sessionInfo = GetRandomSesisonInfo();
         var spawner = FindObjectOfType<Spawner>();
         if(sessionInfo != null) {
             quickPlayResultText.text = $"Join session {sessionInfo.Name}";
-            networkRunnerHandler.JoinGame(sessionInfo, spawner.customLobbyName);
+            networkRunnerHandler.JoinGame(sessionInfo, spawner.customLobbyName, spawner.gameMap);
         }
         else {
             quickPlayResultText.text = "No session to join";

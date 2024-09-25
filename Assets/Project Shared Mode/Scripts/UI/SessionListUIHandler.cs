@@ -45,11 +45,11 @@ public class SessionListUIHandler : MonoBehaviour
     }
 
     //? add sessionItemListPF vao panel transform - tao thanh room name count join button
-    public void AddToList(SessionInfo sessionInfo) {
+    public void AddToList(SessionInfo sessionInfo, string mapName) {
 
         SessionInfoUIListItem sessionInfoUIListItem = Instantiate(sessionItemListPF, verticalLayoutGroup.transform).GetComponent<SessionInfoUIListItem>();
         
-        sessionInfoUIListItem.SetInfomation(sessionInfo); //=> dung sessionInfo show name, count, active JoinButton
+        sessionInfoUIListItem.SetInfomation(sessionInfo, mapName); //=> dung sessionInfo show name, count, active JoinButton
 
         //todo neu sessionInfo lock || having enough active Players => now showing joinButton
         /* if(sessionInfo.IsOpen == false || sessionInfo.PlayerCount >= sessionInfo.MaxPlayers) {
@@ -68,7 +68,7 @@ public class SessionListUIHandler : MonoBehaviour
     {
         NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
         Spawner spawner = FindObjectOfType<Spawner>();
-        networkRunnerHandler.JoinGame(sessionInfo, spawner.customLobbyName);
+        networkRunnerHandler.JoinGame(sessionInfo, spawner.customLobbyName, spawner.gameMap);
 
         MainMenuUIHandler mainMenuUIHandler = FindObjectOfType<MainMenuUIHandler>();
         mainMenuUIHandler.OnJoiningServer();
@@ -159,7 +159,7 @@ public class SessionListUIHandler : MonoBehaviour
         if(sessionInfo != null) {
             statusText.text = $"Join session {sessionInfo.Name}";
             statusText.gameObject.SetActive(true);
-            networkRunnerHandler.JoinGame(sessionInfo, spawner.customLobbyName);
+            networkRunnerHandler.JoinGame(sessionInfo, spawner.customLobbyName, spawner.gameMap);
         }
         else {
             statusText.text = "No sessison to join";
