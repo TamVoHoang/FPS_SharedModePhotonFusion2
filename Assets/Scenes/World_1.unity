@@ -447,6 +447,7 @@ MonoBehaviour:
   networkPlayerPrefab: {fileID: 0}
   customLobbyName: 
   sceneName: 
+  gameMap: 0
 --- !u!1 &631911066
 GameObject:
   m_ObjectHideFlags: 0
@@ -3901,7 +3902,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8198949781839536251, guid: 539ffc3e64c386a4daa9667ed6257304, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

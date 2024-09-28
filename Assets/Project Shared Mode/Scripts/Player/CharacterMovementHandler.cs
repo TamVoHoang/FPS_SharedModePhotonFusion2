@@ -1,5 +1,6 @@
 using UnityEngine;
 using Fusion;
+using UnityEngine.SceneManagement;
 public class CharacterMovementHandler : NetworkBehaviour
 {
     // other
@@ -24,11 +25,13 @@ public class CharacterMovementHandler : NetworkBehaviour
         localCameraHandler = GetComponentInChildren<LocalCameraHandler>();
         networkInGameMessages = GetComponent<NetworkInGameMessages>();
         networkPlayer = GetComponent<NetworkPlayer>();
-        
     }
 
 
     void Update() {
+        //lock input to move and jump if Ready scene
+        if(SceneManager.GetActiveScene().name == "Ready") return;
+
         if (Input.GetButtonDown("Jump")) _jumpPressed = true;
 
         aimForwardVector = localCameraHandler.transform.forward;
@@ -97,6 +100,7 @@ public class CharacterMovementHandler : NetworkBehaviour
         CharacterControllerEnable(true);
 
         networkCharacterController.Teleport(Utils.GetRandomSpawnPoint());
+        
         //hPHandler.OnRespawned_ResetHP(); // khoi tao lai gia tri HP isDeath - false
         isRespawnRequested = false;
     }

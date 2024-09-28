@@ -22,7 +22,7 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
     //NetworkRunner networkRunner;
     public string customLobbyName;  // game type
     [SerializeField] string sceneName;
-    public string SceneName {set { sceneName = value; } }
+    public string SceneName {set { sceneName = value; } get { return sceneName; } }
     public GameMap gameMap;
 
     private void Awake() {
@@ -84,15 +84,15 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 
             if(isReadyScene) {
                 if(player.PlayerId == 1) {
-                    spawnPosition = new Vector3(0 , 3, 0);
+                    spawnPosition = new Vector3(0 , 5, 0);
                     ReadyUIHandler readyUIHandler = FindObjectOfType<ReadyUIHandler>();
                     readyUIHandler.SetOnLeaveButtonActive(false);
                     Debug.Log($"Host was Joint  {player.PlayerId} | {spawnPosition}");
                 } else if(player.PlayerId % 2 == 0) {
-                    spawnPosition = new Vector3(player.PlayerId * -0.5f, 3, 0);
+                    spawnPosition = new Vector3(player.PlayerId * -0.5f, 5, 0);
                     Debug.Log($"Client was Joint  {player.PlayerId} | {spawnPosition}");
                 } else if(player.PlayerId % 2 != 0) {
-                    spawnPosition = new Vector3(player.PlayerId * 0.5f - 0.5f, 3, 0);
+                    spawnPosition = new Vector3(player.PlayerId * 0.5f - 0.5f, 5, 0);
                 }
             }
 
@@ -100,9 +100,8 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
             spawnNetworkPlayer.transform.position = spawnPosition;
 
             // gan networkRunner cho NetworkPalyer
-            if(runner.IsSharedModeMasterClient)
-                networkPlayerPrefab.GetComponent<NetworkPlayer>().SetNetworkRunnerAndSceneToStart(gameMap.ToString());
-
+            /* if(runner.IsSharedModeMasterClient)
+                networkPlayerPrefab.GetComponent<NetworkPlayer>().SetNetworkRunnerAndSceneToStart(gameMap.ToString()); */
         }
     }
 
@@ -113,6 +112,8 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
             bool randomBool = UnityEngine.Random.value > 0.5f;
             obj.GetComponent<NetworkPlayer>().IsEnemy = randomBool;
         } */
+
+        
         if(customLobbyName == "OurLobbyID_Team") {
             if(obj.InputAuthority.PlayerId % 2 != 0) obj.GetComponent<NetworkPlayer>().IsEnemy = false;
             else obj.GetComponent<NetworkPlayer>().IsEnemy = true;

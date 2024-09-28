@@ -4,7 +4,6 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 using Fusion;
 using TMPro;
-using System;
 
 public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 {
@@ -36,10 +35,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
     // TEAM
     [SerializeField] bool isEnemy;
-    public bool IsEnemy {get => isEnemy; set {isEnemy = value;}}
+    public bool IsEnemy {set {isEnemy = value;}} // <- InitializeNetworkPlayerBeforeSpawn() spawner.cs
 
     [Networked]
-    public NetworkBool isEnemy_Network{ get; set; }
+    public NetworkBool isEnemy_Network{ get; set; } // <- RPC
 
     // Spanwer -> set this.networkRunner and this.scenetoStart
     /* NetworkRunner networkRunner;
@@ -47,9 +46,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     [SerializeField] string sceneToStart;
     public string SceneToStart { get => sceneToStart;}
 
+    Spawner spawner;
     private void Awake() {
         localCameraHandler = GetComponentInChildren<LocalCameraHandler>();
         networkInGameMessages = GetComponent<NetworkInGameMessages>();
+        spawner = FindObjectOfType<Spawner>();
 
         DontDestroyOnLoad(this.gameObject);
     }
@@ -96,6 +97,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
             // kiem tra Ready scene de ON MainCam OF LocalCam
             if(isReadyScene) {
+                // (this.sceneToStart) networkPlayer <- spawner.cs <- dropdownscenename.cs
+                if(Runner.IsSharedModeMasterClient) sceneToStart = spawner.SceneName;
+
                 Camera.main.transform.position = new Vector3(transform.position.x, Camera.main.transform.position.y, Camera.main.transform.position.z);
 
                 // OF localCam
@@ -104,7 +108,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
                 // OF localPlayer UI
                 localUI.SetActive(false);
 
-                // ON hien nickName if readyScene
+                // ON nickName if readyScene
                 nickName_TM.gameObject.SetActive(true);
 
                 Cursor.lockState = CursorLockMode.None;
@@ -127,7 +131,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
                 //? bat local UI | canvas cua ca local player(crossHair, onDamageImage, messages rpc send)
                 localUI.SetActive(true); // con cua localCamera transform
 
-                //? KO hien nickName if ko dang o readyScene
+                //? OFF nickName if ko dang o readyScene
                 nickName_TM.gameObject.SetActive(false);
 
                 //? disable mouse de play
@@ -162,9 +166,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
         //? set player as a player object -> khi player left se chi hien dung ten player roi
         /* Runner.SetPlayerObject(Object.InputAuthority, Object); */
-        // Debug.Log($"_____Set ObjectNetwork = " + Object.GetComponent<NetworkPlayer>().nickName_Network.ToString());
 
+        /* Debug.Log($"_____Set ObjectNetwork = " + Object.GetComponent<NetworkPlayer>().nickName_Network.ToString()); */
         /* var name = GameManager.Instance.playerNickName; */
+
+        // hien ten tren hierachy
         transform.name = $"P_{Object.Id} -> {nickName_Network.ToString()}";
     }
 
@@ -174,8 +180,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
         nickName_TM.text = nickName_Network.ToString();
     }
 
-    private void OnIsEnemyChanged()
-    {
+    private void OnIsEnemyChanged() {
         if(isEnemy_Network) {
             nickName_TM.color = Color.red;
         } else nickName_TM.color = Color.green;
@@ -196,11 +201,9 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
         this.isEnemy_Network = isEnemy;
     }
 
-
     //? Add activePlayer into NetDict
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    public void RPC_SendNetDict(int playerId, string nickName)
-    {
+    public void RPC_SendNetDict(int playerId, string nickName) {
         NetDict.Add(playerId, nickName);
     }
 
@@ -216,7 +219,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     public void PlayerLeft(PlayerRef player) {
         // thong bao khi roi khoi phong message
         if(Object.HasStateAuthority) {
-            //Debug.Log($"_____{player.PlayerId} -> Left | name = {LocalDict[player.PlayerId]}");
+            /* Debug.Log($"_____{player.PlayerId} -> Left | name = {LocalDict[player.PlayerId]}"); */
         }
         
         if(player == Object.InputAuthority) {
@@ -234,7 +237,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     }
 
     void OnDestroy() {
-        // neu this.Object DeSpawn coll 130 - this.Object destroy - se destroy luon localCam cua no
+        // neu this.Object DeSpawn coll 226 - this.Object destroy - se destroy luon localCam cua no
         if(localCameraHandler != null) {
             Debug.Log("SU KIEN ONDESTROY LOCAL CAMERA HANDLER IN NETWORKPLAYER.CS");
             Destroy(localCameraHandler.gameObject);
@@ -249,16 +252,17 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
         Debug.Log($"{Time.time} OnSceneLoaded: " + scene.name);
         isPublicJoinMessageSent = false;
+
         if(scene.name != "Ready") {
-        Debug.Log($"___________________OnSceneLoaded");
+            Debug.Log($"___________________OnSceneLoaded Ready");
 
             // thong bao cho host biet can phai Spawned code
             if(Object.HasStateAuthority && Object.HasInputAuthority) {
                 Spawned();
             }
-
-            if(Object.HasStateAuthority)
+            if(Object.HasStateAuthority) {
                 GetComponent<CharacterMovementHandler>().RequestRespawn();
+            }
         }
     }
 
@@ -287,7 +291,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     }
 
     public void SetNetworkRunnerAndSceneToStart(string scene) {
-        /* this.networkRunner = networkRunner; */
         this.sceneToStart = scene;
     }
 }

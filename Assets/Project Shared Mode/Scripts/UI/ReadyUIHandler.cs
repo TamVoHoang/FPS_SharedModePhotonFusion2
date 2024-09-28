@@ -108,10 +108,11 @@ public class ReadyUIHandler : NetworkBehaviour
         }
         
         // test load scene chi dinh bat ki
-        //Runner.LoadScene("World1");
+        /* Runner.LoadScene("World1"); */
 
         // load scene host da chon ben ngoai UI luc tao session
-        Runner.LoadScene(sceneToStart);
+        if(sceneToStart != null)
+            Runner.LoadScene(sceneToStart);
     }
 
     private void OnReadyClicked()
