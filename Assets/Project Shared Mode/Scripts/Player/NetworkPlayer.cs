@@ -135,8 +135,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
                 nickName_TM.gameObject.SetActive(false);
 
                 //? disable mouse de play
-                /* Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false; */
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
             }
 
             // lay gia tri Gamemanager.playerNickName gan vao
@@ -254,7 +254,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
         isPublicJoinMessageSent = false;
 
         if(scene.name != "Ready") {
-            Debug.Log($"___________________OnSceneLoaded Ready");
+            Debug.Log($"___________________OnSceneLoaded !Ready");
 
             // thong bao cho host biet can phai Spawned code
             if(Object.HasStateAuthority && Object.HasInputAuthority) {

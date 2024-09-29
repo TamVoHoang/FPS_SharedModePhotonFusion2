@@ -9,8 +9,8 @@ public class CharacterMovementHandler : NetworkBehaviour
 
     //input
     private bool _jumpPressed;
-    Vector3 aimForwardVector = Vector3.zero;
-    Vector2 movementInput = Vector2.zero;
+    Vector3 aimForwardVector;
+    Vector2 movementInput;
 
     // request after falling
     [SerializeField] float fallHightToRespawn = -10f;
@@ -32,12 +32,10 @@ public class CharacterMovementHandler : NetworkBehaviour
         //lock input to move and jump if Ready scene
         if(SceneManager.GetActiveScene().name == "Ready") return;
 
-        if (Input.GetButtonDown("Jump")) _jumpPressed = true;
-
-        aimForwardVector = localCameraHandler.transform.forward;
-
         //? move input local
+        if (Input.GetButtonDown("Jump")) _jumpPressed = true;
         movementInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        aimForwardVector = localCameraHandler.transform.forward;
     }
     
     public override void FixedUpdateNetwork() {
@@ -65,6 +63,7 @@ public class CharacterMovementHandler : NetworkBehaviour
         //move network
         Vector3 moveDir = transform.forward * movementInput.y + transform.right * movementInput.x;
         moveDir.Normalize();
+
         networkCharacterController.Move(moveDir);
 
         //jump network
@@ -92,7 +91,7 @@ public class CharacterMovementHandler : NetworkBehaviour
         }
     }
 
-    void CharacterControllerEnable(bool isEnable) {
+    public void CharacterControllerEnable(bool isEnable) {
         networkCharacterController.enabled = isEnable;
     }
 

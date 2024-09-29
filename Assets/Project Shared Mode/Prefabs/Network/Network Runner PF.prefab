@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5280492158723159512}
   - component: {fileID: 1829756197935571816}
   - component: {fileID: 4780584813619540521}
+  - component: {fileID: 1017911141652962617}
   m_Layer: 0
   m_Name: Network Runner PF
   m_TagString: Untagged
@@ -58,4 +59,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sessionListUIHandler: {fileID: 0}
+  mainMenuUIHandler: {fileID: 0}
   networkPlayerPrefab: {fileID: 8046501135343815372, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
+  customLobbyName: 
+  sceneName: 
+  gameMap: 0
+--- !u!114 &1017911141652962617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5190892065028713358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -49887739, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BVHDepth: 0
+  BVHNodes: 0
+  TotalHitboxes: 0
