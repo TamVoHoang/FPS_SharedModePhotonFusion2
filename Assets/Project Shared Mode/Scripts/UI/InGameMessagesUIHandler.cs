@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 
-//todo gameObject = Canvas_InGameMessages trong main game, show info from stateAuthority
+//todo gameObject = Player.Go -> Canvas_InGameMessages show info from stateAuthority 3 row
 public class InGameMessagesUIHandler : MonoBehaviour
 {
     public TextMeshProUGUI[] textMeshProUGUIs;

@@ -25,11 +25,15 @@ public class LocalCameraHandler : NetworkBehaviour
     [Header("Collisons")]
     [SerializeField] LayerMask collisionLayers;
 
+    [SerializeField] InGameMessagesUIHandler inGameMessagesUIHandler;
+    public InGameMessagesUIHandler InGameMessagesUIHandler{get {return inGameMessagesUIHandler;}}
 
     private void Awake() {
         localCamera = GetComponent<Camera>();
         networkCharacterController = GetComponentInParent<NetworkCharacterController>();
+        inGameMessagesUIHandler = GetComponentInChildren<InGameMessagesUIHandler>();
     }
+
     private void Update() {
         //? view input local
         viewInput.x = Input.GetAxis("Mouse X");

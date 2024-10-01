@@ -15,7 +15,7 @@ public class NetworkRunnerHandler : MonoBehaviour
     // create session with number player chossen
     [SerializeField] int playerCount;
     public int PlayerCount { get { return playerCount; } set { playerCount = value; } }
-    //public string customLobbyName;
+    /* public string customLobbyName; */
 
     private void Awake() {
         NetworkRunner networkRunnerInScene = FindObjectOfType<NetworkRunner>();
@@ -25,7 +25,7 @@ public class NetworkRunnerHandler : MonoBehaviour
             networkRunner = networkRunnerInScene;
         }
 
-        //customLobbyName = "OurLobbyID";
+        /* customLobbyName = "OurLobbyID"; */
     }
 
     private void Start() {

@@ -510,6 +510,7 @@ MonoBehaviour:
   collisionLayers:
     serializedVersion: 2
     m_Bits: 129
+  inGameMessagesUIHandler: {fileID: 0}
 --- !u!20 &8345733323388219845
 Camera:
   m_ObjectHideFlags: 0
@@ -838,6 +839,7 @@ MonoBehaviour:
     _items: []
   nickName_TM: {fileID: 1820887941646437712}
   playerModel: {fileID: 4371002194789412503}
+  localCameraHandler: {fileID: 0}
   localUI: {fileID: 3457936329825718735}
   isEnemy: 0
   _isEnemy_Network:
@@ -856,6 +858,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fallHightToRespawn: -10
+  isRespawnRequested: 0
+  _isRespawnRequested_: 0
 --- !u!143 &7923825244948841687
 CharacterController:
   m_ObjectHideFlags: 0
@@ -913,6 +917,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c15147e89391d974cbcf373e91eb51cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inGameMessagesUIHandler: {fileID: 0}
 --- !u!114 &925181729352090575
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -985,9 +990,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4088a661e7042de468dd090958dc96e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _HP: 0
-  _NetworkedHealth: 10
-  _isDead: 0
+  _Networked_HP: 5
+  _Networked_IsDead: 0
+  _Networked_Killer:
+    _length: 0
+    _data:
+      Data: 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
   _deadCount: 0
   uiOnHitColor: {r: 0.8980392, g: 0.2784314, b: 0.2784314, a: 0.39215687}
   uiOnHitImage: {fileID: 2150970256414223649}
@@ -1386,10 +1394,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 739798152694121776, guid: 4ef591a2a249e63469e060f6cd267114, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5971221096437541196, guid: 4ef591a2a249e63469e060f6cd267114, type: 3}
-      propertyPath: m_Color.a
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6988125625795237282, guid: 4ef591a2a249e63469e060f6cd267114, type: 3}

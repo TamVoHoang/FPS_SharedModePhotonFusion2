@@ -40,7 +40,7 @@ public class HPHandler : NetworkBehaviour
     ChangeDetector changeDetector;  //duoc foi khi spawned => col 187
 
     bool isPublicDeathMessageSent = false;
-
+    string killerName;
     private void Awake() {
         characterMovementHandler = GetComponent<CharacterMovementHandler>();
         hitboxRoot = GetComponent<HitboxRoot>();
@@ -97,16 +97,17 @@ public class HPHandler : NetworkBehaviour
 
         Networked_HP -= damageAmount;
 
-        RPC_SetNetworkedHP(Networked_HP);
+        killerName = damageCausedByPlayerNickName;
+        RPC_SetNetworkedHP(Networked_HP, damageCausedByPlayerNickName);
 
         Debug.Log($"{Time.time} {transform.name} took damage {Networked_HP} left");
 
         if(Networked_HP <= 0) {
             Debug.Log($"{Time.time} {transform.name} is dead by {damageCausedByPlayerNickName}");
-            RPC_SetNetworkedKiller(damageCausedByPlayerNickName);
+            //RPC_SetNetworkedKiller(damageCausedByPlayerNickName); // can use
             isPublicDeathMessageSent = false;
             StartCoroutine(ServerRespawnCountine());
-            RPC_SetNetworkedIsDead(true);
+            //RPC_SetNetworkedIsDead(true); // can use
 
             deadCount ++;
             weaponHandler.killCount ++;
@@ -118,7 +119,7 @@ public class HPHandler : NetworkBehaviour
             isPublicDeathMessageSent = true;
             if(Object.HasStateAuthority) {
                 networkInGameMessages.SendInGameRPCMessage(Networked_Killer.ToString(), 
-                                    $" killed <b>{networkPlayer.nickName_Network.ToString()}<b>");
+                    $" killed <b>{networkPlayer.nickName_Network.ToString()}<b>");
             }
         }
     }
@@ -132,8 +133,17 @@ public class HPHandler : NetworkBehaviour
 
     //RPC
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    void RPC_SetNetworkedHP(byte hp) {
+    void RPC_SetNetworkedHP(byte hp, string name) {
         this.Networked_HP = hp;
+
+        if(Networked_HP <= 0) {
+            this.Networked_IsDead = true;
+            this.Networked_Killer = name;
+        } 
+        else {
+            this.Networked_IsDead = false;
+            this.Networked_Killer = null;
+        } 
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -223,9 +233,8 @@ public class HPHandler : NetworkBehaviour
     // sau khi resapwn ben movement -> tra ve gia tri HP va isDead
     public void OnRespawned_ResetHPIsDead() {
         // khoi toa lai gia tri bat dau
-        RPC_SetNetworkedHP(startingHP);
+        RPC_SetNetworkedHP(startingHP, null);
 
-        RPC_SetNetworkedIsDead(false);
+        //RPC_SetNetworkedIsDead(false);    // can use
     }
 }
-
