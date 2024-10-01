@@ -1000,6 +1000,7 @@ MonoBehaviour:
   uiOnHitColor: {r: 0.8980392, g: 0.2784314, b: 0.2784314, a: 0.39215687}
   uiOnHitImage: {fileID: 2150970256414223649}
   playerModel: {fileID: 518470472976510064}
+  localGun: {fileID: 5974135563984831783}
   deathParticlePf: {fileID: 4968256401583644762, guid: 136094b40fc14b34ab568c032409f5df, type: 3}
   isSkipSettingStartValues: 0
 --- !u!1 &8013862553777737680
@@ -1329,12 +1330,17 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7519525026511953750, guid: aee1855f35ee9fd4985d8d223681cdaa, type: 3}
   m_PrefabInstance: {fileID: 5242978347915643444}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 5974135563984831783}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &5974135563984831783 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1885505914971852563, guid: aee1855f35ee9fd4985d8d223681cdaa, type: 3}
+  m_PrefabInstance: {fileID: 5242978347915643444}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6987688338564152115 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2899065279106707719, guid: aee1855f35ee9fd4985d8d223681cdaa, type: 3}

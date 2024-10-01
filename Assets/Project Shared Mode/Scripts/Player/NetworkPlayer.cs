@@ -37,7 +37,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
     // TEAM
     [SerializeField] bool isEnemy;
-    public bool IsEnemy {set {isEnemy = value;}} // <- InitializeNetworkPlayerBeforeSpawn() spawner.cs
+    public bool IsEnemy {get {return isEnemy;} set {isEnemy = value;}} // <- InitializeNetworkPlayerBeforeSpawn() spawner.cs
 
     [Networked]
     public NetworkBool isEnemy_Network{ get; set; } // <- RPC
@@ -251,7 +251,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     }
 
     void OnDestroy() {
-        // neu this.Object DeSpawn coll 226 - this.Object destroy - se destroy luon localCam cua no
+        // neu this.Object DeSpawn coll 240 - this.Object destroy - se destroy luon localCam cua no
         if(localCameraHandler != null) {
             Debug.Log("SU KIEN ONDESTROY LOCAL CAMERA HANDLER IN NETWORKPLAYER.CS");
             Destroy(localCameraHandler.gameObject);

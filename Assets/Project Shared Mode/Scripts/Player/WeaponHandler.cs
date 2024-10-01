@@ -44,6 +44,8 @@ public class WeaponHandler : NetworkBehaviour
 
     // others 
     bool isMouse0Pressed = false;
+    Spawner spawner;
+
     private void Awake() {
         //hPHandler = GetComponent<HPHandler>();
         networkPlayer = GetComponent<NetworkPlayer>();
@@ -52,6 +54,7 @@ public class WeaponHandler : NetworkBehaviour
         localCameraHandler = FindFirstObjectByType<LocalCameraHandler>();
 
         //weaponSwitcher = GetComponent<WeaponSwitcher>();
+        spawner = FindObjectOfType<Spawner>();
     }
 
     public override void Spawned() {
@@ -108,10 +111,10 @@ public class WeaponHandler : NetworkBehaviour
 
     //? FIRE raycast BULLET FROM CAMERA
     void Fire(Vector3 aimForwardVector, Transform aimPoint) {
-        // AI fire
+        //? AI fire theo AI fireRate
         //if(networkPlayer.isBot && Time.time - lastTimeFired < aiFireRate) return;
 
-        // player fire rate theo lasTimeLimit
+        //? player fire rate theo lasTimeLimit
         if(Time.time - lastTimeFired < 0.15f) return;
 
         StartCoroutine(FireEffect());
@@ -167,6 +170,11 @@ public class WeaponHandler : NetworkBehaviour
 
             if(hit.transform.TryGetComponent<HPHandler>(out var health)) {
                 Debug.Log($"{Time.time} {transform.name} hit HitBox {hit.transform.root.name}");
+                
+                // kiem tra co phai dong doi hay khong
+                bool isEnemyCheck = hit.transform.GetComponent<NetworkPlayer>().isEnemy_Network;
+                if(spawner.customLobbyName == "OurLobbyID_Team" && networkPlayer.isEnemy_Network == isEnemyCheck) return;
+                // kiem tra co phai dong doi hay khong
 
                 if(Object.HasStateAuthority) {
                     //tim xem networkObject nao da tao ra vien dan

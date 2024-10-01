@@ -29,6 +29,7 @@ public class HPHandler : NetworkBehaviour
     List<FlashMeshRender> flashMeshRenders = new List<FlashMeshRender>();
 
     [SerializeField] GameObject playerModel;
+    [SerializeField] GameObject localGun;
     [SerializeField] GameObject deathParticlePf;
     HitboxRoot hitboxRoot;  // ko hit remote player 2 lan
     CharacterMovementHandler characterMovementHandler;
@@ -41,11 +42,13 @@ public class HPHandler : NetworkBehaviour
 
     bool isPublicDeathMessageSent = false;
     string killerName;
+
     private void Awake() {
         characterMovementHandler = GetComponent<CharacterMovementHandler>();
         hitboxRoot = GetComponent<HitboxRoot>();
         networkInGameMessages = GetComponent<NetworkInGameMessages>();
         networkPlayer = GetComponent<NetworkPlayer>();
+
     }
     void Start() {
         if(!isSkipSettingStartValues) {
@@ -127,7 +130,7 @@ public class HPHandler : NetworkBehaviour
     IEnumerator ServerRespawnCountine() {
         yield return new WaitForSeconds(2f);
         // xet bien isRespawnRequested = true de fixUpdatedNetwork() call Respawn()
-        Debug.Log("xet respawn sau 0.5s");
+        Debug.Log("xet respawn sau 2s");
         characterMovementHandler.RequestRespawn();
     }
 
@@ -214,6 +217,7 @@ public class HPHandler : NetworkBehaviour
     void OnDeath() {
         Debug.Log($"{Time.time} onDeath");
         playerModel.gameObject.SetActive(false);
+        localGun.gameObject.SetActive(false);   // khi death tat luon local gun
         hitboxRoot.HitboxRootActive = false; // ko de nhan them damage
         characterMovementHandler.CharacterControllerEnable(false);
 
@@ -226,6 +230,7 @@ public class HPHandler : NetworkBehaviour
             uiOnHitImage.color = new Color(0,0,0,0); // turn white image (still red image when player starting die coll 72)
         }
         playerModel.gameObject.SetActive(true);
+        localGun.SetActive(true);
         hitboxRoot.HitboxRootActive = true;
         characterMovementHandler.CharacterControllerEnable(true);
     }
