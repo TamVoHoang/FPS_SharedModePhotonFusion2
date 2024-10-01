@@ -192,6 +192,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     }
 
     private void OnIsEnemyChanged() {
+        if(spawner.customLobbyName != "OurLobbyID_Team") return;
+
         if(isEnemy_Network) {
             nickName_TM.color = Color.red;
         } else nickName_TM.color = Color.green;
@@ -239,8 +241,6 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
             Debug.Log($"___NetworkPlayer Left Room");
         }
     }
-
-    //[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
 
     // testing manual left using U button down
     IEnumerator PlayerLeftRoomManualCO(PlayerRef player) {
