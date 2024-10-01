@@ -1,6 +1,7 @@
 using UnityEngine;
 using Fusion;
 using UnityEngine.SceneManagement;
+using Unity.VisualScripting.Antlr3.Runtime.Tree;
 public class CharacterMovementHandler : NetworkBehaviour
 {
     // other
@@ -14,17 +15,21 @@ public class CharacterMovementHandler : NetworkBehaviour
 
     // request after falling
     [SerializeField] float fallHightToRespawn = -10f;
-    bool isRespawnRequested = false;
+    [SerializeField] bool isRespawnRequested = false;
+
+    [Networked]
+    public bool isRespawnRequested_{get; set;} = false;
 
     //...
     NetworkInGameMessages networkInGameMessages;
     NetworkPlayer networkPlayer;
-
+    HPHandler hPHandler;
     private void Awake() {
         networkCharacterController = GetComponent<NetworkCharacterController>();
         localCameraHandler = GetComponentInChildren<LocalCameraHandler>();
         networkInGameMessages = GetComponent<NetworkInGameMessages>();
         networkPlayer = GetComponent<NetworkPlayer>();
+        hPHandler = GetComponent<HPHandler>();
     }
 
 
@@ -44,12 +49,12 @@ public class CharacterMovementHandler : NetworkBehaviour
 
         // ko chay doan duoi neu dang fall or respawn
         if(Object.HasStateAuthority) {
-            if(isRespawnRequested) {
+            if(isRespawnRequested_) {
                 Respawn();
                 return;
             }
             // ko cap nhat vi tri movement khi player death
-            //if(hPHandler.isDead) return; 
+            if(hPHandler.Networked_IsDead) return; 
         }
 
         //xoay local player theo aimForwardVector -> dam bao localPlayer nhin thang se la huong aimForwardVector
@@ -96,15 +101,26 @@ public class CharacterMovementHandler : NetworkBehaviour
     }
 
     private void Respawn() {
+        Debug.Log($"_____Starting Respawn");
         CharacterControllerEnable(true);
 
         networkCharacterController.Teleport(Utils.GetRandomSpawnPoint());
         
-        //hPHandler.OnRespawned_ResetHP(); // khoi tao lai gia tri HP isDeath - false
-        isRespawnRequested = false;
+        hPHandler.OnRespawned_ResetHPIsDead(); // khoi tao lai gia tri HP isDeath - false
+        //isRespawnRequested = false;
+        RPC_SetNetworkedIsDead(false);
+        Debug.Log($"_____Ending Respawn");
+
     }
     
     public void RequestRespawn() {
-        isRespawnRequested = true;
+        Debug.Log($"_____Requested Respawn");
+        //isRespawnRequested = true;
+        RPC_SetNetworkedIsDead(true);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_SetNetworkedIsDead(bool isRespawnRequested) {
+        this.isRespawnRequested_ = isRespawnRequested;
     }
 }

@@ -15,49 +15,25 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 {
     [SerializeField] SessionListUIHandler sessionListUIHandler;
     [SerializeField] MainMenuUIHandler mainMenuUIHandler;
-
-    //public GameObject PlayerPrefabGO;
     [SerializeField] NetworkPlayer networkPlayerPrefab;
-
-    //NetworkRunner networkRunner;
     public string customLobbyName;  // game type
-    [SerializeField] string sceneName;
-    public string SceneName {set { sceneName = value; } get { return sceneName; } }
     public GameMap gameMap;
+
+    /* [SerializeField] string sceneToStart;
+    public string SceneName {set { sceneToStart = value; } get { return sceneToStart; }} */
 
     private void Awake() {
         sessionListUIHandler = FindObjectOfType<SessionListUIHandler>(true);
         mainMenuUIHandler = FindObjectOfType<MainMenuUIHandler>(true);
 
         customLobbyName = "OurLobbyID";
-        sceneName = "World_1";
-        
+        gameMap = (GameMap)GameMap.World_1;
+        //sceneToStart = "World_1";
     }
 
     public void OnConnectedToServer(NetworkRunner runner) {
         Debug.Log($"___OnConnectedToServer");
     }
-
-    public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) {
-    }
-
-    public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) {
-    }
-
-    public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) {
-    }
-
-    public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) {}
-
-    public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) {}
-
-    public void OnInput(NetworkRunner runner, NetworkInput input) {}
-
-    public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) {}
-
-    public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) {}
-
-    public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) {}
 
     public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) {
         Debug.Log($"___OnPlayerJoined");
@@ -88,40 +64,17 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
             NetworkPlayer spawnNetworkPlayer = runner.Spawn(networkPlayerPrefab, spawnPosition, Quaternion.identity, player, InitializeNetworkPlayerBeforeSpawn);
             spawnNetworkPlayer.GetComponent<CharacterController>().enabled = false;
             spawnNetworkPlayer.transform.position = spawnPosition;
-
-            // gan networkRunner cho NetworkPalyer
-            /* if(runner.IsSharedModeMasterClient)
-                networkPlayerPrefab.GetComponent<NetworkPlayer>().SetNetworkRunnerAndSceneToStart(gameMap.ToString()); */
         }
     }
-
-    private void InitializeNetworkPlayerBeforeSpawn(NetworkRunner runner, NetworkObject obj)
-    {
-        /* if(customLobbyName == "OurLobbyID_Team") {
-            Debug.Log($"_____co vao xet bool isEnemy in NetworkPlayer.cs");
-            bool randomBool = UnityEngine.Random.value > 0.5f;
-            obj.GetComponent<NetworkPlayer>().IsEnemy = randomBool;
-        } */
-
-        
+    
+    private void InitializeNetworkPlayerBeforeSpawn(NetworkRunner runner, NetworkObject obj) {
         if(customLobbyName == "OurLobbyID_Team") {
             if(obj.InputAuthority.PlayerId % 2 != 0) obj.GetComponent<NetworkPlayer>().IsEnemy = false;
             else obj.GetComponent<NetworkPlayer>().IsEnemy = true;
         }
     }
-
-    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) {}
-
-    public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) {}
-
-    public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) {}
-
-    public void OnSceneLoadDone(NetworkRunner runner) {}
-
-    public void OnSceneLoadStart(NetworkRunner runner) {}
-
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) {
-        Debug.Log($"_____OnSessionListUpdated_____");
+        Debug.Log($"_____OnSessionListUpdated");
 
         //todo testing
         sessionListUIHandler.SessionList = sessionList;
@@ -152,21 +105,31 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
                 sessionListUIHandler.AddToList(sessionInfo, name);
                 Debug.Log($"sessionName: {sessionInfo.Name} playerCount: {sessionInfo.PlayerCount}");
                 Debug.Log($"host -" + sessionInfo.Properties);
-
-                
             }
         }
 
         // sau khi update kiem tra room list -> hien thi nut tao session
         sessionListUIHandler.ActiveOnCreateSesison_Button();
-
     }
-
 
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) {
         Debug.Log("On shutdown");
     }
 
-    public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) {}
+    public void OnConnectFailed(NetworkRunner runner, NetAddress remoteAddress, NetConnectFailedReason reason) {}
+    public void OnConnectRequest(NetworkRunner runner, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token) {}
+    public void OnCustomAuthenticationResponse(NetworkRunner runner, Dictionary<string, object> data) {}
+    public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) {}
+    public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) {}
+    public void OnInput(NetworkRunner runner, NetworkInput input) {}
+    public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) {}
+    public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) {}
+    public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) {}
+    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) {}
 
+    public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) {}
+    public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) {}
+    public void OnSceneLoadDone(NetworkRunner runner) {}
+    public void OnSceneLoadStart(NetworkRunner runner) {}
+    public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) {}
 }

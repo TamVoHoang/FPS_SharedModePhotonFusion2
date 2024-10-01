@@ -98,7 +98,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
             // kiem tra Ready scene de ON MainCam OF LocalCam
             if(isReadyScene) {
                 // (this.sceneToStart) networkPlayer <- spawner.cs <- dropdownscenename.cs
-                if(Runner.IsSharedModeMasterClient) sceneToStart = spawner.SceneName;
+                if(Runner.IsSharedModeMasterClient) sceneToStart = spawner.gameMap.ToString();
 
                 Camera.main.transform.position = new Vector3(transform.position.x, Camera.main.transform.position.y, Camera.main.transform.position.z);
 
@@ -251,11 +251,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
         Debug.Log($"{Time.time} OnSceneLoaded: " + scene.name);
+        Debug.Log($"_____OnSceneLoaded() NetworkPlayer.cs");
         isPublicJoinMessageSent = false;
 
         if(scene.name != "Ready") {
-            Debug.Log($"___________________OnSceneLoaded !Ready");
-
             // thong bao cho host biet can phai Spawned code
             if(Object.HasStateAuthority && Object.HasInputAuthority) {
                 Spawned();
@@ -281,16 +280,5 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
             Debug.Log($"__________________key = {item.Key} | value = {item.Value}");
             LocalDict.Add(item.Key, item.Value.ToString());
         }
-
-        //set bool isEnemy | khi player join vao phong
-        /* if(player == Object.InputAuthority) {
-            if(player.PlayerId % 2 != 0) isEnemy = false;
-            else if(player.PlayerId % 2 == 0) isEnemy = true;
-            RPC_SetIsEnemyChanged(isEnemy);
-        } */
-    }
-
-    public void SetNetworkRunnerAndSceneToStart(string scene) {
-        this.sceneToStart = scene;
     }
 }

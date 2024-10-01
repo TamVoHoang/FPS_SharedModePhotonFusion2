@@ -3002,7 +3002,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 671c44f9b07b3e544afb8ce776e0e255, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainMenuUIHandler: {fileID: 0}
   spawner: {fileID: 0}
 --- !u!1 &555609816
 GameObject:

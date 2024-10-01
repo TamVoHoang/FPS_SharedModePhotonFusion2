@@ -123,9 +123,10 @@ public class WeaponHandler : NetworkBehaviour
             spawnPointRaycastCam = localCameraHandler.raycastSpawnPointCam_Network;
         else spawnPointRaycastCam = aiCameraAnchor.position; */
         
-        spawnPointRaycastCam = localCameraHandler.raycastSpawnPointCam_Network;
         
-        if(Runner.GetPhysicsScene().Raycast(spawnPointRaycastCam, aimForwardVector, out var hitInfo, 100, collisionLayers, QueryTriggerInteraction.Collide)) {
+        spawnPointRaycastCam = localCameraHandler.raycastSpawnPointCam_Network;
+
+        /* if(Runner.GetPhysicsScene().Raycast(spawnPointRaycastCam, aimForwardVector, out var hitInfo, 100, collisionLayers, QueryTriggerInteraction.Collide)) {
             // neu hitInfo do this.gameObject ban ra thi return
             if(hitInfo.transform.GetComponent<WeaponHandler>() == this) return;
 
@@ -140,7 +141,6 @@ public class WeaponHandler : NetworkBehaviour
                 if(Object.HasStateAuthority) {
                     //tim xem networkObject nao da tao ra vien dan
                     hitInfo.collider.GetComponent<HPHandler>().OnTakeDamage(networkPlayer.nickName_Network.ToString(), 1, this);
-                    hitInfo.collider.GetComponent<HPHandler>().DealDamageRpc(1);
                 }
 
                 isHitOtherRemotePlayers = true;
@@ -153,40 +153,42 @@ public class WeaponHandler : NetworkBehaviour
             if(isHitOtherRemotePlayers)
                 Debug.DrawRay(aimPoint.position, aimForwardVector * hitDis, Color.red, 1f); // aimForwardVector
             else 
-                Debug.DrawRay(aimPoint.position, aimForwardVector * hitDis, Color.green, 1f); // aimForwardVector */
-        }
+                Debug.DrawRay(aimPoint.position, aimForwardVector * hitDis, Color.green, 1f); // aimForwardVector
+        } */
 
-        
-        /* Runner.LagCompensation.Raycast(spawnPointRaycastCam, aimForwardVector, 100,
-            Object.InputAuthority, out var hitInfo, collisionLayers, HitOptions.IgnoreInputAuthority | HitOptions.IncludePhysX); // se ko check raycast voi doi tuong tao ra no
+        if(Physics.Raycast(spawnPointRaycastCam,aimForwardVector, out var hit, 100, collisionLayers)) {
+            // neu hitInfo do this.gameObject ban ra thi return
+            if(hit.transform.GetComponent<WeaponHandler>() == this) return;
 
-        float hitDis = 100f;
-        bool isHitOtherRemotePlayers = false;
+            float hitDis = 100f;
+            bool isHitOtherRemotePlayers = false;
 
-        //? kiem tra hit vao HitBox (object ko co physic) || hit vao collider (co physicX)
-        if(hitInfo.Distance > 0) hitDis = hitInfo.Distance;
-        
-        //? hit non Physic object
-        if(hitInfo.Hitbox != null) {
-            Debug.Log($"{Time.time} {transform.name} hit hitbox {hitInfo.Hitbox.transform.root.name}");
+            if(hit.distance > 0) hitDis = hit.distance;
 
-            if(Object.HasStateAuthority) {
-                //tim xem networkObject nao da tao ra vien dan
-                //hitInfo.Hitbox.transform.root.GetComponent<HPHandler>().OnTakeDamage(networkPlayer.nickName_Network.ToString(), 1, this);
+            if(hit.transform.TryGetComponent<HPHandler>(out var health)) {
+                Debug.Log($"{Time.time} {transform.name} hit HitBox {hit.transform.root.name}");
+
+                if(Object.HasStateAuthority) {
+                    //tim xem networkObject nao da tao ra vien dan
+                    /* hit.collider.GetComponent<HPHandler>().OnTakeDamage(networkPlayer.nickName_Network.ToString(), 1, this); */
+                    hit.collider.GetComponent<HitboxRoot>().GetComponent<HPHandler>().
+                                OnTakeDamage(networkPlayer.nickName_Network.ToString(), 1, this);
+                }
+
+                isHitOtherRemotePlayers = true;
             }
-            isHitOtherRemotePlayers = true;
+            else if(hit.collider != null){
+                Debug.Log($"{Time.time} {transform.name} hit PhysiX Collier {hit.transform.root.name}");
+            }
+
+            //? ve ra tia neu ban trung remotePlayers
+            if(isHitOtherRemotePlayers)
+                Debug.DrawRay(aimPoint.position, aimForwardVector * hitDis, Color.red, 1f); // aimForwardVector
+            else 
+                Debug.DrawRay(aimPoint.position, aimForwardVector * hitDis, Color.green, 1f); // aimForwardVector
+
         }
-        else if(hitInfo.Collider != null) {
-            Debug.Log($"{Time.time} {transform.name} hit PhysiX Collier {hitInfo.Collider.transform.root.name}");
-        }
-
-        //? ve ra tia neu ban trung remotePlayers
-        if(isHitOtherRemotePlayers)
-            Debug.DrawRay(aimPoint.position, aimForwardVector * hitDis, Color.red, 1f); // aimForwardVector
-        else 
-            Debug.DrawRay(aimPoint.position, aimForwardVector * hitDis, Color.green, 1f); // aimForwardVector */
-
-
+        
         lastTimeFired = Time.time;
 
         // lam cho ai ban theo tan suat random khoang time
@@ -208,19 +210,13 @@ public class WeaponHandler : NetworkBehaviour
     }
 
     void OnFireChanged(bool previous, bool current) {
-        /* //? thong bao cho other clients khac biet this.localPlayer fire
-        Debug.Log($"{Time.time} | {changed.Behaviour.transform.name} OnFireChanged value {changed.Behaviour.isFiring}");
-        
-        bool isFiringCurrent = changed.Behaviour.isFiring;
-        changed.LoadOld();
-        bool isFiringOld = changed.Behaviour.isFiring; */
-
+        //? thong bao cho other clients khac biet this.localPlayer fire
         if(current && !previous) 
             OnFireRemote();
     }
 
     void OnFireRemote() {
-        // thong bao cho tat ca remotePlayer biet
+        //? thong bao cho tat ca remotePlayer biet
 
         //(!Object.HasInputAuthority) => this.Object dang xuat hien o man hinh cua other clients
         // hien thi cho cac man hinh Clients noi this.Object nay dang xuat hien

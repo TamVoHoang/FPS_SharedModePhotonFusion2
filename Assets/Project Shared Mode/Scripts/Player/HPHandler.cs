@@ -6,20 +6,21 @@ using System.Collections.Generic;
 
 public class HPHandler : NetworkBehaviour
 {
-    [Networked]
-    public byte HP {get; set;}
+    //public byte local_HP;
 
     [Networked]
-    public byte NetworkedHealth { get; set; } = 100;
+    public byte Networked_HP { get; set; } = 5;
     
     [Networked]
-    public bool isDead {get; set;}
+    public bool Networked_IsDead {get; set;} = false;
+    [Networked]
+    public NetworkString<_16> Networked_Killer { get; set; }
 
     [Networked]
     public int deadCount {get; set;}
 
     bool isInitialized = false;
-    const byte startingHP = 10;
+    const byte startingHP = 5;
 
     public Color uiOnHitColor;
     public Image uiOnHitImage;
@@ -36,126 +37,121 @@ public class HPHandler : NetworkBehaviour
     NetworkInGameMessages networkInGameMessages;
     NetworkPlayer networkPlayer;
     public bool isSkipSettingStartValues = false; // ko cho chay lai ham start() khi thay doi host migration
-
-    //todo fusion 2.0
     ChangeDetector changeDetector;  //duoc foi khi spawned => col 187
+
+    bool isPublicDeathMessageSent = false;
 
     private void Awake() {
         characterMovementHandler = GetComponent<CharacterMovementHandler>();
-        hitboxRoot = GetComponentInChildren<HitboxRoot>();
+        hitboxRoot = GetComponent<HitboxRoot>();
         networkInGameMessages = GetComponent<NetworkInGameMessages>();
         networkPlayer = GetComponent<NetworkPlayer>();
     }
     void Start() {
         if(!isSkipSettingStartValues) {
-            HP = startingHP;
-            isDead = false;
+            //local_HP = startingHP;
             deadCount = 0;
         }
 
         ResetMeshRenders();
-        /* //? change color when getting damage
-        MeshRenderer[] meshRenderers = playerModel.GetComponentsInChildren<MeshRenderer>();
-        foreach (MeshRenderer meshRenderer in meshRenderers) {
-            flashMeshRenders.Add(new FlashMeshRender(meshRenderer, null)); // chi dang tao mang cho meshRender
-        }
 
-        SkinnedMeshRenderer[] skinnedMeshRenderers = playerModel.GetComponentsInChildren<SkinnedMeshRenderer>();
-        foreach (SkinnedMeshRenderer skinnedMeshRenderer in skinnedMeshRenderers) {
-            flashMeshRenders.Add(new FlashMeshRender(null, skinnedMeshRenderer)); // chi dang tao mang cho meshRender
-        } */
-
-        //defaultSKin_Material = skinnedMeshRenderer.material;
         isInitialized = true;
     }
 
-    //todo nhung thay doi cua bien Network
+    //? ham duoc goi khi Object was spawned
+    public override void Spawned() {
+        changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+    }
+
     public override void Render()
     {
         foreach (var change in changeDetector.DetectChanges(this, out var previousBuffer, out var currentBuffer))
         {
             switch (change)
             {
-                /* case nameof(HP):
-                var byteReader = GetPropertyReader<byte>(nameof(HP));
+                case nameof(Networked_HP):
+                var byteReader = GetPropertyReader<byte>(nameof(Networked_HP));
                 var (previousByte, currentByte) = byteReader.Read(previousBuffer, currentBuffer);
                 OnHPChanged(previousByte, currentByte);
-                    break; */
+                    break;
                 
-                case nameof(isDead):
-                var boolReader = GetPropertyReader<bool>(nameof(isDead));
+                case nameof(Networked_IsDead):
+                var boolReader = GetPropertyReader<bool>(nameof(Networked_IsDead));
                 var (previousBool, currentBool) = boolReader.Read(previousBuffer, currentBuffer);
                 OnStateChanged(previousBool, currentBool);
                     break;
-
             }
         }
     }
 
+    public override void FixedUpdateNetwork() {
+        CheckPlayerDeath(Networked_HP);
+    }
+
     //? server call | coll 55 WeaponHandler.cs | khi hitInfo.HitBox tren player
     public void OnTakeDamage(string damageCausedByPlayerNickName, byte damageAmount, WeaponHandler weaponHandler) {
-        if(isDead) return;
+        if(Networked_IsDead) return;
 
         //gioi han gia tri damageAmount
-        if(damageAmount > HP) damageAmount = HP;
+        if(damageAmount > Networked_HP) damageAmount = Networked_HP;
 
-        HP -= damageAmount;
+        Networked_HP -= damageAmount;
 
-        Debug.Log($"{Time.time} {transform.name} took damage {HP} left");
+        RPC_SetNetworkedHP(Networked_HP);
 
-        /* if(HP <= 0) {
-            Debug.Log($"{Time.time} {transform.name} is dead");
-            //thong bao ai ban ai
-            networkInGameMessages.SendInGameRPCMessage(damageCausedByPlayerNickName, 
-                                    $"Killed <b>{networkPlayer.nickName_Network.ToString()}<b>");
+        Debug.Log($"{Time.time} {transform.name} took damage {Networked_HP} left");
 
+        if(Networked_HP <= 0) {
+            Debug.Log($"{Time.time} {transform.name} is dead by {damageCausedByPlayerNickName}");
+            RPC_SetNetworkedKiller(damageCausedByPlayerNickName);
+            isPublicDeathMessageSent = false;
             StartCoroutine(ServerRespawnCountine());
-            isDead = true;
+            RPC_SetNetworkedIsDead(true);
 
             deadCount ++;
             weaponHandler.killCount ++;
-        } */
+        }
     }
 
+    void CheckPlayerDeath(byte networkHP) {
+        if(networkHP <= 0 && !isPublicDeathMessageSent) {
+            isPublicDeathMessageSent = true;
+            if(Object.HasStateAuthority) {
+                networkInGameMessages.SendInGameRPCMessage(Networked_Killer.ToString(), 
+                                    $" killed <b>{networkPlayer.nickName_Network.ToString()}<b>");
+            }
+        }
+    }
+
+    IEnumerator ServerRespawnCountine() {
+        yield return new WaitForSeconds(2f);
+        // xet bien isRespawnRequested = true de fixUpdatedNetwork() call Respawn()
+        Debug.Log("xet respawn sau 0.5s");
+        characterMovementHandler.RequestRespawn();
+    }
+
+    //RPC
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    void RPC_SetNetworkedHP(byte hp) {
+        this.Networked_HP = hp;
+    }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-    public void DealDamageRpc(byte damage)
-    {
-        // The code inside here will run on the client which owns this object (has state and input authority).
-        Debug.Log("Received DealDamageRpc on StateAuthority, modifying Networked variable");
-        NetworkedHealth -= damage;
+    void RPC_SetNetworkedIsDead(bool isDead) {
+        this.Networked_IsDead = isDead;
     }
 
-    void OnHPChanged(byte previous, byte current)  {
-        /* Debug.Log($"{Time.time} OnHPChanged {changed.Behaviour.HP}");
-        int newHP = changed.Behaviour.HP;
-        changed.LoadOld();
-        int oldHP = changed.Behaviour.HP; */
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    void RPC_SetNetworkedKiller(string killerName) => this.Networked_Killer = killerName;
 
+    void OnHPChanged(byte previous, byte current)  {
         // if HP decreased
         if(current < previous) OnHPReduced();
     }
-    private void OnHPReduced() {
+    void OnHPReduced() {
         if(!isInitialized) return;
         StartCoroutine(OnHitCountine());
     }
-
-    public void ResetMeshRenders() {
-        //clear old
-        flashMeshRenders.Clear();
-        
-        //? change color when getting damage
-        MeshRenderer[] meshRenderers = playerModel.GetComponentsInChildren<MeshRenderer>();
-        foreach (MeshRenderer meshRenderer in meshRenderers) {
-            flashMeshRenders.Add(new FlashMeshRender(meshRenderer, null)); // chi dang tao mang cho meshRender
-        }
-
-        SkinnedMeshRenderer[] skinnedMeshRenderers = playerModel.GetComponentsInChildren<SkinnedMeshRenderer>();
-        foreach (SkinnedMeshRenderer skinnedMeshRenderer in skinnedMeshRenderers) {
-            flashMeshRenders.Add(new FlashMeshRender(null, skinnedMeshRenderer)); // chi dang tao mang cho meshRender
-        }
-    }
-
     IEnumerator OnHitCountine() {
         // this.Object Run this.cs (do dang bi ban trung) 
         // render for Screen of this.Object - localPlayer + remotePlayer
@@ -173,27 +169,33 @@ public class HPHandler : NetworkBehaviour
         }
 
         // render cho man hinh cua this.Object run this.cs - KO HIEN THI O REMOTE
-        if(Object.HasInputAuthority && !isDead) {
+        if(Object.HasInputAuthority && !Networked_IsDead) {
             uiOnHitImage.color = new Color(0,0,0,0);  
         } 
     }
-    IEnumerator ServerRespawnCountine() {
-        yield return new WaitForSeconds(2f);
-        // xet bien isRespawnRequested = true de fixUpdatedNetwork() call Respawn()
-        Debug.Log("xet respawn sau 2s");
-        characterMovementHandler.RequestRespawn(); 
+
+    void ResetMeshRenders() {
+        //clear old
+        flashMeshRenders.Clear();
+        
+        //? change color when getting damage
+        MeshRenderer[] meshRenderers = playerModel.GetComponentsInChildren<MeshRenderer>();
+        foreach (MeshRenderer meshRenderer in meshRenderers) {
+            flashMeshRenders.Add(new FlashMeshRender(meshRenderer, null)); // chi dang tao mang cho meshRender
+        }
+
+        SkinnedMeshRenderer[] skinnedMeshRenderers = playerModel.GetComponentsInChildren<SkinnedMeshRenderer>();
+        foreach (SkinnedMeshRenderer skinnedMeshRenderer in skinnedMeshRenderers) {
+            flashMeshRenders.Add(new FlashMeshRender(null, skinnedMeshRenderer)); // chi dang tao mang cho meshRender
+        }
     }
 
-    //? thong bao cho remote clients
+    //? OnChange Render networked variable
     void OnStateChanged(bool previous, bool current)  {
-        /* Debug.Log($"{Time.time} OnHPChanged {changed.Behaviour.isDead}");
-        bool isDeathCurent = changed.Behaviour.isDead;
-        changed.LoadOld();
-        bool isDeathOld = changed.Behaviour.isDead; */
-        
         if(current) {
             OnDeath(); // dang song turn die(current)
         }
+
         else if(!current && previous) {
             OnRelive(); // dang die turn alive(current)
         }
@@ -207,6 +209,7 @@ public class HPHandler : NetworkBehaviour
 
         Instantiate(deathParticlePf, transform.position + Vector3.up * 1, Quaternion.identity);
     }
+
     void OnRelive() {
         Debug.Log($"{Time.time} onRelive");
         if(Object.HasInputAuthority) {
@@ -217,16 +220,12 @@ public class HPHandler : NetworkBehaviour
         characterMovementHandler.CharacterControllerEnable(true);
     }
 
-    public void OnRespawned_ResetHP() {
+    // sau khi resapwn ben movement -> tra ve gia tri HP va isDead
+    public void OnRespawned_ResetHPIsDead() {
         // khoi toa lai gia tri bat dau
-        HP = startingHP;
+        RPC_SetNetworkedHP(startingHP);
 
-        isDead = false;
-    }
-
-    // ham duoc goi khi Object was spawned
-    public override void Spawned() {
-        changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+        RPC_SetNetworkedIsDead(false);
     }
 }
 
