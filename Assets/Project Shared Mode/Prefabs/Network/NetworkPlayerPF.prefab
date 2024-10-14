@@ -1184,9 +1184,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 4371002194789412503}
     m_Modifications:
+    - target: {fileID: 1803554130569374316, guid: 907f0fe70a1a69549a196c9ab560a6a0, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3289301560956721588, guid: 907f0fe70a1a69549a196c9ab560a6a0, type: 3}
       propertyPath: m_Name
       value: Character_SportyMale_02
+      objectReference: {fileID: 0}
+    - target: {fileID: 3289472746551229608, guid: 907f0fe70a1a69549a196c9ab560a6a0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3289831127444936802, guid: 907f0fe70a1a69549a196c9ab560a6a0, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3292803190742674858, guid: 907f0fe70a1a69549a196c9ab560a6a0, type: 3}
       propertyPath: m_LocalPosition.x

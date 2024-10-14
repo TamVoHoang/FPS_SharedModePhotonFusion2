@@ -42,7 +42,7 @@ public class MainMenuUIHandler : MonoBehaviour
     [Header("Random And Join Session")]
     [SerializeField] List<SessionInfo> sessionList = new List<SessionInfo>();
     public List<SessionInfo> SessionList{set => this.sessionList = value; }
-
+    
     private void Awake() {
         OnFindGameClick_Button.onClick.AddListener(OnFindGameClicked);
         OnQuitGameClick_Button.onClick.AddListener(OnQuitGameClicked);
@@ -50,6 +50,7 @@ public class MainMenuUIHandler : MonoBehaviour
 
         OnCreateNewSessionClick_Button.onClick.AddListener(OnCreateNewGameClicked);
         OnCreateNewSessionClick1_Button.onClick.AddListener(OnStartNewSessionClicked);
+
     }
 
     private void Start() {
@@ -61,6 +62,7 @@ public class MainMenuUIHandler : MonoBehaviour
         /* if(PlayerPrefs.HasKey("PlayerNickName_Local")) {
             lobbyNameInputField.text = PlayerPrefs.GetString("PlayerNickName_Local");
         } */
+        
     }
 
     void HidePanels() {
@@ -173,4 +175,6 @@ public class MainMenuUIHandler : MonoBehaviour
     }
 
     //! testing
+
+
 }

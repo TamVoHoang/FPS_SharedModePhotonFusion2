@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "696865318085",
+    "firebase_url": "https://fps-sharedmodepf2-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "fps-sharedmodepf2",
+    "storage_bucket": "fps-sharedmodepf2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:696865318085:android:123e0de99843a3d7bbfcac",
+        "android_client_info": {
+          "package_name": "com.Tam.FPSSharedModePhotonFusion2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlf3qZ0yBgZjbZzRV7IiO9KA8GZsUCuf0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -2,7 +2,6 @@ using UnityEngine;
 using Fusion;
 using TMPro;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class ReadyUIHandler : NetworkBehaviour
 {
@@ -30,7 +29,7 @@ public class ReadyUIHandler : NetworkBehaviour
 
     private void Awake() {
         OnReadyClick_Button.onClick.AddListener(OnReadyClicked);
-        OnLeaveClick_Button.onClick.AddListener(OnLeaveReadyRoomButtonClicked);
+        OnLeaveClick_Button.onClick.AddListener(OnLeaveClicked);
     }
 
     private void Start() {
@@ -137,8 +136,8 @@ public class ReadyUIHandler : NetworkBehaviour
         // thong bao rpc isReady - set active readyImage
         //NetworkPlayer.Local.GetComponent<CharacterOutfitHandler>().OnReady(isReady);
     }
-
-    private void OnLeaveReadyRoomButtonClicked()
+    
+    private void OnLeaveClicked()
     {
         if(NetworkPlayer.Local)
             NetworkPlayer.Local.ShutdownLeftRoom();

@@ -34,7 +34,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     NetworkDictionary<int, NetworkString<_32>> NetDict => default;
 
     Dictionary<int, string> LocalDict = new Dictionary<int, string>();
-
+    
     // TEAM
     [SerializeField] bool isEnemy;
     public bool IsEnemy {get {return isEnemy;} set {isEnemy = value;}} // <- InitializeNetworkPlayerBeforeSpawn() spawner.cs
@@ -282,7 +282,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
         }
     }
 
-    //? nut back main menu
+    //? nut back main menu | leave trong game + leave ready scene
     public async void ShutdownLeftRoom() {
         await FindObjectOfType<NetworkRunner>().Shutdown();
         SceneManager.LoadScene("MainMenu");
