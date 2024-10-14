@@ -6,19 +6,20 @@ using Firebase.Database;
 [Serializable]
 public class DataToSave {
     public string userName;
-    public int coins;
     public int currLevel;
-    public int hightScore;
+    public int highScore;
+    public int coins;
 
     public DataToSave() {}
-    public DataToSave(string userName, int coins, int currLevel, int hightScore) {
+    public DataToSave(string userName, int currLevel, int highScore, int coins) {
         this.userName = userName;
         this.coins = coins;
         this.currLevel = currLevel;
-        this.hightScore = hightScore;
+        this.highScore = highScore;
     }
 }
 
+//? realtime database
 public class DataSaver : MonoBehaviour
 {
     public static DataSaver Instance;
@@ -47,11 +48,19 @@ public class DataSaver : MonoBehaviour
         DontDestroyOnLoad(this);
     }
 
-    public DataToSave ReturnDataToSave(string username, int coins, int currLevel, int hightScore) {
-        return new DataToSave(username, coins, currLevel, hightScore);
+    public DataToSave ReturnDataToSave(string username, int currLevel, int hightScore, int coins) {
+        return new DataToSave(username, currLevel, hightScore, coins);
     }
 
+    public void SaveToSignup(string userName, string userId) {
+        DataToSave saveDataToSignup = ReturnDataToSave(userName, 1, 0, 0);
+        // chuyen dataToSave -> json
+        string json = JsonUtility.ToJson(saveDataToSignup);
 
+        // tao folder trong database realtime
+        dbRef.Child("Users").Child(userId).SetRawJsonValueAsync(json);
+    }
+    
     #region  SAVE LOAD FIREBASE
     public void SaveData() {
         // chuyen dataToSave -> json

@@ -54,11 +54,15 @@ public class MainMenuUIHandler : MonoBehaviour
     }
 
     private void Start() {
-        if(PlayerPrefs.HasKey("PlayerNickName_Local")) {
+        // lay gia tri luu previous in playerPrefs gan vao inputfield
+        /* if(PlayerPrefs.HasKey("PlayerNickName_Local")) {
             playerNameInputField.text = PlayerPrefs.GetString("PlayerNickName_Local");
-        }
+        } */
 
-        //!
+        //lay gia tri trong firestore khi dang ky nick name gan vao day
+        playerNameInputField.text = DataSaveLoadHander.Instance.dataToFireStore.userName;
+
+        //! not using
         /* if(PlayerPrefs.HasKey("PlayerNickName_Local")) {
             lobbyNameInputField.text = PlayerPrefs.GetString("PlayerNickName_Local");
         } */

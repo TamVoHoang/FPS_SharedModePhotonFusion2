@@ -6,28 +6,28 @@ using System;
 [FirestoreData]
 public class DataToFireStore {
     public string userName;
-    public int coins;
     public int currLevel;
-    public int hightScore;
+    public int highScore;
+    public int coins;
 
     [FirestoreProperty]
     public string UserName { get => userName; set=> userName = value; }
 
     [FirestoreProperty]
-    public int Coins { get => coins; set => coins = value; }
-
-    [FirestoreProperty]
     public int CurrentLevel { get => currLevel; set => currLevel = value; }
 
     [FirestoreProperty]
-    public int HighScore { get => hightScore; set => hightScore = value; }
+    public int HighScore { get => highScore; set => highScore = value; }
+
+    [FirestoreProperty]
+    public int Coins { get => coins; set => coins = value; }
 
     public DataToFireStore() {}
-    public DataToFireStore(string userName, int coins, int currLevel, int hightScore) {
+    public DataToFireStore(string userName, int currLevel, int hightScore, int coins) {
         this.userName = userName;
-        this.coins = coins;
         this.currLevel = currLevel;
-        this.hightScore = hightScore;
+        this.highScore = hightScore;
+        this.coins = coins;
     }
 }
 
@@ -44,7 +44,6 @@ public class InventoryDataToFireStore {
 public class DataSaveLoadHander : MonoBehaviour
 {
     public static DataSaveLoadHander Instance;
-
     public string userId;
     public DataToFireStore dataToFireStore;
     public InventoryDataToFireStore inventoryDataToFireStore;
@@ -71,8 +70,17 @@ public class DataSaveLoadHander : MonoBehaviour
         DontDestroyOnLoad(this);
     }
 
-    public DataToFireStore ReturnDataToSave(string username, int coins, int currLevel, int hightScore) {
-        return new DataToFireStore(username, coins, currLevel, hightScore);
+    public DataToFireStore ReturnDataToSave(string username, int currLevel, int hightScore, int coins) {
+        return new DataToFireStore(username, currLevel, hightScore, coins);
+    }
+
+    public async void SaveToSignup(string userName, string userId) {
+        DataToFireStore saveDataToSignup = ReturnDataToSave(userName, 1, 0, 0);
+        // chuyen dataToSave -> json
+        //string dataToFireStore = JsonUtility.ToJson(saveDataToSignup);
+
+        // tao folder trong database realtime
+        await _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(saveDataToSignup);
     }
 
     #region FIRESTORE
