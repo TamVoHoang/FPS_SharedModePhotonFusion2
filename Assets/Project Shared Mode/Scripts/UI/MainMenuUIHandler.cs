@@ -60,7 +60,10 @@ public class MainMenuUIHandler : MonoBehaviour
         } */
 
         //lay gia tri trong firestore khi dang ky nick name gan vao day
-        playerNameInputField.text = DataSaveLoadHander.Instance.dataToFireStore.userName;
+        if(DataSaver.Instance == null) return;
+        //playerNameInputField.text = DataSaveLoadHander.Instance.playerDataToFireStore.userName;
+        playerNameInputField.text = DataSaver.Instance.dataToSave.userName;
+
 
         //! not using
         /* if(PlayerPrefs.HasKey("PlayerNickName_Local")) {

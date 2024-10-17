@@ -13,9 +13,9 @@ public class DataToSave {
     public DataToSave() {}
     public DataToSave(string userName, int currLevel, int highScore, int coins) {
         this.userName = userName;
-        this.coins = coins;
         this.currLevel = currLevel;
         this.highScore = highScore;
+        this.coins = coins;
     }
 }
 

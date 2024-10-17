@@ -46,16 +46,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   userId: 
-  dataToFireStore:
+  playerDataToFireStore:
     userName: 
     currLevel: 0
     highScore: 0
     coins: 0
-  inventoryDataToFireStore:
-    weaponNames:
-    - 
-    - 
-    - 
 --- !u!114 &5828882184950810685
 MonoBehaviour:
   m_ObjectHideFlags: 0

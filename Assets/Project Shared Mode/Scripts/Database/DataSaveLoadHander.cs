@@ -4,7 +4,7 @@ using System;
 
 [Serializable]
 [FirestoreData]
-public class DataToFireStore {
+public class PlayerDataToFireStore {
     public string userName;
     public int currLevel;
     public int highScore;
@@ -22,11 +22,11 @@ public class DataToFireStore {
     [FirestoreProperty]
     public int Coins { get => coins; set => coins = value; }
 
-    public DataToFireStore() {}
-    public DataToFireStore(string userName, int currLevel, int hightScore, int coins) {
+    public PlayerDataToFireStore() {}
+    public PlayerDataToFireStore(string userName, int currLevel, int highScore, int coins) {
         this.userName = userName;
         this.currLevel = currLevel;
-        this.highScore = hightScore;
+        this.highScore = highScore;
         this.coins = coins;
     }
 }
@@ -40,13 +40,12 @@ public class InventoryDataToFireStore {
     public string[] WeaponNames { get => weaponNames; set => weaponNames = value; }
 }
 
-
 public class DataSaveLoadHander : MonoBehaviour
 {
     public static DataSaveLoadHander Instance;
     public string userId;
-    public DataToFireStore dataToFireStore;
-    public InventoryDataToFireStore inventoryDataToFireStore;
+    public PlayerDataToFireStore playerDataToFireStore;
+    //public InventoryDataToFireStore inventoryDataToFireStore;
     FirebaseFirestore _firebaseFirestore;
 
     // Buttons
@@ -55,6 +54,7 @@ public class DataSaveLoadHander : MonoBehaviour
 
     private void Awake() {
         _firebaseFirestore = FirebaseFirestore.DefaultInstance;
+
         if(Instance != null && this.gameObject != null) {
             Destroy(this.gameObject);
         }
@@ -70,17 +70,20 @@ public class DataSaveLoadHander : MonoBehaviour
         DontDestroyOnLoad(this);
     }
 
-    public DataToFireStore ReturnDataToSave(string username, int currLevel, int hightScore, int coins) {
-        return new DataToFireStore(username, currLevel, hightScore, coins);
+    public PlayerDataToFireStore ReturnPlayerDataToSave(string username, int currLevel, int hightScore, int coins) {
+        return new PlayerDataToFireStore(username, currLevel, hightScore, coins);
     }
 
-    public async void SaveToSignup(string userName, string userId) {
-        DataToFireStore saveDataToSignup = ReturnDataToSave(userName, 1, 0, 0);
-        // chuyen dataToSave -> json
-        //string dataToFireStore = JsonUtility.ToJson(saveDataToSignup);
 
-        // tao folder trong database realtime
-        await _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(saveDataToSignup);
+    public async void SaveToSignup(string userName, string userId) {
+        PlayerDataToFireStore playerDataToSignup = ReturnPlayerDataToSave(userName, 1, 0, 0);
+
+        // luu dong bo
+        //string dataToFireStore = JsonUtility.ToJson(playerDataToSignup);
+
+        //? asyn
+        await _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToSignup);
+        //await _firebaseFirestore.Document($"itemsInventory/{userId}").SetAsync(inventoryDataToFireStore);
     }
 
     #region FIRESTORE
@@ -91,8 +94,8 @@ public class DataSaveLoadHander : MonoBehaviour
         firebaseFirestore.Document($"itemsInventory/{userId}").SetAsync(inventoryDataToFireStore); */
         
         //? asyn
-        await _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(dataToFireStore);
-        await _firebaseFirestore.Document($"itemsInventory/{userId}").SetAsync(inventoryDataToFireStore);
+        await _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToFireStore);
+        //await _firebaseFirestore.Document($"itemsInventory/{userId}").SetAsync(inventoryDataToFireStore);
     }
 
     public async void LoadFireStore() {
@@ -112,13 +115,13 @@ public class DataSaveLoadHander : MonoBehaviour
         //? asyn
         var snapshot = await _firebaseFirestore.Document($"usersInfo/{userId}").GetSnapshotAsync();
         if(snapshot.Exists) {
-            dataToFireStore = snapshot.ConvertTo<DataToFireStore>();
+            playerDataToFireStore = snapshot.ConvertTo<PlayerDataToFireStore>();
         }
 
-        var snapshot_ = await _firebaseFirestore.Document($"itemsInventory/{userId}").GetSnapshotAsync();
+        /* var snapshot_ = await _firebaseFirestore.Document($"itemsInventory/{userId}").GetSnapshotAsync();
         if(snapshot.Exists) {
             inventoryDataToFireStore = snapshot_.ConvertTo<InventoryDataToFireStore>();
-        }
+        } */
     }
     #endregion FIRESTORE
 

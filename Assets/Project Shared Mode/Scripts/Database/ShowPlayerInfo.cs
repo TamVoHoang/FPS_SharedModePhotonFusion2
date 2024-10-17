@@ -96,11 +96,12 @@ public class ShowPlayerInfo : MonoBehaviour
     
     void ShowInfoFireStore() {
         // Debug.Log($"_____show player info");
-        var dataToFireStore = DataSaveLoadHander.Instance.dataToFireStore;
+        //var data = DataSaveLoadHander.Instance.playerDataToFireStore;
 
-        userName.text = "User name: " + dataToFireStore.userName;
-        currentLevel.text = "Current Level: " + dataToFireStore.currLevel.ToString();
-        highScore.text = "High Score: " + dataToFireStore.highScore.ToString();
-        coins.text = "Coins: " + dataToFireStore.coins.ToString();
+        var data = DataSaver.Instance.dataToSave;
+        userName.text = "User name: " + data.userName;
+        currentLevel.text = "Current Level: " + data.currLevel.ToString();
+        highScore.text = "High Score: " + data.highScore.ToString();
+        coins.text = "Coins: " + data.coins.ToString();
     }
 }

@@ -88,10 +88,12 @@ public class EmailLogin : MonoBehaviour
                 showLogMsg_SingUP("Please verify your email!!");
                 SendEmailVerification();
             }
-            // save after having email and password
-            DataSaveLoadHander.Instance.SaveToSignup(useName, result.User.UserId);
+
+            //? save after having email and password
             DataSaver.Instance.SaveToSignup(useName, result.User.UserId);
+            //DataSaveLoadHander.Instance.SaveToSignup(useName, result.User.UserId);
         });
+
     }
 
     public void SendEmailVerification() {
@@ -323,18 +325,20 @@ public class EmailLogin : MonoBehaviour
 
                 //? gan userId cho saveLoadHander Firebase | FireStore
                 DataSaver.Instance.userId = result.User.UserId;
-                DataSaveLoadHander.Instance.userId = result.User.UserId;
+                //DataSaveLoadHander.Instance.userId = result.User.UserId;
             }
             else {
                 showLogMsg("Please verify email!!");
             }
 
-            //Load data
-            DataSaver.Instance.LoadData();
-            DataSaveLoadHander.Instance.LoadFireStore();
             SetPlayerPref(email, password);
 
+            //Load data
+            DataSaver.Instance.LoadData();
+            //DataSaveLoadHander.Instance.LoadFireStore();
         });
+
+        
     }
     #endregion
 
