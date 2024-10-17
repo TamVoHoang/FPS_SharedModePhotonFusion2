@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 461272822510931129}
   - component: {fileID: 5828882184950810685}
   m_Layer: 0
-  m_Name: DataSaveLoad
+  m_Name: DataHadler
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -48,9 +48,9 @@ MonoBehaviour:
   userId: 
   dataToFireStore:
     userName: 
-    coins: 0
     currLevel: 0
-    hightScore: 0
+    highScore: 0
+    coins: 0
   inventoryDataToFireStore:
     weaponNames:
     - 
@@ -71,6 +71,6 @@ MonoBehaviour:
   userId: 
   dataToSave:
     userName: 
-    coins: 0
     currLevel: 0
-    hightScore: 0
+    highScore: 0
+    coins: 0

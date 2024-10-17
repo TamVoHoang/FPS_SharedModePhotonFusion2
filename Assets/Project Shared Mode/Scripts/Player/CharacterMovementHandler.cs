@@ -68,6 +68,9 @@ public class CharacterMovementHandler : NetworkBehaviour
         Vector3 moveDir = transform.forward * movementInput.y + transform.right * movementInput.x;
         moveDir.Normalize();
 
+        // do khi spawner.cs run OnpPlayerJoin() -> co set Charactercontroller.enable = false
+        // ly do la de nhan vat co the roi xuong + co move den vi tri random position
+        if(GetComponent<CharacterController>().enabled == false) return;
         networkCharacterController.Move(moveDir);
 
         //jump network

@@ -62,7 +62,8 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
             }
 
             NetworkPlayer spawnNetworkPlayer = runner.Spawn(networkPlayerPrefab, spawnPosition, Quaternion.identity, player, InitializeNetworkPlayerBeforeSpawn);
-            spawnNetworkPlayer.GetComponent<CharacterController>().enabled = false;
+            // need to check at row 73 CharacterMovementHandle.cs
+            spawnNetworkPlayer.GetComponent<CharacterController>().enabled = false; 
             spawnNetworkPlayer.transform.position = spawnPosition;
         }
     }
@@ -73,6 +74,7 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
             else obj.GetComponent<NetworkPlayer>().IsEnemy = true;
         }
     }
+
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) {
         Debug.Log($"_____OnSessionListUpdated");
 
