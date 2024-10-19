@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &9102853240329419702
+--- !u!1 &895839117821427860
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,23 +8,22 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 1578527968649943207}
-  - component: {fileID: 461272822510931129}
-  - component: {fileID: 5828882184950810685}
+  - component: {fileID: 6968531253978803598}
+  - component: {fileID: 6218865579125605110}
   m_Layer: 0
-  m_Name: DataHadler
+  m_Name: ItemsAssets
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &1578527968649943207
+--- !u!4 &6968531253978803598
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9102853240329419702}
+  m_GameObject: {fileID: 895839117821427860}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -33,44 +32,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &461272822510931129
+--- !u!114 &6218865579125605110
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9102853240329419702}
+  m_GameObject: {fileID: 895839117821427860}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e7664c0389798b42a561336e152c9d5, type: 3}
+  m_Script: {fileID: 11500000, guid: 8286fe6b1cc492341b3fb30574a4ba51, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  userId: 
-  playerDataToFireStore:
-    userName: 
-    currLevel: 0
-    highScore: 0
-    coins: 0
-  inventoryDataToFireStore:
-    itemsListJson: []
   IKnife01_SO: {fileID: 11400000, guid: 4cf93fea9c81a724aa7f04fad1fb4a0a, type: 2}
   IPistol01_SO: {fileID: 11400000, guid: 09292583f8278ce4a8ad1e1b57b68ac5, type: 2}
   IRifle01_SO: {fileID: 11400000, guid: 1d4c11d6509fd2e45a25208b706726c9, type: 2}
---- !u!114 &5828882184950810685
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9102853240329419702}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ecac398caa24bb14aac16fc72015277b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  userId: 
-  dataToSave:
-    userName: 
-    currLevel: 0
-    highScore: 0
-    coins: 0

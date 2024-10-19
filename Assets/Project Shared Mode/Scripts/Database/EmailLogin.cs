@@ -34,7 +34,6 @@ public class EmailLogin : MonoBehaviour
     const string MAILKEY = "mail";
     const string PASSKEY = "pass";
 
-
     private void Start() {
 
         loginButton.onClick.AddListener(Login);
@@ -96,7 +95,6 @@ public class EmailLogin : MonoBehaviour
             DataSaver.Instance.SaveToSignup(useName, result.User.UserId);
             DataSaveLoadHander.Instance.SaveToSignup(useName, result.User.UserId);
         });
-
     }
 
     public void SendEmailVerification() {
@@ -334,11 +332,11 @@ public class EmailLogin : MonoBehaviour
                 showLogMsg("Please verify email!!");
             }
 
-            //SetPlayerPref(email, password);
+            SetPlayerPref(email, password);
 
             //? Load data after Login with UserID
             DataSaver.Instance.LoadData();
-            DataSaveLoadHander.Instance.LoadFireStore();
+            DataSaveLoadHander.Instance.LoadPlayerDataFireStore();
         });
 
     }
@@ -366,6 +364,7 @@ public class EmailLogin : MonoBehaviour
         //logTxt.GetComponent<Animation>().Play("FadeOutAnimation");
         StartCoroutine(TextFadeOut_SignUp(1f));
     }
+    
     IEnumerator TextFadeOut_SignUp(float time) {
         yield return new WaitForSeconds(time);
         logTxt.text = "";

@@ -67,12 +67,12 @@ public class ShowPlayerInfo : MonoBehaviour
 
     private void SaveFireStoreManulTest()
     {
-        _dataSaveLoadHander.SaveFireStore();
+        _dataSaveLoadHander.SaveInventoryDataFireStore();
     }
 
     private void LoadFireStoreManulTest()
     {
-        _dataSaveLoadHander.LoadFireStore();
+        _dataSaveLoadHander.LoadInventoryDataFireStore();
         StartCoroutine(ShowPlayerDataCo(0.5f));
     }
     
