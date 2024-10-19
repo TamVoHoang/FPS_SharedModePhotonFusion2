@@ -33,7 +33,10 @@ public class EmailLogin : MonoBehaviour
     [SerializeField] GameObject PlayerInfoUI;
     const string MAILKEY = "mail";
     const string PASSKEY = "pass";
+
+
     private void Start() {
+
         loginButton.onClick.AddListener(Login);
         signUpButton.onClick.AddListener(SignUp);
 
@@ -89,9 +92,9 @@ public class EmailLogin : MonoBehaviour
                 SendEmailVerification();
             }
 
-            //? save after having email and password
+            //? save after signup with having email and password
             DataSaver.Instance.SaveToSignup(useName, result.User.UserId);
-            //DataSaveLoadHander.Instance.SaveToSignup(useName, result.User.UserId);
+            DataSaveLoadHander.Instance.SaveToSignup(useName, result.User.UserId);
         });
 
     }
@@ -325,20 +328,19 @@ public class EmailLogin : MonoBehaviour
 
                 //? gan userId cho saveLoadHander Firebase | FireStore
                 DataSaver.Instance.userId = result.User.UserId;
-                //DataSaveLoadHander.Instance.userId = result.User.UserId;
+                DataSaveLoadHander.Instance.userId = result.User.UserId;
             }
             else {
                 showLogMsg("Please verify email!!");
             }
 
-            SetPlayerPref(email, password);
+            //SetPlayerPref(email, password);
 
-            //Load data
+            //? Load data after Login with UserID
             DataSaver.Instance.LoadData();
-            //DataSaveLoadHander.Instance.LoadFireStore();
+            DataSaveLoadHander.Instance.LoadFireStore();
         });
 
-        
     }
     #endregion
 

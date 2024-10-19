@@ -2,6 +2,10 @@ using UnityEngine;
 using Firebase.Firestore;
 using System;
 
+/// <summary>
+/// Save to Firestore
+/// </summary>
+
 [Serializable]
 [FirestoreData]
 public class PlayerDataToFireStore {
@@ -45,7 +49,7 @@ public class DataSaveLoadHander : MonoBehaviour
     public static DataSaveLoadHander Instance;
     public string userId;
     public PlayerDataToFireStore playerDataToFireStore;
-    //public InventoryDataToFireStore inventoryDataToFireStore;
+    public InventoryDataToFireStore inventoryDataToFireStore;
     FirebaseFirestore _firebaseFirestore;
 
     // Buttons
@@ -61,14 +65,16 @@ public class DataSaveLoadHander : MonoBehaviour
         else {
             Instance = this;
         }
+
     }
 
     private void Start() {
-        /* saveButton.onClick.AddListener(SaveData);
-        loadButton.onClick.AddListener(LoadDaTa); */
+        /* saveButton.onClick.AddListener(SaveFireStore);
+        loadButton.onClick.AddListener(LoadFireStore); */
 
         DontDestroyOnLoad(this);
     }
+
 
     public PlayerDataToFireStore ReturnPlayerDataToSave(string username, int currLevel, int hightScore, int coins) {
         return new PlayerDataToFireStore(username, currLevel, hightScore, coins);
@@ -78,8 +84,10 @@ public class DataSaveLoadHander : MonoBehaviour
     public async void SaveToSignup(string userName, string userId) {
         PlayerDataToFireStore playerDataToSignup = ReturnPlayerDataToSave(userName, 1, 0, 0);
 
-        // luu dong bo
-        //string dataToFireStore = JsonUtility.ToJson(playerDataToSignup);
+        //PlayerDataToFireStore playerDataToSignup = new PlayerDataToFireStore(userName, 1, 0, 0);
+
+        // conver to string
+        // string dataToFireStore = JsonUtility.ToJson(playerDataToSignup);
 
         //? asyn
         await _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToSignup);
@@ -90,23 +98,24 @@ public class DataSaveLoadHander : MonoBehaviour
     public async void SaveFireStore() {
 
         //? sync
-        /* firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(dataToFireStore);
-        firebaseFirestore.Document($"itemsInventory/{userId}").SetAsync(inventoryDataToFireStore); */
+        //_firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToFireStore);
+        //_firebaseFirestore.Document($"itemsInventory/{userId}").SetAsync(inventoryDataToFireStore);
         
         //? asyn
         await _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToFireStore);
-        //await _firebaseFirestore.Document($"itemsInventory/{userId}").SetAsync(inventoryDataToFireStore);
+        await _firebaseFirestore.Document($"itemsInventory/{userId}").SetAsync(inventoryDataToFireStore);
     }
+
 
     public async void LoadFireStore() {
         //? sync
-        /* firebaseFirestore.Document($"usersInfo/{userId}").GetSnapshotAsync().ContinueWith(task => {
+        /* _firebaseFirestore.Document($"usersInfo/{userId}").GetSnapshotAsync().ContinueWith(task => {
             if(task.Result.Exists) {
-                dataToFireStore = task.Result.ConvertTo<DataToFireStore>();
+                playerDataToFireStore = task.Result.ConvertTo<PlayerDataToFireStore>();
             }
-        }); */
+        });
 
-        /* firebaseFirestore.Document($"itemsInventory/{userId}").GetSnapshotAsync().ContinueWith(task => {
+        _firebaseFirestore.Document($"itemsInventory/{userId}").GetSnapshotAsync().ContinueWith(task => {
             if(task.Result.Exists) {
                 inventoryDataToFireStore = task.Result.ConvertTo<InventoryDataToFireStore>();
             }
@@ -118,10 +127,10 @@ public class DataSaveLoadHander : MonoBehaviour
             playerDataToFireStore = snapshot.ConvertTo<PlayerDataToFireStore>();
         }
 
-        /* var snapshot_ = await _firebaseFirestore.Document($"itemsInventory/{userId}").GetSnapshotAsync();
+        var snapshot_ = await _firebaseFirestore.Document($"itemsInventory/{userId}").GetSnapshotAsync();
         if(snapshot.Exists) {
             inventoryDataToFireStore = snapshot_.ConvertTo<InventoryDataToFireStore>();
-        } */
+        }
     }
     #endregion FIRESTORE
 

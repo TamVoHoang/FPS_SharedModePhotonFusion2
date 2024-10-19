@@ -446,7 +446,6 @@ MonoBehaviour:
   mainMenuUIHandler: {fileID: 0}
   networkPlayerPrefab: {fileID: 0}
   customLobbyName: 
-  sceneName: 
   gameMap: 0
 --- !u!1 &631911066
 GameObject:

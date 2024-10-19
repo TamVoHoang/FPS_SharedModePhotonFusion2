@@ -51,6 +51,13 @@ MonoBehaviour:
     currLevel: 0
     highScore: 0
     coins: 0
+  inventoryDataToFireStore:
+    weaponNames:
+    - 
+    - 
+    - 
+  saveButton: {fileID: 0}
+  loadButton: {fileID: 0}
 --- !u!114 &5828882184950810685
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -3,6 +3,10 @@ using UnityEngine;
 using System;
 using Firebase.Database;
 
+/// <summary>
+/// save to realtime firebase
+/// </summary>
+
 [Serializable]
 public class DataToSave {
     public string userName;
