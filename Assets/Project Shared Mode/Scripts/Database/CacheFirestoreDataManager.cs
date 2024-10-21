@@ -8,16 +8,8 @@ using Firebase.Extensions;
 using Firebase.Firestore;
 using UnityEngine;
 using Newtonsoft.Json;
+using System.Linq;
 
-public class AutoSaveConfig<T>
-{
-    public string CollectionPath { get; set; }
-    public string DocumentId { get; set; }
-    public string FieldName { get; set; }
-    public Func<List<T>> DataProvider { get; set; }
-    public float SaveInterval { get; set; }
-    public bool SaveOnApplicationPause { get; set; }
-}
 
 public class CachedFirestoreDataManager : MonoBehaviour
 {
@@ -44,7 +36,6 @@ public class CachedFirestoreDataManager : MonoBehaviour
         CheckConnectivity();
         LoadAccessTimes();
         LoadDataHashes();
-
     }
 
     private void OnApplicationQuit()
@@ -116,6 +107,7 @@ public class CachedFirestoreDataManager : MonoBehaviour
 
     private string CalculateHash<T>(List<T> data)
     {
+
         string jsonData = JsonConvert.SerializeObject(data);
         using (var sha256 = SHA256.Create())
         {
@@ -214,6 +206,14 @@ public class CachedFirestoreDataManager : MonoBehaviour
             ReleaseOperationLock(cacheKey);
         }
     }
+    
+    public void Test(List<Item> dataList) {
+        var itemsTypeAmount = dataList.Select(item => new
+        {
+            item.ItemsType,
+            item.amount
+        }).ToList();
+    }
 
     private async Task SaveToCache<T>(string collectionPath, string documentId, string fieldName, List<T> dataList)
     {
@@ -222,7 +222,12 @@ public class CachedFirestoreDataManager : MonoBehaviour
 
         try
         {
-            string jsonData = JsonConvert.SerializeObject(dataList);
+            //? kiem tra type of dataList
+            /* bool isListItem = dataList is List<Item>;
+            Type type = dataList.GetType();
+            if(type == typeof(List<Item>)) { } */
+            
+            string jsonData = JsonConvert.SerializeObject(dataList);  //!OK dung nhung bi loi khi add SO vao trong cache
             await File.WriteAllTextAsync(tempPath, jsonData);
 
             if (File.Exists(filePath))
@@ -315,6 +320,7 @@ public class CachedFirestoreDataManager : MonoBehaviour
             if (File.Exists(filePath))
             {
                 string jsonData = File.ReadAllText(filePath);
+
                 UpdateAccessTime(filePath);
                 return JsonConvert.DeserializeObject<List<T>>(jsonData);
             }

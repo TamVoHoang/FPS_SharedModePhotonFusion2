@@ -2,7 +2,6 @@ using UnityEngine;
 using Firebase.Firestore;
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using System.Threading.Tasks;
 using Firebase.Extensions;
 
@@ -42,7 +41,6 @@ public class PlayerDataToFireStore {
 [FirestoreData]
 [Serializable]
 public class InventoryDataToFireStore {
-
     public List<Item> itemsListJson = new List<Item>();
     [FirestoreProperty]
     public List<Item> ItemsListJson {get => itemsListJson; set => itemsListJson = value;}
@@ -54,7 +52,7 @@ public class InventoryDataToFireStore {
     public void LoadSO() {
         foreach (var item in itemsListJson)
         {
-            //item.itemScriptableObject = item.GetScriptableObject();
+            item.itemScriptableObject = item.GetScriptableObject();
         }
     }
 
@@ -109,14 +107,14 @@ public class DataSaveLoadHander : MonoBehaviour
 
     // ham khoi tao va gan list
     private InventoryDataToFireStore ReturnInventoryData() {
-        CreateNewItemListJson(IKnife01_SO, 2);
-        CreateNewItemListJson(IPistol01_SO, 2);
-        CreateNewItemListJson(IRifle01_SO, 2);
+        CreateNewItemListJson(IKnife01_SO, 1);
+        CreateNewItemListJson(IPistol01_SO, 1);
+        CreateNewItemListJson(IRifle01_SO, 1);
         return new InventoryDataToFireStore(inventoryDataToFireStore.itemsListJson);
     }
 
     private void CreateNewItemListJson(ItemScriptableObject ItemS, int amount) {
-        var item = new Item {itemsType = ItemS.itemType, amount = amount}; //, itemScriptableObject = ItemS
+        var item = new Item {itemsType = ItemS.itemType, amount = amount, itemScriptableObject = ItemS}; //
         inventoryDataToFireStore.itemsListJson.Add(item);
     }
 #region PLAYER
@@ -168,15 +166,13 @@ public class DataSaveLoadHander : MonoBehaviour
         // tao list cho doi tuong InventoryJson
         ReturnInventoryData();
 
-        //await SaveInventory(inventoryDataToFireStore.itemsListJson); //? OK co the dung khi chua tach firestore data manager
-
         //? save to firestore directly
-        /* await firestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
-                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson); */
+        await firestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
         
         //? save to cache and online
-        await cacheFirestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
-                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
+        /* await cacheFirestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson); */
 
         foreach (var item in inventoryDataToFireStore.itemsListJson)
             Debug.Log($"_____type" + item.itemsType + "_____amount" + item.amount);
@@ -187,12 +183,12 @@ public class DataSaveLoadHander : MonoBehaviour
         /* InventoryDataToFireStore inventoryDataToFireStore = ReturnInventoryDataToSignUp(); */
 
         //? save to firestore directly
-        /* await firestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
-                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson); */
+        await firestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
         
         //? save to cache and online
-        await cacheFirestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
-                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
+        /* await cacheFirestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson); */
 
         foreach (var item in inventoryDataToFireStore.itemsListJson)
             Debug.Log($"_____type" + item.itemsType + "_____amount" + item.amount);
@@ -203,15 +199,12 @@ public class DataSaveLoadHander : MonoBehaviour
         /* inventoryDataToFireStore.itemsListJson = await LoadInventory(); */
 
         //? load from online
-        /* inventoryDataToFireStore.itemsListJson = 
-            await firestoreDataManager.LoadItemsList(COLLECTIONPATH_INVENTORY, userId, FIELDNAME_ITEMSLIST); */
+        inventoryDataToFireStore.itemsListJson = 
+            await firestoreDataManager.LoadItemsList(COLLECTIONPATH_INVENTORY, userId, FIELDNAME_ITEMSLIST);
 
         //? load from online or cache - SyncCacheWithFirestore()
-        inventoryDataToFireStore.itemsListJson = 
-            await cacheFirestoreDataManager.LoadItemsList(COLLECTIONPATH_INVENTORY, userId, FIELDNAME_ITEMSLIST);
-
-        //? SyncCacheWithFirestore()
-        //cacheFirestoreDataManager.Sync();
+        /* inventoryDataToFireStore.itemsListJson = 
+            await cacheFirestoreDataManager.LoadItemsList(COLLECTIONPATH_INVENTORY, userId, FIELDNAME_ITEMSLIST); */
 
         //? check item.type return item SO -> use it to nexprocess
         inventoryDataToFireStore.LoadSO();
@@ -220,112 +213,4 @@ public class DataSaveLoadHander : MonoBehaviour
             Debug.Log($"_____type" + item.itemsType + "_____amount" + item.amount);
     }
 #endregion INVENOTRY
-
-    #region SAVE NOT USING
-    //todo Generic method to save a list of any type
-    public async Task SaveListToFirestore<T>(string collectionPath, string documentId, string fieldName, List<T> dataList)
-    {
-        try
-        {
-            // Create a document reference
-            DocumentReference docRef = _firebaseFirestore.Collection(collectionPath).Document(documentId);
-            
-            // Create dictionary to hold the data
-            Dictionary<string, object> data = new Dictionary<string, object>
-            {
-                { fieldName, dataList }
-            };
-            
-            // Save to Firestore
-            await docRef.SetAsync(data).ContinueWithOnMainThread(task => {
-                if (task.IsCompleted)
-                {
-                    Debug.Log($"Successfully saved list to {collectionPath}/{documentId}");
-                }
-                else if (task.IsFaulted)
-                {
-                    Debug.LogError("Error saving list: " + task.Exception);
-                }
-            });
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Error saving list: {e.Message}");
-        }
-    }
-
-    // Example method to save a list of strings
-    public async Task SaveStringList(List<string> stringList) {
-        await SaveListToFirestore("gameData", "playerProgress", "achievements", stringList);
-    }
-
-    // Example method to save a list of custom objects
-    public async Task SaveInventory(List<Item> items) {
-        await SaveListToFirestore("itemsInventory", userId, "items", items);
-    }
-    #endregion SAVE NOT USING
-
-    #region LOAD NOT USING
-    // Example method to load achievements
-    public async Task<List<string>> LoadString() {
-        return await LoadStringList("gameData", "playerProgress", "achievements");
-    }
-
-    // Example method to load player scores
-    public async Task<List<Item>> LoadInventory() {
-        return await LoadCustomObjectList<Item>("itemsInventory", userId, "items");
-    }
-
-    // Generic method to load a list of strings
-    public async Task<List<string>> LoadStringList(string collectionPath, string documentId, string fieldName)
-    {
-        try
-        {
-            DocumentSnapshot snapshot = await _firebaseFirestore.Collection(collectionPath).Document(documentId)
-                .GetSnapshotAsync();
-
-            if (snapshot.Exists)
-            {
-                List<object> rawList = snapshot.GetValue<List<object>>(fieldName);
-                return rawList.ConvertAll(item => item.ToString());
-            }
-            else
-            {
-                Debug.Log($"No document found at {collectionPath}/{documentId}");
-                return new List<string>();
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Error loading string list: {e.Message}");
-            return new List<string>();
-        }
-    }
-
-    // Generic method to load a list of custom objects
-    public async Task<List<T>> LoadCustomObjectList<T>(string collectionPath, string documentId, string fieldName)
-    {
-        try
-        {
-            DocumentSnapshot snapshot = await _firebaseFirestore.Collection(collectionPath).Document(documentId)
-                .GetSnapshotAsync();
-
-            if (snapshot.Exists)
-            {
-                Dictionary<string, object> data = snapshot.ToDictionary();
-                if (data.ContainsKey(fieldName))
-                {
-                    return snapshot.GetValue<List<T>>(fieldName);
-                }
-            }
-            Debug.Log($"No data found at {collectionPath}/{documentId}/{fieldName}");
-            return new List<T>();
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Error loading custom object list: {e.Message}");
-            return new List<T>();
-        }
-    }
-    #endregion LOAD NOT USING
 }
