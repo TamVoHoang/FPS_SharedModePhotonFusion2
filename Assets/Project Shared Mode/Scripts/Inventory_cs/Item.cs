@@ -13,6 +13,7 @@ public class Item
         Rifle01,
     }
 
+
     public ItemType itemsType {get; set;}
     public int amount {get; set;}
 

@@ -54,13 +54,18 @@ public class InventoryDataToFireStore {
     public void LoadSO() {
         foreach (var item in itemsListJson)
         {
-            item.itemScriptableObject = item.GetScriptableObject();
+            //item.itemScriptableObject = item.GetScriptableObject();
         }
     }
+
 }
 
 public class DataSaveLoadHander : MonoBehaviour
 {
+    // const
+    private const string COLLECTIONPATH_INVENTORY = "itemsInventory";
+    private const string FIELDNAME_ITEMSLIST = "itemsList";
+
     public static DataSaveLoadHander Instance;
     public string userId;
 
@@ -74,14 +79,17 @@ public class DataSaveLoadHander : MonoBehaviour
 
     //others
     FirebaseFirestore _firebaseFirestore;
-    
+    FirestoreDataManager firestoreDataManager;
+    CachedFirestoreDataManager cacheFirestoreDataManager;
 
-    // Buttons
-    /* [SerializeField] Button saveButton;
-    [SerializeField] Button loadButton; */
+    public List<Item> AA() {
+        return new List<Item>();
+    }
 
     private void Awake() {
         _firebaseFirestore = FirebaseFirestore.DefaultInstance;
+        firestoreDataManager = GetComponent<FirestoreDataManager>();
+        cacheFirestoreDataManager = GetComponent<CachedFirestoreDataManager>();
 
         if(Instance != null && this.gameObject != null) {
             Destroy(this.gameObject);
@@ -92,106 +100,128 @@ public class DataSaveLoadHander : MonoBehaviour
     }
 
     private void Start() {
-        /* saveButton.onClick.AddListener(SaveFireStore);
-        loadButton.onClick.AddListener(LoadFireStore); */
-
         DontDestroyOnLoad(this);
     }
 
-    private void CreateNewItemListJson_ToSignUp(ItemScriptableObject ItemS, int amount) {
-        var item = new Item {itemsType = ItemS.itemType, amount = amount, itemScriptableObject = ItemS};
-        inventoryDataToFireStore.itemsListJson.Add(item);
-    }
-
-    // ham khoi tao va gan list
-    private InventoryDataToFireStore ReturnInventoryDataToSignUp() {
-        CreateNewItemListJson_ToSignUp(IKnife01_SO, 1);
-        CreateNewItemListJson_ToSignUp(IPistol01_SO, 1);
-        CreateNewItemListJson_ToSignUp(IRifle01_SO, 1);
-        return new InventoryDataToFireStore(inventoryDataToFireStore.itemsListJson);
-    }
-
-    public PlayerDataToFireStore ReturnPlayerDataToSave(string username, int currLevel, int hightScore, int coins) {
+    public PlayerDataToFireStore ReturnPlayerData(string username, int currLevel, int hightScore, int coins) {
         return new PlayerDataToFireStore(username, currLevel, hightScore, coins);
     }
 
-    public async void SaveToSignup(string userName, string userId) {
-        PlayerDataToFireStore playerDataToSignup = ReturnPlayerDataToSave(userName, 1, 0, 0);
+    // ham khoi tao va gan list
+    private InventoryDataToFireStore ReturnInventoryData() {
+        CreateNewItemListJson(IKnife01_SO, 2);
+        CreateNewItemListJson(IPistol01_SO, 2);
+        CreateNewItemListJson(IRifle01_SO, 2);
+        return new InventoryDataToFireStore(inventoryDataToFireStore.itemsListJson);
+    }
 
+    private void CreateNewItemListJson(ItemScriptableObject ItemS, int amount) {
+        var item = new Item {itemsType = ItemS.itemType, amount = amount}; //, itemScriptableObject = ItemS
+        inventoryDataToFireStore.itemsListJson.Add(item);
+    }
+#region PLAYER
+    public async void SavePlayerDataToSignup(string userName, string userId) {
+        // tao moi doi tuong
         /* PlayerDataToFireStore playerDataToSignup = new PlayerDataToFireStore(userName, 1, 0, 0); */
 
-        // conver to string
-        // string dataToFireStore = JsonUtility.ToJson(playerDataToSignup);
+        // ham khoi tao
+        PlayerDataToFireStore playerDataToSignup = ReturnPlayerData(userName, 1, 0, 0);
+
+        // conver to string -> gan vao SetAsyn still OK
+        /* string dataToFireStore = JsonUtility.ToJson(playerDataToSignup); */
 
         //? asyn
         await _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToSignup);
     }
-    #region FIRESTORE
 
     // Player
     public async void SavePlayerDataFireStore() {
-        //? sync
-        /* _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToFireStore);
-        _firebaseFirestore.Document($"itemsInventory/{userId}").SetAsync(inventoryDataToFireStore); */
-        
         //? asyn
         await _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToFireStore);
+
+        //? sync
+        /* _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToFireStore); */
     }
 
     public async void LoadPlayerDataFireStore() {
-        //? sync
-        /* _firebaseFirestore.Document($"usersInfo/{userId}").GetSnapshotAsync().ContinueWith(task => {
-            if(task.Result.Exists) {
-                playerDataToFireStore = task.Result.ConvertTo<PlayerDataToFireStore>();
-            }
-        });
-
-        _firebaseFirestore.Document($"itemsInventory/{userId}").GetSnapshotAsync().ContinueWith(task => {
-            if(task.Result.Exists) {
-                inventoryDataToFireStore = task.Result.ConvertTo<InventoryDataToFireStore>();
-            }
-        }); */
-
         //? asyn
         var snapshot = await _firebaseFirestore.Document($"usersInfo/{userId}").GetSnapshotAsync();
         if(snapshot.Exists) {
             playerDataToFireStore = snapshot.ConvertTo<PlayerDataToFireStore>();
         }
-    }
 
-    // Inventory
-    public async void SaveInventoryDataFireStore() {
+        //? sync
+        /*  _firebaseFirestore.Document($"usersInfo/{userId}").GetSnapshotAsync().ContinueWith(task => {
+            if(task.Result.Exists) {
+                playerDataToFireStore = task.Result.ConvertTo<PlayerDataToFireStore>();
+            }
+        }); */
+
+    }
+#endregion PLAYER
+
+#region INVENOTRY
+    public async void SaveInventoryDataFireStoreToSignUp() {
         //? asyn
         /* InventoryDataToFireStore inventoryDataToFireStore = ReturnInventoryDataToSignUp(); */
-        
-        /* List<PlayerScore> scores = new List<PlayerScore>
-        {
-            new PlayerScore { PlayerName = "Player1", Score = 1000 },
-            new PlayerScore { PlayerName = "Player2", Score = 850 }
-        }; */
 
         // tao list cho doi tuong InventoryJson
-        ReturnInventoryDataToSignUp();
+        ReturnInventoryData();
 
-        await SaveInventory(inventoryDataToFireStore.itemsListJson);
+        //await SaveInventory(inventoryDataToFireStore.itemsListJson); //? OK co the dung khi chua tach firestore data manager
+
+        //? save to firestore directly
+        /* await firestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson); */
+        
+        //? save to cache and online
+        await cacheFirestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
+
         foreach (var item in inventoryDataToFireStore.itemsListJson)
-        {
             Debug.Log($"_____type" + item.itemsType + "_____amount" + item.amount);
-        }
+    }
+
+    public async void SaveInventoryDataFireStoreRealtime() {
+        //? asyn
+        /* InventoryDataToFireStore inventoryDataToFireStore = ReturnInventoryDataToSignUp(); */
+
+        //? save to firestore directly
+        /* await firestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson); */
+        
+        //? save to cache and online
+        await cacheFirestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
+
+        foreach (var item in inventoryDataToFireStore.itemsListJson)
+            Debug.Log($"_____type" + item.itemsType + "_____amount" + item.amount);
     }
 
     public async void LoadInventoryDataFireStore() {
         //? asyn
-        inventoryDataToFireStore.itemsListJson = await LoadInventory();
-        inventoryDataToFireStore.LoadSO();
-        foreach (var item in inventoryDataToFireStore.itemsListJson)
-        {
-            Debug.Log($"_____type" + item.itemsType + "_____amount" + item.amount);
-        }
-    }
-    #endregion FIRESTORE
+        /* inventoryDataToFireStore.itemsListJson = await LoadInventory(); */
 
-    #region SAVE
+        //? load from online
+        /* inventoryDataToFireStore.itemsListJson = 
+            await firestoreDataManager.LoadItemsList(COLLECTIONPATH_INVENTORY, userId, FIELDNAME_ITEMSLIST); */
+
+        //? load from online or cache - SyncCacheWithFirestore()
+        inventoryDataToFireStore.itemsListJson = 
+            await cacheFirestoreDataManager.LoadItemsList(COLLECTIONPATH_INVENTORY, userId, FIELDNAME_ITEMSLIST);
+
+        //? SyncCacheWithFirestore()
+        //cacheFirestoreDataManager.Sync();
+
+        //? check item.type return item SO -> use it to nexprocess
+        inventoryDataToFireStore.LoadSO();
+
+        foreach (var item in inventoryDataToFireStore.itemsListJson)
+            Debug.Log($"_____type" + item.itemsType + "_____amount" + item.amount);
+    }
+#endregion INVENOTRY
+
+    #region SAVE NOT USING
     //todo Generic method to save a list of any type
     public async Task SaveListToFirestore<T>(string collectionPath, string documentId, string fieldName, List<T> dataList)
     {
@@ -233,10 +263,10 @@ public class DataSaveLoadHander : MonoBehaviour
     public async Task SaveInventory(List<Item> items) {
         await SaveListToFirestore("itemsInventory", userId, "items", items);
     }
-    #endregion SAVE
+    #endregion SAVE NOT USING
 
-    #region LOAD
-        // Example method to load achievements
+    #region LOAD NOT USING
+    // Example method to load achievements
     public async Task<List<string>> LoadString() {
         return await LoadStringList("gameData", "playerProgress", "achievements");
     }
@@ -297,19 +327,5 @@ public class DataSaveLoadHander : MonoBehaviour
             return new List<T>();
         }
     }
-
-
-    #endregion LOAD
-
-    [FirestoreData]
-    public class PlayerScore
-    {
-        [FirestoreProperty]
-        public string PlayerName { get; set; }
-
-        [FirestoreProperty]
-        public int Score { get; set; }
-    }
-
-
+    #endregion LOAD NOT USING
 }

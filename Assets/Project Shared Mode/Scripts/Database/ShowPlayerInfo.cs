@@ -17,8 +17,11 @@ public class ShowPlayerInfo : MonoBehaviour
     [SerializeField] Button saveFirebaseButton;
     [SerializeField] Button loadFirebaseButton;
 
-    [SerializeField] Button saveFireStoreButton;
+    [SerializeField] Button saveFireStoreSignUpButton;
+    [SerializeField] Button saveFireStoreRealtimeButton;
     [SerializeField] Button loadFireStoreButton;
+
+
 
     [SerializeField] Button gotoLobby;
     [SerializeField] Button quickPlay;
@@ -39,8 +42,11 @@ public class ShowPlayerInfo : MonoBehaviour
         saveFirebaseButton.onClick.AddListener(SaveManualTest);
         loadFirebaseButton.onClick.AddListener(LoadMaunalTest);
 
-        saveFireStoreButton.onClick.AddListener(SaveFireStoreManulTest);
+        saveFireStoreSignUpButton.onClick.AddListener(SaveFireStoreManulTest);
         loadFireStoreButton.onClick.AddListener(LoadFireStoreManulTest);
+
+        saveFireStoreRealtimeButton.onClick.AddListener(LoadFireStoreManulTestRealTime);
+
 
         gotoLobby.onClick.AddListener(GoToLobby);
         quickPlay.onClick.AddListener(GoToQickBattle);
@@ -67,12 +73,17 @@ public class ShowPlayerInfo : MonoBehaviour
 
     private void SaveFireStoreManulTest()
     {
-        _dataSaveLoadHander.SaveInventoryDataFireStore();
+        _dataSaveLoadHander.SaveInventoryDataFireStoreToSignUp();
+    }
+    
+    private void LoadFireStoreManulTestRealTime(){
+        _dataSaveLoadHander.SaveInventoryDataFireStoreRealtime();
     }
 
     private void LoadFireStoreManulTest()
     {
         _dataSaveLoadHander.LoadInventoryDataFireStore();
+
         StartCoroutine(ShowPlayerDataCo(0.5f));
     }
     
