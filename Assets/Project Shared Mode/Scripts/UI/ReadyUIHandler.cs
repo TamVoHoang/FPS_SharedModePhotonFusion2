@@ -21,11 +21,17 @@ public class ReadyUIHandler : NetworkBehaviour
     [SerializeField] Button OnReadyClick_Button;
     [SerializeField] Button OnLeaveClick_Button;
 
+    [SerializeField] Button OnHeadChageClick_Button;
+    [SerializeField] Button OnArmorChageClick_Button;
+    [SerializeField] Button OnSkinsChageClick_Button;
+
+
     [Header("Others")]
     Vector3 desiredCameraPosition = new Vector3 (0, 5, 20); // camera position based on ready or not
     ChangeDetector changeDetector;
     
     string sceneToStart;
+
 
     private void Awake() {
         OnReadyClick_Button.onClick.AddListener(OnReadyClicked);
@@ -36,9 +42,11 @@ public class ReadyUIHandler : NetworkBehaviour
         countDownText.text = "";
         countDownTickTimer = TickTimer.None;
 
+        OnHeadChageClick_Button.onClick.AddListener(OnChangeCharacter_Head);
+        OnArmorChageClick_Button.onClick.AddListener(OnChangeCharacter_Body);
+        OnSkinsChageClick_Button.onClick.AddListener(OnChangeCharacter_Skin);
     }
 
-    
     public override void Spawned() {
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
     }
@@ -93,13 +101,13 @@ public class ReadyUIHandler : NetworkBehaviour
         GameObject[] gameObjectsToTransfer = GameObject.FindGameObjectsWithTag("Player");
         foreach (var item in gameObjectsToTransfer) {
             // ko xoa khi load scene
-            //DontDestroyOnLoad(item);
+            DontDestroyOnLoad(item);
             
             // thong bao rpc isReady - set active readyImage
-            /* if(!item.GetComponent<CharacterOutfitHandler>().isDoneWithCharacterSelection) {
-                //Runner.Despawn(item.GetComponent<NetworkObject>());
+            if(!item.GetComponent<CharacterOutfitHandler>().isDoneWithCharacterSelection) {
+                /* Runner.Despawn(item.GetComponent<NetworkObject>()); */
                 Runner.Disconnect(item.GetComponent<NetworkObject>().InputAuthority);
-            } */
+            }
         }
 
         if(Runner.IsSharedModeMasterClient) {
@@ -114,6 +122,23 @@ public class ReadyUIHandler : NetworkBehaviour
             Runner.LoadScene(sceneToStart);
     }
 
+    // change skins - heads
+    public void OnChangeCharacter_Head() {
+        if(isReady) return;
+        NetworkPlayer.Local.GetComponent<CharacterOutfitHandler>().OnCycleHead();
+    }
+
+    public void OnChangeCharacter_Body() {
+        if(isReady) return;
+        NetworkPlayer.Local.GetComponent<CharacterOutfitHandler>().OnCycleBody();
+    }
+
+    public void OnChangeCharacter_Skin() {
+        if(isReady) return;
+        NetworkPlayer.Local.GetComponent<CharacterOutfitHandler>().OnCycleSkin();
+    }
+
+    // Ready Button
     private void OnReadyClicked()
     {
         if(isReady) isReady = false;
@@ -133,7 +158,7 @@ public class ReadyUIHandler : NetworkBehaviour
         }
 
         // thong bao rpc isReady - set active readyImage
-        //NetworkPlayer.Local.GetComponent<CharacterOutfitHandler>().OnReady(isReady);
+        NetworkPlayer.Local.GetComponent<CharacterOutfitHandler>().OnReady(isReady);
     }
     
     private void OnLeaveClicked()

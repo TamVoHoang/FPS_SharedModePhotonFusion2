@@ -187,7 +187,7 @@ public class HPHandler : NetworkBehaviour
         } 
     }
 
-    void ResetMeshRenders() {
+    public void ResetMeshRenders() {
         //clear old
         flashMeshRenders.Clear();
         

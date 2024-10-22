@@ -767,6 +767,7 @@ GameObject:
   - component: {fileID: 3728094036855930187}
   - component: {fileID: 2356012116495728008}
   - component: {fileID: 7691933988070496119}
+  - component: {fileID: 6622718361216512492}
   m_Layer: 0
   m_Name: NetworkPlayerPF
   m_TagString: Player
@@ -819,6 +820,7 @@ MonoBehaviour:
   - {fileID: 3728094036855930187}
   - {fileID: 2356012116495728008}
   - {fileID: 7691933988070496119}
+  - {fileID: 6622718361216512492}
 --- !u!114 &8046501135343815372
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1005,6 +1007,29 @@ MonoBehaviour:
   localGun: {fileID: 5974135563984831783}
   deathParticlePf: {fileID: 4968256401583644762, guid: 136094b40fc14b34ab568c032409f5df, type: 3}
   isSkipSettingStartValues: 0
+--- !u!114 &6622718361216512492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7314756524467492152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba326bf951fd18f4ba81a8332e86fc01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerHead: {fileID: 9205479163240212611}
+  playerRightArm: {fileID: 9006225967893826196}
+  playerLeftArm: {fileID: 9191722262201472597}
+  playerBody: {fileID: 1111155781682275816}
+  playerSkins: {fileID: 4308651068492573452}
+  attach: {fileID: 3813969443841588356}
+  skins: {fileID: 6696948849308731810}
+  readyImage: {fileID: 4883686729236872063}
+  animator: {fileID: 0}
+  _isDoneWithCharacterSelection:
+    _value: 0
 --- !u!1 &8013862553777737680
 GameObject:
   m_ObjectHideFlags: 0
@@ -1246,9 +1271,24 @@ MonoBehaviour:
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1111155781682275816 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1803554130569374316, guid: 907f0fe70a1a69549a196c9ab560a6a0, type: 3}
+  m_PrefabInstance: {fileID: 1615697869041143684}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &2716254073748598244 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 3737440231066149472, guid: 907f0fe70a1a69549a196c9ab560a6a0, type: 3}
+  m_PrefabInstance: {fileID: 1615697869041143684}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3813969443841588356 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2486529769472176896, guid: 907f0fe70a1a69549a196c9ab560a6a0, type: 3}
+  m_PrefabInstance: {fileID: 1615697869041143684}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &4308651068492573452 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3289734354713371784, guid: 907f0fe70a1a69549a196c9ab560a6a0, type: 3}
   m_PrefabInstance: {fileID: 1615697869041143684}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &4314025855282111022 stripped
@@ -1264,6 +1304,26 @@ ParticleSystem:
 --- !u!4 &6491901841531382390 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5511212915830760946, guid: 907f0fe70a1a69549a196c9ab560a6a0, type: 3}
+  m_PrefabInstance: {fileID: 1615697869041143684}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &6696948849308731810 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5376255454153246246, guid: 907f0fe70a1a69549a196c9ab560a6a0, type: 3}
+  m_PrefabInstance: {fileID: 1615697869041143684}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &9006225967893826196 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7678802747545109776, guid: 907f0fe70a1a69549a196c9ab560a6a0, type: 3}
+  m_PrefabInstance: {fileID: 1615697869041143684}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &9191722262201472597 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7630102809703881169, guid: 907f0fe70a1a69549a196c9ab560a6a0, type: 3}
+  m_PrefabInstance: {fileID: 1615697869041143684}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &9205479163240212611 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7614586553699723015, guid: 907f0fe70a1a69549a196c9ab560a6a0, type: 3}
   m_PrefabInstance: {fileID: 1615697869041143684}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5242978347915643444
