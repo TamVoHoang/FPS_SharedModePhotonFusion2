@@ -173,7 +173,7 @@ public class WeaponHandler : NetworkBehaviour
                 
                 // kiem tra co phai dong doi hay khong
                 bool isEnemyCheck = hit.transform.GetComponent<NetworkPlayer>().isEnemy_Network;
-                if(spawner.customLobbyName == "OurLobbyID_Team" && networkPlayer.isEnemy_Network == isEnemyCheck) return;
+                if(spawner.CustomLobbyName == "OurLobbyID_Team" && networkPlayer.isEnemy_Network == isEnemyCheck) return;
                 // kiem tra co phai dong doi hay khong
 
                 if(Object.HasStateAuthority) {

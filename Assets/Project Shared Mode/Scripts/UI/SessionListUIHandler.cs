@@ -68,7 +68,7 @@ public class SessionListUIHandler : MonoBehaviour
     {
         NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
         Spawner spawner = FindObjectOfType<Spawner>();
-        networkRunnerHandler.JoinGame(sessionInfo, spawner.customLobbyName, spawner.gameMap);
+        networkRunnerHandler.JoinGame(sessionInfo, spawner.CustomLobbyName, spawner.GameMap);
 
         MainMenuUIHandler mainMenuUIHandler = FindObjectOfType<MainMenuUIHandler>();
         mainMenuUIHandler.OnJoiningServer();
@@ -159,7 +159,7 @@ public class SessionListUIHandler : MonoBehaviour
         if(sessionInfo != null) {
             statusText.text = $"Join session {sessionInfo.Name}";
             statusText.gameObject.SetActive(true);
-            networkRunnerHandler.JoinGame(sessionInfo, spawner.customLobbyName, spawner.gameMap);
+            networkRunnerHandler.JoinGame(sessionInfo, spawner.CustomLobbyName, spawner.GameMap);
         }
         else {
             statusText.text = "No sessison to join";

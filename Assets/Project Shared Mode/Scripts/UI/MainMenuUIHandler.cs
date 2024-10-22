@@ -27,29 +27,32 @@ public class MainMenuUIHandler : MonoBehaviour
     [SerializeField] TMP_InputField sessionNameInputField;
 
     [Header("Buttons")]
-    [SerializeField] Button OnFindGameClick_Button;
-    [SerializeField] Button OnQuitGameClick_Button;
     [SerializeField] Button OnQuickPlayClick_Button;
-
+    [SerializeField] Button OnFindGameClick_Button;
+    [SerializeField] Button OnEquipClick_Button;
+    [SerializeField] Button OnQuitGameClick_Button;
 
     [SerializeField] Button OnCreateNewSessionClick_Button;     // active panel chuan bi tao session Name
-    [SerializeField] Button OnCreateNewSessionClick1_Button;    // input session's name -> vao ready scene sau khi tao session
+    [SerializeField] Button OnCreateAndJoinSessionClick_Button;    // input session's name -> vao ready scene sau khi tao session
 
-    [Header("Create Session")]
+    /* [Header("Create Session")]
     [SerializeField] string sceneName;
-    public string SceneName { get { return sceneName; } set { sceneName = value; } }
+    public string SceneName { get { return sceneName; } set { sceneName = value; } } */
 
     [Header("Random And Join Session")]
     [SerializeField] List<SessionInfo> sessionList = new List<SessionInfo>();
     public List<SessionInfo> SessionList{set => this.sessionList = value; }
     
+    const string READY_SCENE = "Ready";
+    const string EQUIP_SCENE = "Equip";
     private void Awake() {
-        OnFindGameClick_Button.onClick.AddListener(OnFindGameClicked);
-        OnQuitGameClick_Button.onClick.AddListener(OnQuitGameClicked);
         OnQuickPlayClick_Button.onClick.AddListener(OnQuickPlayClicked);
+        OnFindGameClick_Button.onClick.AddListener(OnFindGameClicked);
+        OnEquipClick_Button.onClick.AddListener(OnEquipClicked);
+        OnQuitGameClick_Button.onClick.AddListener(OnQuitGameClicked);
 
         OnCreateNewSessionClick_Button.onClick.AddListener(OnCreateNewGameClicked);
-        OnCreateNewSessionClick1_Button.onClick.AddListener(OnStartNewSessionClicked);
+        OnCreateAndJoinSessionClick_Button.onClick.AddListener(OnCreateJoinSessionClicked);
 
     }
 
@@ -79,7 +82,15 @@ public class MainMenuUIHandler : MonoBehaviour
         createSessionPanel.SetActive(false);
     }
 
-    // sau khi nhap ten -> tim session
+    // xem va trang bi nhan vat
+    public void OnEquipClicked() {
+        /* NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
+        Spawner spawner = FindObjectOfType<Spawner>();
+
+        networkRunnerHandler.CreateGame(sessionNameInputField.text, spawner.GameMap, EQUIP_SCENE, spawner.CustomLobbyName); */
+    }
+
+    // sau khi nhap ten -> tim list sessin -> chon va join
     public void OnFindGameClicked() {
         PlayerPrefs.SetString("PlayerNickName_Local", playerNameInputField.text);
         PlayerPrefs.Save();
@@ -104,14 +115,14 @@ public class MainMenuUIHandler : MonoBehaviour
     }
 
     // nhap ten session -> xac nhan tao session -> vao ready secen
-    public void OnStartNewSessionClicked() {
+    public void OnCreateJoinSessionClicked() {
         NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
         Spawner spawner = FindObjectOfType<Spawner>();
 
         // vao thang Game Random character
         /* networkRunnerHandler.CreateGame(sessionNameInputField.text, "World1"); */
 
-        networkRunnerHandler.CreateGame(sessionNameInputField.text, spawner.gameMap, "Ready", spawner.customLobbyName);
+        networkRunnerHandler.CreateGame(sessionNameInputField.text, spawner.GameMap, READY_SCENE, spawner.CustomLobbyName);
 
         HidePanels();
         statusPanel.gameObject.SetActive(true);
@@ -170,7 +181,7 @@ public class MainMenuUIHandler : MonoBehaviour
         var spawner = FindObjectOfType<Spawner>();
         if(sessionInfo != null) {
             quickPlayResultText.text = $"Join session {sessionInfo.Name}";
-            networkRunnerHandler.JoinGame(sessionInfo, spawner.customLobbyName, spawner.gameMap);
+            networkRunnerHandler.JoinGame(sessionInfo, spawner.CustomLobbyName, spawner.GameMap);
         }
         else {
             quickPlayResultText.text = "No session to join";
@@ -178,7 +189,7 @@ public class MainMenuUIHandler : MonoBehaviour
             
         
         findingRoomPanel.gameObject.SetActive(false);
-        //statusPanel.gameObject.SetActive(false);
+        /* statusPanel.gameObject.SetActive(false); */
     }
 
     //! testing

@@ -11,14 +11,14 @@ public class DropdownTypeGame : MonoBehaviour
             case 0:
             {
                 //networkRunnerHandler.customLobbyName = "OurLobbyID";
-                spawner.customLobbyName = "OurLobbyID";
+                spawner.CustomLobbyName = "OurLobbyID_Survial";
                 break;
             }
                 
             case 1:
             {
                 //networkRunnerHandler.customLobbyName = "OurLobbyID_Team";
-                spawner.customLobbyName = "OurLobbyID_Team";
+                spawner.CustomLobbyName = "OurLobbyID_Team";
                 break;
             }
         }

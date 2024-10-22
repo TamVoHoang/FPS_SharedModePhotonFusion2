@@ -4,7 +4,6 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 using Fusion;
 using TMPro;
-using System.Linq;
 
 public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 {
@@ -103,13 +102,14 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
         // kiem tra co dang spawn tai ready scene hay khong
         bool isReadyScene = SceneManager.GetActiveScene().name == "Ready";
 
+
         if(this.Object.HasInputAuthority) {
             Local = this;
 
             // kiem tra Ready scene de ON MainCam OF LocalCam
             if(isReadyScene) {
                 // (this.sceneToStart) networkPlayer <- spawner.cs <- dropdownscenename.cs
-                if(Runner.IsSharedModeMasterClient) sceneToStart = spawner.gameMap.ToString();
+                if(Runner.IsSharedModeMasterClient) sceneToStart = spawner.GameMap.ToString();
 
                 Camera.main.transform.position = new Vector3(transform.position.x, Camera.main.transform.position.y, Camera.main.transform.position.z);
 
@@ -192,7 +192,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     }
 
     private void OnIsEnemyChanged() {
-        if(spawner.customLobbyName != "OurLobbyID_Team") return;
+        if(spawner.CustomLobbyName != "OurLobbyID_Team") return;
 
         if(isEnemy_Network) {
             nickName_TM.color = Color.red;

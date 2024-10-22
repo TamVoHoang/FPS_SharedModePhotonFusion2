@@ -16,8 +16,13 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
     [SerializeField] SessionListUIHandler sessionListUIHandler;
     [SerializeField] MainMenuUIHandler mainMenuUIHandler;
     [SerializeField] NetworkPlayer networkPlayerPrefab;
-    public string customLobbyName;  // game type
-    public GameMap gameMap;
+
+    [Header ("      Lobby GameMap (Scene)")]
+    [SerializeField] string customLobbyName;
+    [SerializeField] GameMap gameMap;
+
+    public string CustomLobbyName {get => customLobbyName; set => customLobbyName = value;}
+    public GameMap GameMap {get => gameMap; set => gameMap = value;}
 
     /* [SerializeField] string sceneToStart;
     public string SceneName {set { sceneToStart = value; } get { return sceneToStart; }} */
@@ -26,9 +31,10 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
         sessionListUIHandler = FindObjectOfType<SessionListUIHandler>(true);
         mainMenuUIHandler = FindObjectOfType<MainMenuUIHandler>(true);
 
-        customLobbyName = "OurLobbyID";
+        // set defaut customLobblyName and gameMap (scene)
+        customLobbyName = "OurLobbyID_Survial";
         gameMap = (GameMap)GameMap.World_1;
-        //sceneToStart = "World_1";
+        /* sceneToStart = "World_1"; */
     }
 
     public void OnConnectedToServer(NetworkRunner runner) {
@@ -42,7 +48,7 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
         {
             Debug.Log($"playerRef - {player}");
             Debug.Log($"Runner.LocalPlayer - {Runner.LocalPlayer}");
-
+            
             //? kiem tra co dang spawn tai ready scene hay khong
             bool isReadyScene = SceneManager.GetActiveScene().name == "Ready";
             Vector3 spawnPosition = Utils.GetRandomSpawnPoint();
@@ -50,8 +56,10 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
             if(isReadyScene) {
                 if(player.PlayerId == 1) {
                     spawnPosition = new Vector3(0 , 5, 0);
+
                     ReadyUIHandler readyUIHandler = FindObjectOfType<ReadyUIHandler>();
-                    readyUIHandler.SetOnLeaveButtonActive(false);
+                    //readyUIHandler.SetOnLeaveButtonActive(false);   // neu la Host session thi ko Leave
+
                     Debug.Log($"Host was Joint  {player.PlayerId} | {spawnPosition}");
                 } else if(player.PlayerId % 2 == 0) {
                     spawnPosition = new Vector3(player.PlayerId * -0.5f, 5, 0);
@@ -59,6 +67,10 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
                 } else if(player.PlayerId % 2 != 0) {
                     spawnPosition = new Vector3(player.PlayerId * 0.5f - 0.5f, 5, 0);
                 }
+            }
+
+            if(SceneManager.GetActiveScene().name =="MainMenu") {
+                spawnPosition = Vector3.zero;
             }
 
             NetworkPlayer spawnNetworkPlayer = runner.Spawn(networkPlayerPrefab, spawnPosition, Quaternion.identity, player, InitializeNetworkPlayerBeforeSpawn);

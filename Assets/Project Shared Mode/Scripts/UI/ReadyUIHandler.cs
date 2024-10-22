@@ -131,7 +131,6 @@ public class ReadyUIHandler : NetworkBehaviour
                 countDown = 0;
             }
         }
-        
 
         // thong bao rpc isReady - set active readyImage
         //NetworkPlayer.Local.GetComponent<CharacterOutfitHandler>().OnReady(isReady);
@@ -148,6 +147,7 @@ public class ReadyUIHandler : NetworkBehaviour
         else countDownText.text = $"THE BATTLES STARTS IN {countDown}";
     }
 
+    // disable Leve butotn if networkObject is host session
     public void SetOnLeaveButtonActive(bool isActice) => OnLeaveClick_Button.interactable = isActice;
 
 }

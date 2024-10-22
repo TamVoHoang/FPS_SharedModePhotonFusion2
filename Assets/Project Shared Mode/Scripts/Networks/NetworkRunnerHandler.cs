@@ -86,7 +86,7 @@ public class NetworkRunnerHandler : MonoBehaviour
         Debug.Log("JoinLobby started");
 
         //string lobbyID = "OurLobbyID";
-        string lobbyID = networkRunner.GetComponent<Spawner>().customLobbyName;
+        string lobbyID = networkRunner.GetComponent<Spawner>().CustomLobbyName;
 
         var result = await networkRunner.JoinSessionLobby(SessionLobby.Custom, lobbyID);
 

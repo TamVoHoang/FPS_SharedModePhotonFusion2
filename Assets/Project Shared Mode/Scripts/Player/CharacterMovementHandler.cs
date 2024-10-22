@@ -3,14 +3,14 @@ using Fusion;
 using UnityEngine.SceneManagement;
 public class CharacterMovementHandler : NetworkBehaviour
 {
-    // other
-    NetworkCharacterController networkCharacterController;
-    LocalCameraHandler localCameraHandler;
-
     //input
-    private bool _jumpPressed;
+    bool _jumpPressed;
     Vector3 aimForwardVector;
     Vector2 movementInput;
+
+    [Header("Animation")]
+    [SerializeField] Animator animator;  // nam trong doi tuong con cua Model transform
+    [SerializeField] float walkSpeed = 0f;
 
     // request after falling
     [SerializeField] float fallHightToRespawn = -10f;
@@ -20,6 +20,8 @@ public class CharacterMovementHandler : NetworkBehaviour
     public bool isRespawnRequested_{get; set;} = false;
 
     //...
+    NetworkCharacterController networkCharacterController;
+    LocalCameraHandler localCameraHandler;
     NetworkInGameMessages networkInGameMessages;
     NetworkPlayer networkPlayer;
     HPHandler hPHandler;
@@ -29,12 +31,14 @@ public class CharacterMovementHandler : NetworkBehaviour
         networkInGameMessages = GetComponent<NetworkInGameMessages>();
         networkPlayer = GetComponent<NetworkPlayer>();
         hPHandler = GetComponent<HPHandler>();
+        animator = GetComponentInChildren<Animator>();
     }
 
 
     void Update() {
         //lock input to move and jump if Ready scene
         if(SceneManager.GetActiveScene().name == "Ready") return;
+
 
         //? move input local
         if (Input.GetButtonDown("Jump")) _jumpPressed = true;
@@ -79,9 +83,15 @@ public class CharacterMovementHandler : NetworkBehaviour
             _jumpPressed = !_jumpPressed;
         }
 
-        // animator
+        //? animator
+        Vector2 walkVector = new Vector2(networkCharacterController.Velocity.x,
+                                        networkCharacterController.Velocity.z);
+        walkVector.Normalize(); // ko cho lon hon 1
 
+        /* walkSpeed = Mathf.Clamp01(walkVector.magnitude); */ // chuyen vector 2 sang gia tri 0 or 1
 
+        walkSpeed = Mathf.Lerp(walkSpeed, Mathf.Clamp01(walkVector.magnitude), Runner.DeltaTime * 10f);
+        animator.SetFloat("walkSpeed", walkSpeed);  // xet gia tri float "walkSpeed" trong animator
         
         CheckFallToRespawn();
     }
