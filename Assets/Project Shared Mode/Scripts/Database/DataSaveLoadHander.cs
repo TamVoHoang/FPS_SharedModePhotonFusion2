@@ -2,8 +2,6 @@ using UnityEngine;
 using Firebase.Firestore;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Firebase.Extensions;
 
 /// <summary>
 /// Save to Firestore
@@ -52,7 +50,7 @@ public class InventoryDataToFireStore {
     public void LoadSO() {
         foreach (var item in itemsListJson)
         {
-            item.itemScriptableObject = item.GetScriptableObject();
+            //item.itemScriptableObject = item.GetScriptableObject();
         }
     }
 
@@ -70,10 +68,10 @@ public class DataSaveLoadHander : MonoBehaviour
     public PlayerDataToFireStore playerDataToFireStore;
     public InventoryDataToFireStore inventoryDataToFireStore;
     
-    [Header ("Item.ScritapleObjects")]
+    /* [Header ("Item.ScritapleObjects")]
     [SerializeField] ItemScriptableObject IKnife01_SO;
     [SerializeField] ItemScriptableObject IPistol01_SO;
-    [SerializeField] ItemScriptableObject IRifle01_SO;
+    [SerializeField] ItemScriptableObject IRifle01_SO; */
 
     //others
     FirebaseFirestore _firebaseFirestore;
@@ -107,14 +105,14 @@ public class DataSaveLoadHander : MonoBehaviour
 
     // ham khoi tao va gan list
     private InventoryDataToFireStore ReturnInventoryData() {
-        CreateNewItemListJson(IKnife01_SO, 1);
-        CreateNewItemListJson(IPistol01_SO, 1);
-        CreateNewItemListJson(IRifle01_SO, 1);
+        CreateNewItemListJson(ItemAssets.Instance.IKnife01_SO, 1);
+        CreateNewItemListJson(ItemAssets.Instance.IPistol01_SO, 1);
+        CreateNewItemListJson(ItemAssets.Instance.IRifle01_SO, 1);
         return new InventoryDataToFireStore(inventoryDataToFireStore.itemsListJson);
     }
 
     private void CreateNewItemListJson(ItemScriptableObject ItemS, int amount) {
-        var item = new Item {itemsType = ItemS.itemType, amount = amount, itemScriptableObject = ItemS}; //
+        var item = new Item {itemsType = ItemS.itemType, amount = amount, itemScriptableObject = ItemS};
         inventoryDataToFireStore.itemsListJson.Add(item);
     }
 #region PLAYER
@@ -167,31 +165,33 @@ public class DataSaveLoadHander : MonoBehaviour
         ReturnInventoryData();
 
         //? save to firestore directly
-        await firestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
-                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
+        // await firestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+        //                                         FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
         
         //? save to cache and online
-        /* await cacheFirestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
-                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson); */
+        await cacheFirestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
 
         foreach (var item in inventoryDataToFireStore.itemsListJson)
-            Debug.Log($"_____type" + item.itemsType + "_____amount" + item.amount);
+            Debug.Log($"_____type" + item.itemsType + "_____name " + item.itemScriptableObject.name);
     }
 
     public async void SaveInventoryDataFireStoreRealtime() {
+        if(inventoryDataToFireStore.itemsListJson.Count <= 0 ) return;
+
         //? asyn
         /* InventoryDataToFireStore inventoryDataToFireStore = ReturnInventoryDataToSignUp(); */
 
         //? save to firestore directly
-        await firestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
-                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
+        // await firestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+        //                                         FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
         
         //? save to cache and online
-        /* await cacheFirestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
-                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson); */
+        await cacheFirestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
 
         foreach (var item in inventoryDataToFireStore.itemsListJson)
-            Debug.Log($"_____type" + item.itemsType + "_____amount" + item.amount);
+            Debug.Log($"_____type" + item.itemsType + "_____name " + item.itemScriptableObject.name);
     }
 
     public async void LoadInventoryDataFireStore() {
@@ -199,18 +199,18 @@ public class DataSaveLoadHander : MonoBehaviour
         /* inventoryDataToFireStore.itemsListJson = await LoadInventory(); */
 
         //? load from online
-        inventoryDataToFireStore.itemsListJson = 
-            await firestoreDataManager.LoadItemsList(COLLECTIONPATH_INVENTORY, userId, FIELDNAME_ITEMSLIST);
+        // inventoryDataToFireStore.itemsListJson = 
+        //     await firestoreDataManager.LoadItemsList(COLLECTIONPATH_INVENTORY, userId, FIELDNAME_ITEMSLIST);
 
         //? load from online or cache - SyncCacheWithFirestore()
-        /* inventoryDataToFireStore.itemsListJson = 
-            await cacheFirestoreDataManager.LoadItemsList(COLLECTIONPATH_INVENTORY, userId, FIELDNAME_ITEMSLIST); */
+        inventoryDataToFireStore.itemsListJson = 
+            await cacheFirestoreDataManager.LoadItemsList(COLLECTIONPATH_INVENTORY, userId, FIELDNAME_ITEMSLIST);
 
         //? check item.type return item SO -> use it to nexprocess
         inventoryDataToFireStore.LoadSO();
 
         foreach (var item in inventoryDataToFireStore.itemsListJson)
-            Debug.Log($"_____type" + item.itemsType + "_____amount" + item.amount);
+            Debug.Log($"_____type" + item.itemsType + "_____name " + item.itemScriptableObject.name);
     }
 #endregion INVENOTRY
 }

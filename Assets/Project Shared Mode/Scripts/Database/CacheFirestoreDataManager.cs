@@ -124,6 +124,7 @@ public class CachedFirestoreDataManager : MonoBehaviour
     public async Task<List<Item>> LoadItemsList(string collectionPath, string documentId, string fieldName) {
         return await LoadCustomObjectList<Item>(collectionPath, documentId, fieldName);
     }
+    
     // Example method to save a list of custom objects
     public async Task SaveItemsList(string collectionPath, string documentId, string fieldName, List<Item> items) {
         await SaveListGenericToFirestore(collectionPath, documentId, fieldName, items);
