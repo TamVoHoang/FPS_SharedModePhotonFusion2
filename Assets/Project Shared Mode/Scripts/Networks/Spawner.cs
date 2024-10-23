@@ -100,6 +100,8 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
         
         if(sessionList.Count == 0) {
             Debug.Log("Joined Lobby NO session found _ OnSessionListUpdated() Spanwer.cs");
+            
+            if(!sessionListUIHandler.isActiveAndEnabled) return;    // neu ko co dieu kien nay row 98 sesisonListUIHandler erro Coroutine()
             sessionListUIHandler.OnNoSessionFound();
         }
         else {

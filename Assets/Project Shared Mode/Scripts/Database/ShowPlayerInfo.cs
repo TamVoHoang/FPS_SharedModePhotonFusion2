@@ -14,8 +14,8 @@ public class ShowPlayerInfo : MonoBehaviour
     [SerializeField] TextMeshProUGUI coins;
 
     // buttons
-    [SerializeField] Button saveFirebaseButton;
-    [SerializeField] Button loadFirebaseButton;
+    [SerializeField] Button saveFirebaseButton; // playerdata test
+    [SerializeField] Button loadFirebaseButton; // playerdata test
 
     [SerializeField] Button saveFireStoreSignUpButton;
     [SerializeField] Button saveFireStoreRealtimeButton;
@@ -62,11 +62,16 @@ public class ShowPlayerInfo : MonoBehaviour
     }
 
     void SaveManualTest() {
-        _dataSaver.SaveData();
+        //_dataSaver.SaveData();  // save realtime database
+
+        _dataSaveLoadHander.SavePlayerDataFireStore();
     }
 
     void LoadMaunalTest() {
-        _dataSaver.LoadData();
+        // _dataSaver.LoadData();
+        // StartCoroutine(ShowPlayerDataCo(0.5f));
+
+        _dataSaveLoadHander.LoadPlayerDataFireStore();
         StartCoroutine(ShowPlayerDataCo(0.5f));
     }
 
@@ -109,8 +114,8 @@ public class ShowPlayerInfo : MonoBehaviour
     
     void ShowInfoFireStore() {
         // Debug.Log($"_____show player info");
-        var data = DataSaveLoadHander.Instance.playerDataToFireStore;
-        //var data = DataSaver.Instance.dataToSave;
+        //var data = DataSaver.Instance.dataToSave; // data from realtime database
+        var data = DataSaveLoadHander.Instance.playerDataToFireStore;   // data from firestore
         
         userName.text = "User name: " + data.userName;
         currentLevel.text = "Current Level: " + data.currLevel.ToString();

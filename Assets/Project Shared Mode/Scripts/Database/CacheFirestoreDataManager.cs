@@ -15,7 +15,7 @@ public class CachedFirestoreDataManager : MonoBehaviour
 {
     private FirebaseFirestore _firebaseFirestore;
     private string _cachePath;
-    private bool _isOnline;
+    [SerializeField] private bool _isOnline;
     private Dictionary<string, string> _dataHashes;
     private Dictionary<string, DateTime> _lastAccessTimes;
     private Dictionary<string, TaskCompletionSource<bool>> _pendingOperations;
@@ -212,7 +212,7 @@ public class CachedFirestoreDataManager : MonoBehaviour
         var itemsTypeAmount = dataList.Select(item => new
         {
             item.ItemsType,
-            item.amount
+            item.Amount
         }).ToList();
     }
 
@@ -227,14 +227,15 @@ public class CachedFirestoreDataManager : MonoBehaviour
             /* bool isListItem = dataList is List<Item>;
             Type type = dataList.GetType();
             if(type == typeof(List<Item>)) { } */
-            
-            string jsonData = JsonConvert.SerializeObject(dataList);  //!OK dung nhung bi loi khi add SO vao trong cache
+
+            string jsonData = JsonConvert.SerializeObject(dataList);
             await File.WriteAllTextAsync(tempPath, jsonData);
 
             if (File.Exists(filePath))
             {
                 File.Delete(filePath);
             }
+            
             File.Move(tempPath, filePath);
 
             UpdateAccessTime(filePath);

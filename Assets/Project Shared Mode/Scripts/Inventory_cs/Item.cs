@@ -13,13 +13,16 @@ public class Item
         Pistol01,
         Rifle01,
     }
+    
 
+    ItemType itemsType {get; set;}
+    int amount {get; set;}
 
-    public ItemType itemsType {get; set;}
-    public int amount {get; set;}
+    [FirestoreProperty]
+    public int Amount {get => amount; set => amount = value;}
 
-    // [FirestoreProperty]
-    // public ItemType ItemsType {get=> itemsType; set => itemsType = value;}
+    /* [FirestoreProperty]
+    public ItemType ItemsType {get=> itemsType; set => itemsType = value;} */
 
     //todo testing
     [FirestoreProperty]
@@ -34,8 +37,6 @@ public class Item
         }
     }
     
-    [FirestoreProperty]
-    public int Amount {get => amount; set => amount = value;}
 
     [field: NonSerialized]
     public ItemScriptableObject itemScriptableObject;

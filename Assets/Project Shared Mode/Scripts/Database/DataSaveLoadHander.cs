@@ -7,6 +7,7 @@ using System.Collections.Generic;
 /// Save to Firestore
 /// </summary>
 
+
 [Serializable]
 [FirestoreData]
 public class PlayerDataToFireStore {
@@ -50,7 +51,7 @@ public class InventoryDataToFireStore {
     public void LoadSO() {
         foreach (var item in itemsListJson)
         {
-            //item.itemScriptableObject = item.GetScriptableObject();
+            item.itemScriptableObject = item.GetScriptableObject();
         }
     }
 
@@ -112,7 +113,7 @@ public class DataSaveLoadHander : MonoBehaviour
     }
 
     private void CreateNewItemListJson(ItemScriptableObject ItemS, int amount) {
-        var item = new Item {itemsType = ItemS.itemType, amount = amount, itemScriptableObject = ItemS};
+        var item = new Item {ItemsType = ItemS.itemType, Amount = amount, itemScriptableObject = ItemS};
         inventoryDataToFireStore.itemsListJson.Add(item);
     }
 #region PLAYER
@@ -126,16 +127,18 @@ public class DataSaveLoadHander : MonoBehaviour
         // conver to string -> gan vao SetAsyn still OK
         /* string dataToFireStore = JsonUtility.ToJson(playerDataToSignup); */
 
-        //? asyn
+        //? asyn - no cache support
         await _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToSignup);
+
+        //! save to firebase and cache
     }
 
     // Player
     public async void SavePlayerDataFireStore() {
-        //? asyn
+        //? asyn - no cache support
         await _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToFireStore);
 
-        //? sync
+        //? sync _ Not using
         /* _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToFireStore); */
     }
 
@@ -146,7 +149,7 @@ public class DataSaveLoadHander : MonoBehaviour
             playerDataToFireStore = snapshot.ConvertTo<PlayerDataToFireStore>();
         }
 
-        //? sync
+        //? sync _ Not using
         /*  _firebaseFirestore.Document($"usersInfo/{userId}").GetSnapshotAsync().ContinueWith(task => {
             if(task.Result.Exists) {
                 playerDataToFireStore = task.Result.ConvertTo<PlayerDataToFireStore>();
@@ -173,7 +176,7 @@ public class DataSaveLoadHander : MonoBehaviour
                                                 FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
 
         foreach (var item in inventoryDataToFireStore.itemsListJson)
-            Debug.Log($"_____type" + item.itemsType + "_____name " + item.itemScriptableObject.name);
+            Debug.Log($"_____type" + item.ItemsType + "_____name " + item.itemScriptableObject.name);
     }
 
     public async void SaveInventoryDataFireStoreRealtime() {
@@ -191,7 +194,7 @@ public class DataSaveLoadHander : MonoBehaviour
                                                 FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
 
         foreach (var item in inventoryDataToFireStore.itemsListJson)
-            Debug.Log($"_____type" + item.itemsType + "_____name " + item.itemScriptableObject.name);
+            Debug.Log($"_____type" + item.ItemsType + "_____name " + item.itemScriptableObject.name);
     }
 
     public async void LoadInventoryDataFireStore() {
@@ -207,10 +210,10 @@ public class DataSaveLoadHander : MonoBehaviour
             await cacheFirestoreDataManager.LoadItemsList(COLLECTIONPATH_INVENTORY, userId, FIELDNAME_ITEMSLIST);
 
         //? check item.type return item SO -> use it to nexprocess
-        inventoryDataToFireStore.LoadSO();
+        //inventoryDataToFireStore.LoadSO();
 
         foreach (var item in inventoryDataToFireStore.itemsListJson)
-            Debug.Log($"_____type" + item.itemsType + "_____name " + item.itemScriptableObject.name);
+            Debug.Log($"_____type" + item.ItemsType + "_____name " + item.itemScriptableObject.name);
     }
 #endregion INVENOTRY
 }

@@ -4,6 +4,7 @@ using Firebase.Extensions;
 using Firebase.Firestore;
 using UnityEngine;
 
+
 public class FirestoreDataManager : MonoBehaviour
 {
     FirebaseFirestore _firebaseFirestore;
@@ -11,7 +12,7 @@ public class FirestoreDataManager : MonoBehaviour
     private void Awake() {
         _firebaseFirestore = FirebaseFirestore.DefaultInstance;
     }
-    
+
 #region SAVE METHOD
     // Example method to save a list of strings
     public async Task SaveStringList(string collectionPath, string documentId, string fieldName, List<string> stringList) {
