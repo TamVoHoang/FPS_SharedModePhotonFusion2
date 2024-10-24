@@ -141,7 +141,9 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) {}
     public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) {}
     public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) {}
-    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) {}
+    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) {
+        
+    }
 
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) {}
     public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) {}

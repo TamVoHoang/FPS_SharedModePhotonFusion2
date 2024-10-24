@@ -53,7 +53,7 @@ public class HPHandler : NetworkBehaviour
     void Start() {
         if(!isSkipSettingStartValues) {
             //local_HP = startingHP;
-            deadCount = 0;
+            //deadCount = 0;
         }
 
         ResetMeshRenders();
@@ -93,7 +93,7 @@ public class HPHandler : NetworkBehaviour
 
     //? server call | coll 55 WeaponHandler.cs | khi hitInfo.HitBox tren player
     public void OnTakeDamage(string damageCausedByPlayerNickName, byte damageAmount, WeaponHandler weaponHandler) {
-        if(Networked_IsDead) return;
+        if(Networked_IsDead) return; 
 
         //gioi han gia tri damageAmount
         if(damageAmount > Networked_HP) damageAmount = Networked_HP;
@@ -107,13 +107,13 @@ public class HPHandler : NetworkBehaviour
 
         if(Networked_HP <= 0) {
             Debug.Log($"{Time.time} {transform.name} is dead by {damageCausedByPlayerNickName}");
-            //RPC_SetNetworkedKiller(damageCausedByPlayerNickName); // can use
+            /* RPC_SetNetworkedKiller(damageCausedByPlayerNickName); */ // can use
             isPublicDeathMessageSent = false;
             StartCoroutine(ServerRespawnCountine());
-            //RPC_SetNetworkedIsDead(true); // can use
+            /* RPC_SetNetworkedIsDead(true); */ // can use
 
-            deadCount ++;
-            weaponHandler.killCount ++;
+            /* deadCount ++; */ //! KO THE XET O DAY, VI BIEN NETWORK KO XET LOCAL TAI DAY
+            weaponHandler.killCount ++; // cong diem cho killer
         }
     }
 
@@ -141,6 +141,7 @@ public class HPHandler : NetworkBehaviour
 
         if(Networked_HP <= 0) {
             this.Networked_IsDead = true;
+            this.deadCount += 1;
             this.Networked_Killer = name;
         } 
         else {

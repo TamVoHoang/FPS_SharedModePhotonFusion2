@@ -94,6 +94,8 @@ public class EmailLogin : MonoBehaviour
             //? save after signup with having email and password
             DataSaver.Instance.SaveToSignup(useName, result.User.UserId);
             DataSaveLoadHander.Instance.SavePlayerDataToSignup(useName, result.User.UserId);
+
+            //DataSaveLoadHander.Instance.SaveInventoryDataFireStoreToSignUp();
         });
     }
 

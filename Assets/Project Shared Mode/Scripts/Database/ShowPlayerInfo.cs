@@ -85,9 +85,9 @@ public class ShowPlayerInfo : MonoBehaviour
         _dataSaveLoadHander.SaveInventoryDataFireStoreRealtime();
     }
 
-    private void LoadFireStoreManulTest()
+    private async void LoadFireStoreManulTest()
     {
-        _dataSaveLoadHander.LoadInventoryDataFireStore();
+        await _dataSaveLoadHander.LoadInventoryDataFireStore_();
 
         StartCoroutine(ShowPlayerDataCo(0.5f));
     }
@@ -117,9 +117,9 @@ public class ShowPlayerInfo : MonoBehaviour
         //var data = DataSaver.Instance.dataToSave; // data from realtime database
         var data = DataSaveLoadHander.Instance.playerDataToFireStore;   // data from firestore
         
-        userName.text = "User name: " + data.userName;
-        currentLevel.text = "Current Level: " + data.currLevel.ToString();
-        highScore.text = "High Score: " + data.highScore.ToString();
-        coins.text = "Coins: " + data.coins.ToString();
+        userName.text = "User name: " + data.UserName;
+        currentLevel.text = "Current Level: " + data.CurrentLevel.ToString();
+        highScore.text = "High Score: " + data.HighScore.ToString();
+        coins.text = "Coins: " + data.Coins.ToString();
     }
 }

@@ -395,6 +395,204 @@ public class CachedFirestoreDataManager : MonoBehaviour
 #endregion UTILITY METHODS
 
 //! testing
+    #region GENERIC SINGLE OBJECT OPERATIONS
 
+    public async Task SaveGenericToFirestore<T>(string collectionPath, string documentId, string fieldName, T data)
+    {
+        string cacheKey = GetCacheKey(collectionPath, documentId, fieldName);
+        
+        // Try to acquire operation lock
+        bool lockAcquired = await AcquireOperationLock(cacheKey);
+        if (!lockAcquired)
+        {
+            Debug.Log($"Operation already in progress for {cacheKey}");
+            return;
+        }
+
+        try
+        {
+            string newHash = CalculateObjectHash(data);
+
+            // Check if data has actually changed
+            if (_dataHashes.TryGetValue(cacheKey, out string existingHash) && existingHash == newHash)
+            {
+                Debug.Log($"Data hasn't changed for {cacheKey}. Skipping save.");
+                return;
+            }
+
+            CheckConnectivity();
+            if (_isOnline)
+            {
+                try
+                {
+                    DocumentReference docRef = _firebaseFirestore.Collection(collectionPath).Document(documentId);
+                    Dictionary<string, object> saveData = new Dictionary<string, object>
+                    {
+                        { fieldName, data }
+                    };
+
+                    bool success = false;
+                    await docRef.SetAsync(saveData).ContinueWithOnMainThread(task => {
+                        success = task.IsCompleted && !task.IsFaulted;
+                        if (success)
+                        {
+                            Debug.Log($"Successfully saved to Firestore: {cacheKey}");
+                        }
+                        else if (task.IsFaulted)
+                        {
+                            Debug.LogError($"Error saving to Firestore: {task.Exception}");
+                        }
+                    });
+
+                    if (success)
+                    {
+                        await SaveObjectToCache(collectionPath, documentId, fieldName, data);
+                        _dataHashes[cacheKey] = newHash;
+                        SaveDataHashes();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Error saving to Firestore: {e.Message}");
+                    // Save to cache as fallback
+                    await SaveObjectToCache(collectionPath, documentId, fieldName, data);
+                    _dataHashes[cacheKey] = newHash;
+                    SaveDataHashes();
+                }
+            }
+            else
+            {
+                // Offline mode - save to cache only
+                await SaveObjectToCache(collectionPath, documentId, fieldName, data);
+                _dataHashes[cacheKey] = newHash;
+                SaveDataHashes();
+            }
+        }
+        finally
+        {
+            ReleaseOperationLock(cacheKey);
+        }
+    }
+
+    public async Task<T> LoadGenericObject<T>(string collectionPath, string documentId, string fieldName)
+    {
+        string cacheKey = GetCacheKey(collectionPath, documentId, fieldName);
+
+        // Try to acquire operation lock
+        bool lockAcquired = await AcquireOperationLock(cacheKey);
+        if (!lockAcquired)
+        {
+            Debug.Log($"Load operation already in progress for {cacheKey}");
+            return await _pendingOperations[cacheKey].Task.ContinueWith(_ => 
+                LoadObjectFromCache<T>(collectionPath, documentId, fieldName));
+        }
+
+        try
+        {
+            CheckConnectivity();
+            if (_isOnline)
+            {
+                try
+                {
+                    DocumentSnapshot snapshot = await _firebaseFirestore.Collection(collectionPath)
+                        .Document(documentId).GetSnapshotAsync();
+
+                    if (snapshot.Exists)
+                    {
+                        var data = snapshot.GetValue<T>(fieldName);
+                        string newHash = CalculateObjectHash(data);
+
+                        // Only update cache if data is different
+                        if (!_dataHashes.TryGetValue(cacheKey, out string existingHash) || existingHash != newHash)
+                        {
+                            await SaveObjectToCache(collectionPath, documentId, fieldName, data);
+                            _dataHashes[cacheKey] = newHash;
+                            SaveDataHashes();
+                        }
+
+                        return data;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"Failed to load from Firestore: {e.Message}. Falling back to cache.");
+                }
+            }
+
+            return LoadObjectFromCache<T>(collectionPath, documentId, fieldName);
+        }
+        finally
+        {
+            ReleaseOperationLock(cacheKey);
+        }
+    }
+
+    private async Task SaveObjectToCache<T>(string collectionPath, string documentId, string fieldName, T data)
+    {
+        string filePath = GetCacheFilePath(collectionPath, documentId, fieldName);
+        string tempPath = filePath + ".tmp";
+
+        try
+        {
+            string jsonData = JsonConvert.SerializeObject(data);
+            await File.WriteAllTextAsync(tempPath, jsonData);
+
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+            }
+            
+            File.Move(tempPath, filePath);
+
+            UpdateAccessTime(filePath);
+            Debug.Log($"Successfully saved to cache: {filePath}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error saving to cache: {e.Message}");
+            if (File.Exists(tempPath))
+            {
+                try
+                {
+                    File.Delete(tempPath);
+                }
+                catch { }
+            }
+            throw;
+        }
+    }
+
+    private T LoadObjectFromCache<T>(string collectionPath, string documentId, string fieldName)
+    {
+        try
+        {
+            string filePath = GetCacheFilePath(collectionPath, documentId, fieldName);
+            if (File.Exists(filePath))
+            {
+                string jsonData = File.ReadAllText(filePath);
+                UpdateAccessTime(filePath);
+                return JsonConvert.DeserializeObject<T>(jsonData);
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error loading from cache: {e.Message}");
+        }
+        
+        return default(T);
+    }
+
+    private string CalculateObjectHash<T>(T data)
+    {
+        string jsonData = JsonConvert.SerializeObject(data);
+        using (var sha256 = SHA256.Create())
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(jsonData);
+            byte[] hash = sha256.ComputeHash(bytes);
+            return Convert.ToBase64String(hash);
+        }
+    }
+
+    #endregion
 //! testing
 }

@@ -25,7 +25,7 @@ public class SessionListUIHandler : MonoBehaviour
     [SerializeField] Button OnPopUpSesisonListClick_Button;
 
     //others
-
+    
     private void Awake() {
         ClearList();
 
@@ -48,9 +48,12 @@ public class SessionListUIHandler : MonoBehaviour
     //? add sessionItemListPF vao panel transform - tao thanh room name count join button
     public void AddToList(SessionInfo sessionInfo, string mapName) {
 
-        SessionInfoUIListItem sessionInfoUIListItem = Instantiate(sessionItemListPF, verticalLayoutGroup.transform).GetComponent<SessionInfoUIListItem>();
+        SessionInfoUIListItem sessionInfoUIListItem = 
+            Instantiate(sessionItemListPF, verticalLayoutGroup.transform).GetComponent<SessionInfoUIListItem>();
         
-        sessionInfoUIListItem.SetInfomation(sessionInfo, mapName); //=> dung sessionInfo show name, count, active JoinButton
+        // sessionListUpdate -> se set ham nay nho vao session Info
+        // dung sessionInfo show name, count, active JoinButton
+        sessionInfoUIListItem.SetInfomation(sessionInfo, mapName);
 
         //todo neu sessionInfo lock || having enough active Players => now showing joinButton
         /* if(sessionInfo.IsOpen == false || sessionInfo.PlayerCount >= sessionInfo.MaxPlayers) {
@@ -62,7 +65,6 @@ public class SessionListUIHandler : MonoBehaviour
 
         // gan dc ham Action<SessionInfo> OnJoinSession coll 19 | Onclick() coll 35 se goi ham nay chay
         sessionInfoUIListItem.OnJoinSession += AddedSessionInfoListUIItem_OnJoinSession;
-
     }
 
     private void AddedSessionInfoListUIItem_OnJoinSession(SessionInfo sessionInfo)
@@ -91,7 +93,6 @@ public class SessionListUIHandler : MonoBehaviour
         sessionListStatusText.gameObject.SetActive(true); // hien thong bao ko tim thay sessionInfo
 
         StartCoroutine(ClearStatusTextCo(2f));  // sessionListUpdate -> "no session found " -> " "
-        
     }
 
     IEnumerator ClearStatusTextCo(float time) {
@@ -104,22 +105,27 @@ public class SessionListUIHandler : MonoBehaviour
 
     //todo do again OnFindGameClicked() MainMenuUIHandler.cs row 68
     void OnRefreshSessionsListClicked() {
-        OnLookingForGameSessions();    // xoa list session - hien chu looking text
+        OnLookingForGameSessions();    // xoa list session - hien chu looking text phia duoi
         findingSessionPanel.gameObject.SetActive(true);
+
+        // no use
         /* NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
         networkRunnerHandler.OnJoinLobby();
-        
         int sessionsCount = sessionList.Count;
         Debug.Log($"_____SessionsCount = {sessionsCount}"); */
 
-        StartCoroutine(Delay(2));
+        StartCoroutine(FreshSessionListCo(4));
     }
 
-    IEnumerator Delay(float time) {
-        yield return new WaitForSeconds(time);
+    IEnumerator FreshSessionListCo(float time) {
+        yield return new WaitForSeconds(1); // de co the thay duoc chu looking ben duoi
         NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
         networkRunnerHandler.OnJoinLobby();
+
+        yield return new WaitForSeconds(time);
+
         findingSessionPanel.gameObject.SetActive(false);
+
         int sessionsCount = sessionList.Count;
         Debug.Log($"_____SessionsCount = {sessionsCount}");
     }
@@ -143,9 +149,8 @@ public class SessionListUIHandler : MonoBehaviour
         //     networkRunnerHandler.JoinGame(sessionInfo, spawner.customLobbyName);
         // }
 
-        OnLookingForGameSessions();
-        findingSessionPanel.gameObject.SetActive(true);
-        StartCoroutine(DelayStartRandom(3));
+        
+        StartCoroutine(DelayStartRandom(4));
     }
 
     SessionInfo GetRandomSesisonInfo() {
@@ -160,12 +165,15 @@ public class SessionListUIHandler : MonoBehaviour
 
     IEnumerator DelayStartRandom(float time) {
         /* statusPanel.gameObject.SetActive(true); */
-
         //statusText.gameObject.SetActive(false);
 
-        yield return new WaitForSeconds(time);
+        OnLookingForGameSessions();
+        findingSessionPanel.gameObject.SetActive(true);
+
         NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
         networkRunnerHandler.OnJoinLobby();
+
+        yield return new WaitForSeconds(time);
 
         var sessionInfo = GetRandomSesisonInfo();
         var spawner = FindObjectOfType<Spawner>();

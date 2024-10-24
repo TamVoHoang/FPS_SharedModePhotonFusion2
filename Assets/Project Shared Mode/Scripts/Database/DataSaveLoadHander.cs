@@ -2,6 +2,7 @@ using UnityEngine;
 using Firebase.Firestore;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 /// <summary>
 /// Save to Firestore
@@ -11,10 +12,10 @@ using System.Collections.Generic;
 [Serializable]
 [FirestoreData]
 public class PlayerDataToFireStore {
-    public string userName;
-    public int currLevel;
-    public int highScore;
-    public int coins;
+    [SerializeField] string userName;
+    [SerializeField] int currLevel;
+    [SerializeField] int highScore;
+    [SerializeField] int coins;
 
     [FirestoreProperty]
     public string UserName { get => userName; set=> userName = value; }
@@ -40,9 +41,19 @@ public class PlayerDataToFireStore {
 [FirestoreData]
 [Serializable]
 public class InventoryDataToFireStore {
+    [SerializeField] string inventoryName;
+    [FirestoreProperty]
+    public string InventoryName {get => inventoryName; set => inventoryName = value;}
+
+    [NonSerialized]
     public List<Item> itemsListJson = new List<Item>();
     [FirestoreProperty]
     public List<Item> ItemsListJson {get => itemsListJson; set => itemsListJson = value;}
+
+    // Add this parameterless constructor
+    public InventoryDataToFireStore() {
+        itemsListJson = new List<Item>();
+    }
 
     public InventoryDataToFireStore(List<Item> itemsListJson) {
         this.itemsListJson = itemsListJson;
@@ -51,9 +62,11 @@ public class InventoryDataToFireStore {
     public void ConvertItemTypeToSO() {
         foreach (var item in itemsListJson)
         {
-            item.itemScriptableObject = item.GetScriptableObject();
+            //item.itemScriptableObject = item.GetScriptableObject();
         }
     }
+
+    
 
 }
 
@@ -125,33 +138,42 @@ public class DataSaveLoadHander : MonoBehaviour
         /* string dataToFireStore = JsonUtility.ToJson(playerDataToSignup); */
 
         //? asyn - no cache support
-        await _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToSignup);
+        // await _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToSignup);
 
-        //! save to firebase and cache
+        //! save generic Object cache support
+        await cacheFirestoreDataManager.SaveGenericToFirestore("usersInfo", userId, "playerData", playerDataToSignup);
+
     }
     
     // Player
     public async void SavePlayerDataFireStore() {
-        //? asyn - no cache support
-        await _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToFireStore);
-
         //? sync _ Not using
         /* _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToFireStore); */
+
+        //? asyn - no cache support
+        // await _firebaseFirestore.Document($"usersInfo/{userId}").SetAsync(playerDataToFireStore);
+
+        //! save generic Object cache support
+        await cacheFirestoreDataManager.SaveGenericToFirestore("usersInfo", userId, "playerData", playerDataToFireStore);
+
     }
 
     public async void LoadPlayerDataFireStore() {
-        //? asyn
-        var snapshot = await _firebaseFirestore.Document($"usersInfo/{userId}").GetSnapshotAsync();
-        if(snapshot.Exists) {
-            playerDataToFireStore = snapshot.ConvertTo<PlayerDataToFireStore>();
-        }
-
         //? sync _ Not using
         /*  _firebaseFirestore.Document($"usersInfo/{userId}").GetSnapshotAsync().ContinueWith(task => {
             if(task.Result.Exists) {
                 playerDataToFireStore = task.Result.ConvertTo<PlayerDataToFireStore>();
             }
         }); */
+
+        //? asyn
+        // var snapshot = await _firebaseFirestore.Document($"usersInfo/{userId}").GetSnapshotAsync();
+        // if(snapshot.Exists) {
+        //     playerDataToFireStore = snapshot.ConvertTo<PlayerDataToFireStore>();
+        // }
+
+        //! save generic Object cache support
+        playerDataToFireStore = await cacheFirestoreDataManager.LoadGenericObject<PlayerDataToFireStore>("usersInfo", userId, "playerData");
 
     }
 #endregion PLAYER
@@ -162,18 +184,37 @@ public class DataSaveLoadHander : MonoBehaviour
         /* InventoryDataToFireStore inventoryDataToFireStore = ReturnInventoryDataToSignUp(); */
 
         // tao list cho doi tuong InventoryJson
-        ReturnInventoryData();
+        //ReturnInventoryData();
 
         //? save to firestore directly
-        // await firestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
-        //                                         FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
+        /* await firestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson); */
         
         //? save to cache and online
-        await cacheFirestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
-                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
+        // await cacheFirestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+        //                                         FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
 
-        foreach (var item in inventoryDataToFireStore.itemsListJson)
-            Debug.Log($"_____type" + item.ItemsType + "_____name " + item.itemScriptableObject.name);
+        // foreach (var item in inventoryDataToFireStore.itemsListJson)
+        //     Debug.Log($"_____type" + item.ItemsType + "_____name " + item.itemScriptableObject.name);
+
+
+        try {
+        // Create initial inventory
+        ReturnInventoryData();
+
+        // Save using generic method
+        await cacheFirestoreDataManager.SaveGenericToFirestore(
+            COLLECTIONPATH_INVENTORY,
+            userId,
+            "inventoryData",
+            inventoryDataToFireStore
+        );
+
+        Debug.Log("Initial inventory saved successfully");
+        }
+        catch (Exception e) {
+            Debug.LogError($"Error saving initial inventory: {e.Message}");
+        }
     }
 
     public async void SaveInventoryDataFireStoreRealtime() {
@@ -183,15 +224,35 @@ public class DataSaveLoadHander : MonoBehaviour
         /* InventoryDataToFireStore inventoryDataToFireStore = ReturnInventoryDataToSignUp(); */
 
         //? save to firestore directly
-        // await firestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
-        //                                         FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
+        /* await firestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson); */
         
         //? save to cache and online
-        await cacheFirestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
-                                                FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
+        // await cacheFirestoreDataManager.SaveItemsList(COLLECTIONPATH_INVENTORY, userId, 
+        //                                         FIELDNAME_ITEMSLIST, inventoryDataToFireStore.itemsListJson);
 
-        foreach (var item in inventoryDataToFireStore.itemsListJson)
-            Debug.Log($"_____type" + item.ItemsType + "_____name " + item.itemScriptableObject.name);
+        // foreach (var item in inventoryDataToFireStore.itemsListJson)
+        //     Debug.Log($"_____type" + item.ItemsType + "_____name " + item.itemScriptableObject.name);
+        
+        
+        try {
+            await cacheFirestoreDataManager.SaveGenericToFirestore(
+                COLLECTIONPATH_INVENTORY, 
+                userId, 
+                "inventoryData",  // fieldName for the whole inventory object
+                inventoryDataToFireStore  // passing the whole inventory object
+            );
+
+            Debug.Log("Inventory saved successfully");
+            
+            // Debug log to verify data
+            foreach (var item in inventoryDataToFireStore.itemsListJson) {
+                Debug.Log($"Saved item - Type: {item.ItemsType}, Amount: {item.Amount}");
+            }
+        }
+        catch (Exception e) {
+            Debug.LogError($"Error saving inventory: {e.Message}");
+        }
     }
 
     public async void LoadInventoryDataFireStore() {
@@ -212,5 +273,35 @@ public class DataSaveLoadHander : MonoBehaviour
         foreach (var item in inventoryDataToFireStore.itemsListJson)
             Debug.Log($"_____type" + item.ItemsType + "_____name " + item.itemScriptableObject.name);
     }
+
+    public async Task<bool> LoadInventoryDataFireStore_() {
+    try {
+        inventoryDataToFireStore = await cacheFirestoreDataManager.LoadGenericObject<InventoryDataToFireStore>(
+            COLLECTIONPATH_INVENTORY,
+            userId,
+            "inventoryData"
+        );
+
+        if (inventoryDataToFireStore != null && inventoryDataToFireStore.itemsListJson != null) {
+            // Convert item types to ScriptableObjects after loading
+            inventoryDataToFireStore.ConvertItemTypeToSO();
+            
+            // Debug log to verify data
+            foreach (var item in inventoryDataToFireStore.itemsListJson) {
+                Debug.Log($"Loaded item - Type: {item.ItemsType}, Amount: {item.Amount}");
+            }
+            return true;
+        }
+        else {
+            Debug.LogWarning("No inventory data found");
+            inventoryDataToFireStore = new InventoryDataToFireStore(new List<Item>());
+            return false;
+        }
+    }
+    catch (Exception e) {
+        Debug.LogError($"Error loading inventory: {e.Message}");
+        return false;
+    }
+}
 #endregion INVENOTRY
 }

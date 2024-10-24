@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
 using Fusion;
 using TMPro;
 using UnityEngine;
@@ -39,6 +42,7 @@ public class MainMenuUIHandler : MonoBehaviour
     
     const string READY_SCENE = "Ready";
     const string EQUIP_SCENE = "Equip";
+
 
     private void Awake() {
         OnQuickPlayClick_Button.onClick.AddListener(OnQuickPlayClicked);
@@ -92,25 +96,27 @@ public class MainMenuUIHandler : MonoBehaviour
         PlayerPrefs.Save();
         GameManager.playerNickName = playerNameInputField.text;
 
-        // NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
-        // networkRunnerHandler.OnJoinLobby();
+        /* NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
+        networkRunnerHandler.OnJoinLobby(); */
 
         HidePanels();
 
         sessionListBrowserPanel.gameObject.SetActive(true);
         findingSessionPanel.SetActive(true);
-        FindObjectOfType<SessionListUIHandler>(true).OnLookingForGameSessions();    // xoa list session - hien chu looking
+        FindObjectOfType<SessionListUIHandler>(true).OnLookingForGameSessions();    // xoa list session - hien chu looking ben duoi
         
-        StartCoroutine(Delay(2f));
+        StartCoroutine(Delay(4f));
         /* SceneManager.LoadScene("World1"); */
+
     }
 
     IEnumerator Delay(float time) {
-        yield return new WaitForSeconds(time);
+        yield return new WaitForSeconds(1f);    // de co the thay duoc chu looking ben duoi
         NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
         networkRunnerHandler.OnJoinLobby();
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(time);  // sau khi du lau de sessionListUpdate -> tat bang Finding...
+
         findingSessionPanel.SetActive(false);
     }
 
@@ -157,13 +163,14 @@ public class MainMenuUIHandler : MonoBehaviour
         GameManager.playerNickName = playerNameInputField.text;
 
         NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
-        networkRunnerHandler.OnJoinLobby(); */
+        networkRunnerHandler.OnJoinLobby();
 
-        StartCoroutine(DelayStartRandom(3));
-
-        /* var sessionInfo = GetRandomSesisonInfo();
+        var sessionInfo = GetRandomSesisonInfo();
+        var spawner = FindObjectOfType<Spawner>();
         if(sessionInfo != null)
-            networkRunnerHandler.JoinGame(sessionInfo); */
+            networkRunnerHandler.JoinGame(sessionInfo, spawner.CustomLobbyName, spawner.GameMap); */
+
+        StartCoroutine(DelayStartRandom(4));
     }
 
     SessionInfo GetRandomSesisonInfo() {
@@ -176,9 +183,8 @@ public class MainMenuUIHandler : MonoBehaviour
         return null;
     }
 
-    IEnumerator DelayStartRandom(float time) {
-        //statusPanel.gameObject.SetActive(true);
 
+    IEnumerator DelayStartRandom(float time) {
         findingSessionPanel.gameObject.SetActive(true);
 
         PlayerPrefs.SetString("PlayerNickName_Local", playerNameInputField.text);
@@ -186,24 +192,38 @@ public class MainMenuUIHandler : MonoBehaviour
         GameManager.playerNickName = playerNameInputField.text;
 
         NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
-        networkRunnerHandler.OnJoinLobby();
+        networkRunnerHandler.OnJoinLobby(); // sessionListUpdate callback -> tra ve gia tri sessionList raw 170
 
-        yield return new WaitForSeconds(time);
-        
+        yield return new WaitForSeconds(time);    // neu delay theo time -> co the list chua co thi da check sessionInfo != null
+
         var sessionInfo = GetRandomSesisonInfo();
         var spawner = FindObjectOfType<Spawner>();
         if(sessionInfo != null) {
             quickPlayResultText.text = $"Join session {sessionInfo.Name}";
-            networkRunnerHandler.JoinGame(sessionInfo, spawner.CustomLobbyName, spawner.GameMap);
+
+            //? Option 1: OK join khong can quan tam GamMap this.spawner.GameMap != GameMap OF Runner.IsSharedModeMasterClient
+            networkRunnerHandler.JoinGame(sessionInfo, spawner.CustomLobbyName, spawner.GameMap);   
+
+            //? Option 1: kiem tra sessionInfo chuan bi join co GameMap la gi (do nguoi tao phong quyet dinh)
+            //? truyen dung tham so GameMap de join
+            /* string name = null;
+            GameMap gameMap = GameMap.World_1;
+            if (sessionInfo.Properties.TryGetValue("mapName", out var propertyType) && propertyType.IsInt) {
+                var mapName = (int)propertyType.PropertyValue;
+                string map = ((GameMap)mapName).ToString();
+                Debug.Log($"_____mapName" + map);
+                name = map;
+                gameMap = (GameMap)mapName;
+            }
+            networkRunnerHandler.JoinGame(sessionInfo, spawner.CustomLobbyName, gameMap); */
         }
         else {
             quickPlayResultText.text = "No session to join";
         }
         
         findingSessionPanel.gameObject.SetActive(false);
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(1);
         quickPlayResultText.text = "";
-
-        /* statusPanel.gameObject.SetActive(false); */
     }
+
 }

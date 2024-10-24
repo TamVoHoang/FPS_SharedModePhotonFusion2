@@ -69,7 +69,7 @@ public class NetworkRunnerHandler : MonoBehaviour
             Scene = scene,
 
             SessionName = sessionName,
-            //CustomLobbyName = "OurLobbyID",
+            /* CustomLobbyName = "OurLobbyID", */
             CustomLobbyName = customLobbyName,
 
             PlayerCount = playerCount,
@@ -101,13 +101,16 @@ public class NetworkRunnerHandler : MonoBehaviour
         Debug.Log($"Create session {sessionName} scene {sceneName} build Index {SceneUtility.GetBuildIndexByScenePath($"scenes/{sceneName}")}");
         
         //Join game co san
-        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionName, gameMap, customLobbyName, NetAddress.Any(), SceneRef.FromIndex(SceneUtility.GetBuildIndexByScenePath($"scenes/{sceneName}")), null);
+        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionName, gameMap, customLobbyName, 
+            NetAddress.Any(), SceneRef.FromIndex(SceneUtility.GetBuildIndexByScenePath($"scenes/{sceneName}")), null);
 
     }
 
     public void JoinGame(SessionInfo sessionInfo, string customLobbyName, GameMap gameMap) {
         Debug.Log($"Join session {sessionInfo.Name}");
-        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionInfo.Name, gameMap, customLobbyName, NetAddress.Any(), SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex), null);
+        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionInfo.Name, gameMap, customLobbyName, 
+            NetAddress.Any(), SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex), null);
+
     }
     
 }
