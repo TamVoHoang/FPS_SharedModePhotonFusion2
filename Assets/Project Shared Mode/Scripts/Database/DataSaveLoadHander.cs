@@ -48,7 +48,7 @@ public class InventoryDataToFireStore {
         this.itemsListJson = itemsListJson;
     }
 
-    public void LoadSO() {
+    public void ConvertItemTypeToSO() {
         foreach (var item in itemsListJson)
         {
             item.itemScriptableObject = item.GetScriptableObject();
@@ -79,9 +79,6 @@ public class DataSaveLoadHander : MonoBehaviour
     FirestoreDataManager firestoreDataManager;
     CachedFirestoreDataManager cacheFirestoreDataManager;
 
-    public List<Item> AA() {
-        return new List<Item>();
-    }
 
     private void Awake() {
         _firebaseFirestore = FirebaseFirestore.DefaultInstance;
@@ -99,7 +96,7 @@ public class DataSaveLoadHander : MonoBehaviour
     private void Start() {
         DontDestroyOnLoad(this);
     }
-
+    
     public PlayerDataToFireStore ReturnPlayerData(string username, int currLevel, int hightScore, int coins) {
         return new PlayerDataToFireStore(username, currLevel, hightScore, coins);
     }
@@ -132,7 +129,7 @@ public class DataSaveLoadHander : MonoBehaviour
 
         //! save to firebase and cache
     }
-
+    
     // Player
     public async void SavePlayerDataFireStore() {
         //? asyn - no cache support
@@ -209,7 +206,7 @@ public class DataSaveLoadHander : MonoBehaviour
         inventoryDataToFireStore.itemsListJson = 
             await cacheFirestoreDataManager.LoadItemsList(COLLECTIONPATH_INVENTORY, userId, FIELDNAME_ITEMSLIST);
 
-        //? check item.type return item SO -> use it to nexprocess
+        //? check item.type return item SO -> use it to next process
         //inventoryDataToFireStore.LoadSO();
 
         foreach (var item in inventoryDataToFireStore.itemsListJson)
