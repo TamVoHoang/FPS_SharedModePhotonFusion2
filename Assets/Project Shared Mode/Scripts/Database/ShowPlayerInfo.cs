@@ -13,6 +13,8 @@ public class ShowPlayerInfo : MonoBehaviour
     [SerializeField] TextMeshProUGUI highScore;
     [SerializeField] TextMeshProUGUI coins;
 
+    [SerializeField] GameObject loadingScreen;  // loading animation
+
     // buttons
     [SerializeField] Button saveFirebaseButton; // playerdata test
     [SerializeField] Button loadFirebaseButton; // playerdata test
@@ -21,11 +23,8 @@ public class ShowPlayerInfo : MonoBehaviour
     [SerializeField] Button saveFireStoreRealtimeButton;
     [SerializeField] Button loadFireStoreButton;
 
-
-
     [SerializeField] Button gotoLobby;
     [SerializeField] Button quickPlay;
-
 
     const string MAINMENU = "MainMenu";
     const string WORLD1 = "World1";
@@ -94,12 +93,16 @@ public class ShowPlayerInfo : MonoBehaviour
     
     private void GoToLobby()
     {
-        StartCoroutine(LoadToMainLobby(0.5f));
+        StartCoroutine(LoadToMainLobby(1f));
     }
 
     IEnumerator LoadToMainLobby(float time) {
+        // hien animation Loading Pf
+        loadingScreen.SetActive(true);
         yield return new WaitForSeconds(time);
         SceneManager.LoadSceneAsync(MAINMENU);
+        loadingScreen.SetActive(false);
+        
     }
 
     private void GoToQickBattle()
