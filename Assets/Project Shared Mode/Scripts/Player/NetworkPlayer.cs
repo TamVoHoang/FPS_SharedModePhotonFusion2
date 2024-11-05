@@ -49,12 +49,17 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
     Spawner spawner;
 
+    // camera mode
+    public bool is3rdPersonCamera {get; set;}
+
     private void Awake() {
         localCameraHandler = GetComponentInChildren<LocalCameraHandler>();
         networkInGameMessages = GetComponent<NetworkInGameMessages>();
         spawner = FindObjectOfType<Spawner>();
 
         DontDestroyOnLoad(this.gameObject);
+
+        is3rdPersonCamera = false;
     }
 
 
@@ -69,6 +74,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
                     NetDict.Add(playerRef.PlayerId, nameComponent.nickName_Network.ToString());
                 }
             } */
+        }
+
+        if(Input.GetKeyDown(KeyCode.C)) {
+            is3rdPersonCamera = !is3rdPersonCamera;
         }
     }
 

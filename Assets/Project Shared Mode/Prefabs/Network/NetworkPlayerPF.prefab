@@ -448,6 +448,7 @@ GameObject:
   - component: {fileID: 8345733323388219845}
   - component: {fileID: 1828392533857434535}
   - component: {fileID: 7042592031180241416}
+  - component: {fileID: 7039079356380318036}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -464,7 +465,7 @@ Transform:
   m_GameObject: {fileID: 5147751187353330975}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.6, y: 1.5, z: -1}
+  m_LocalPosition: {x: 0.57, y: 1.5, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -505,6 +506,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   localCamera: {fileID: 8345733323388219845}
   cameraAnchorPoint: {fileID: 7435344243175490582}
+  localGun_onCam: {fileID: 5974135563984831783}
   spawnedPointGun_OnCam: {fileID: 7951285143265985763}
   spawnedPointGun_OnHand: {fileID: 6491901841531382390}
   collisionLayers:
@@ -614,6 +616,40 @@ MonoBehaviour:
     mipBias: 0
     varianceClampScale: 0.9
     contrastAdaptiveSharpening: 0
+--- !u!114 &7039079356380318036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5147751187353330975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 72ece51f2901e7445ab60da3685d6b5f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShowDebugText: 0
+  m_ShowCameraFrustum: 1
+  m_IgnoreTimeScale: 0
+  m_WorldUpOverride: {fileID: 0}
+  m_UpdateMethod: 2
+  m_BlendUpdateMethod: 1
+  m_DefaultBlend:
+    m_Style: 1
+    m_Time: 2
+    m_CustomCurve:
+      serializedVersion: 2
+      m_Curve: []
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  m_CustomBlends: {fileID: 0}
+  m_CameraCutEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_CameraActivatedEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &5815840132763180277
 GameObject:
   m_ObjectHideFlags: 0
@@ -953,6 +989,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bulletVFXPF: {fileID: 8991076999901513688, guid: 920544e32c3ec4f4db7a5cd303b21739, type: 3}
+  rocketPF: {fileID: 7684287705662278088, guid: f30ff80e053620240b577f9d7edfabb4, type: 3}
+  grenadePF: {fileID: 8324557219682058064, guid: 43958c73f353064439bda8fc8f385c4b, type: 3}
   fireParticleSystemLocal: {fileID: 8520254951841465694}
   fireParticleSystemRemote: {fileID: 4901230149741603871}
   aimPoint: {fileID: 4349047850077100479}

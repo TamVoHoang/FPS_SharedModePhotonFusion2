@@ -1,10 +1,12 @@
 using Fusion;
 using UnityEngine;
+using Cinemachine;
 
 public class LocalCameraHandler : NetworkBehaviour
 {
     public Camera localCamera;
     [SerializeField] Transform cameraAnchorPoint; // localCam se di theo camereAnchorPoint
+    [SerializeField] GameObject localGun_onCam;   // GUN local camera se bi tat khi dung 3rdCam
     [SerializeField] Transform spawnedPointGun_OnCam; // nha dan cua sung trong cam
     [SerializeField] Transform spawnedPointGun_OnHand; // nah dan cua sung trong tay player
 
@@ -22,11 +24,16 @@ public class LocalCameraHandler : NetworkBehaviour
     public Vector3 raycastSpawnPointCam_Network {get; set;} = Vector3.zero;
     Ray ray;
     RaycastHit hitInfo;
+
     [Header("Collisons")]
     [SerializeField] LayerMask collisionLayers;
 
     [SerializeField] InGameMessagesUIHandler inGameMessagesUIHandler;
     public InGameMessagesUIHandler InGameMessagesUIHandler{get {return inGameMessagesUIHandler;}}
+
+    //others
+    CinemachineVirtualCamera cinemachineVirtualCamera;
+    
 
     private void Awake() {
         localCamera = GetComponent<Camera>();
@@ -46,8 +53,53 @@ public class LocalCameraHandler : NetworkBehaviour
         if(cameraAnchorPoint == null) return;
         if(!localCamera.enabled) return;
         
-        //? Set Playerodel - LocalPlayerModel -> de 1stPersomCam render thay
-        Utils.SetRenderLayerInChildren(NetworkPlayer.Local.playerModel, LayerMask.NameToLayer("LocalPlayerModel"));
+        //? Tim cinemahcine if ko thay - cinemachine 3rd cam ben ngoai Player
+        if(cinemachineVirtualCamera == null) {
+            cinemachineVirtualCamera = FindAnyObjectByType<CinemachineVirtualCamera>();
+        }
+        else {
+            // neu co 3rd VA co su dung 3rd (is3rdPersonCamera = true in NetworkPlayer.cs -> is set in NetWorkInputData.cs (press C))
+            if(NetworkPlayer.Local.is3rdPersonCamera) {
+                if(!cinemachineVirtualCamera.enabled) {
+                    cinemachineVirtualCamera.Follow = NetworkPlayer.Local.playerModel;
+                    cinemachineVirtualCamera.LookAt = NetworkPlayer.Local.playerModel;
+                    cinemachineVirtualCamera.enabled = true;
+
+                    // set playersModel.transform - chuyen sang default Layer - de 3rdPersonCam render thay
+                    Utils.SetRenderLayerInChildren(NetworkPlayer.Local.playerModel, LayerMask.NameToLayer("Default"));
+
+                    // Disable local gun Holders | 3rd cam is on
+                    localGun_onCam.SetActive(false);
+                    
+                    //? tim slot transform nao dang active
+                    /* if(weaponSwitcher.GetGunNumber() > 0) {
+                        var slotIndexLocalTransform = weaponSwitcher.GetLocalSlotTransformActive();
+                        slotIndexLocalTransform.gameObject.SetActive(false);
+                        Debug.Log($"co OFF local gun holder transform trong localCam.cs");
+                    } */
+                    
+                }
+                // dung lai tai day ko chay cho phan ben duoi do dang su dung 3rd person Cam
+                return;
+            }
+            else {
+                if(cinemachineVirtualCamera.enabled) {
+                    cinemachineVirtualCamera.enabled = false;
+
+                    //? Set Playerodel - LocalPlayerModel -> de 1stPersomCam render thay
+                    Utils.SetRenderLayerInChildren(NetworkPlayer.Local.playerModel, LayerMask.NameToLayer("LocalPlayerModel"));
+
+                    //Enable local guns Holder | 1sr cam is on
+                    localGun_onCam.SetActive(true);
+
+                    /* if(weaponSwitcher.GetGunNumber() > 0) {
+                        var slotIndexLocalTransform = weaponSwitcher.GetLocalSlotTransformActive();
+                        slotIndexLocalTransform.gameObject.SetActive(true);
+                    } */
+                    
+                }
+            }
+        }
 
         //?di chuyen localCam vao trong cameraAnchorPoint OK
         localCamera.transform.position = cameraAnchorPoint.position; // localCam di theo | ko phai nam ben trong
