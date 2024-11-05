@@ -15,7 +15,14 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 {
     [SerializeField] SessionListUIHandler sessionListUIHandler;
     [SerializeField] MainMenuUIHandler mainMenuUIHandler;
+
+    [Header("NetworkPlayerPF and GunPF")]
     [SerializeField] NetworkPlayer networkPlayerPrefab;
+    [SerializeField] NetworkObject gunPickupPF;
+    [SerializeField] NetworkObject gun1PickupPF;
+    [SerializeField] NetworkObject gun2PickupPF;
+    [SerializeField] private int numbersOfWeapon = 2;
+    List<NetworkObject> weaponLists = new List<NetworkObject>();
 
     [Header ("      Lobby GameMap (Scene)")]
     [SerializeField] string customLobbyName;
@@ -26,6 +33,7 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 
     /* [SerializeField] string sceneToStart;
     public string SceneName {set { sceneToStart = value; } get { return sceneToStart; }} */
+    bool isWeaponSpawned = false;
 
     private void Awake() {
         sessionListUIHandler = FindObjectOfType<SessionListUIHandler>(true);
@@ -87,6 +95,21 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
         }
     }
 
+    //? spawn weapons
+    void SpawnWeapons() {
+        if(isWeaponSpawned) return;
+        int numberOfWeaponsToSpwan = numbersOfWeapon;
+        for (int i = 0; i < numberOfWeaponsToSpwan; i++)
+        {
+            NetworkObject gunPF = Runner.Spawn(gunPickupPF, Utils.GetRandomWeaponSpawnPoint(), Quaternion.identity, null);
+            NetworkObject gun1PF = Runner.Spawn(gun1PickupPF, Utils.GetRandomWeaponSpawnPoint(), Quaternion.identity, null);
+            NetworkObject gun2PF = Runner.Spawn(gun2PickupPF, Utils.GetRandomWeaponSpawnPoint(), Quaternion.identity, null);
+
+            weaponLists.Add(gun1PF);
+        }
+        isWeaponSpawned = true;
+    }
+
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList) {
         Debug.Log($"_____OnSessionListUpdated");
 
@@ -141,13 +164,16 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input) {}
     public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) {}
     public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) {}
-    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) {
-        
-    }
+    public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
 
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) {}
     public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) {}
-    public void OnSceneLoadDone(NetworkRunner runner) {}
+    public void OnSceneLoadDone(NetworkRunner runner) {
+
+        if(SceneManager.GetActiveScene().name != "Ready") {
+            SpawnWeapons();
+        }
+    }
     public void OnSceneLoadStart(NetworkRunner runner) {}
     public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) {}
 }

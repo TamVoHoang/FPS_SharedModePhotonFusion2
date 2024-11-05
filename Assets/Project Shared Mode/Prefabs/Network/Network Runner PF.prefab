@@ -61,9 +61,12 @@ MonoBehaviour:
   sessionListUIHandler: {fileID: 0}
   mainMenuUIHandler: {fileID: 0}
   networkPlayerPrefab: {fileID: 8046501135343815372, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
+  gunPickupPF: {fileID: 5515571864399908346, guid: 932e621863125484ca61f06a2bbff740, type: 3}
+  gun1PickupPF: {fileID: 5515571864399908346, guid: cd6739381cf593744ac7547e253af418, type: 3}
+  gun2PickupPF: {fileID: 5515571864399908346, guid: cb859f4885b570f4b8d1f3a4c9a35773, type: 3}
   customLobbyName: 
-  sceneName: 
   gameMap: 0
+  numbersOfWeapon: 3
 --- !u!114 &1017911141652962617
 MonoBehaviour:
   m_ObjectHideFlags: 0

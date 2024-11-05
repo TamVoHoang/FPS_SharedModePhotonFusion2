@@ -97,7 +97,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: ec560ee92db6b1446b4d23a7766a3b3c, type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
@@ -545,6 +545,10 @@ MonoBehaviour:
   sessionListUIHandler: {fileID: 0}
   mainMenuUIHandler: {fileID: 0}
   networkPlayerPrefab: {fileID: 0}
+  gunPickupPF: {fileID: 0}
+  gun1PickupPF: {fileID: 0}
+  gun2PickupPF: {fileID: 0}
+  numbersOfWeapon: 2
   customLobbyName: 
   gameMap: 0
 --- !u!1 &559022293
@@ -4358,6 +4362,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3997528379490804679, guid: 9f8ac87d5cd760a4c84e8d4692bfd913, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4034733121192534185, guid: 9f8ac87d5cd760a4c84e8d4692bfd913, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -4425,10 +4433,6 @@ PrefabInstance:
     - target: {fileID: 4939096809791246616, guid: 9f8ac87d5cd760a4c84e8d4692bfd913, type: 3}
       propertyPath: m_Name
       value: InGame_Canvas
-      objectReference: {fileID: 0}
-    - target: {fileID: 4939096809791246616, guid: 9f8ac87d5cd760a4c84e8d4692bfd913, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6312831229444212856, guid: 9f8ac87d5cd760a4c84e8d4692bfd913, type: 3}
       propertyPath: m_AnchorMax.y
@@ -4515,7 +4519,8 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 6691266766659103647, guid: 9f8ac87d5cd760a4c84e8d4692bfd913, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9f8ac87d5cd760a4c84e8d4692bfd913, type: 3}

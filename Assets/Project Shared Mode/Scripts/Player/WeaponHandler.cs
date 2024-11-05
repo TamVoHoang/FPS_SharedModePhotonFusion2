@@ -53,7 +53,8 @@ public class WeaponHandler : NetworkBehaviour
     bool isFirePressed = false;
     bool isRocketPressed = false;
     bool isGrandePressed = false;
-
+    WeaponSwitcher weaponSwitcher;
+    
     private void Awake() {
         //hPHandler = GetComponent<HPHandler>();
         networkPlayer = GetComponent<NetworkPlayer>();
@@ -61,7 +62,7 @@ public class WeaponHandler : NetworkBehaviour
 
         localCameraHandler = FindFirstObjectByType<LocalCameraHandler>();
 
-        //weaponSwitcher = GetComponent<WeaponSwitcher>();
+        weaponSwitcher = GetComponent<WeaponSwitcher>();
         spawner = FindObjectOfType<Spawner>();
     }
 
@@ -98,7 +99,7 @@ public class WeaponHandler : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
-        if(isFirePressed) {
+        if(isFirePressed && weaponSwitcher.IsGunInIndexSlotActive()) {
             // chi tao ra hieu ung laser no o nong sung va bay toi muc tieu va cham
             localCameraHandler.RaycastHitPoint();
 

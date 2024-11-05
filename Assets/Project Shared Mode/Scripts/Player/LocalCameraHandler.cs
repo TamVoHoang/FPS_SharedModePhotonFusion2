@@ -33,12 +33,14 @@ public class LocalCameraHandler : NetworkBehaviour
 
     //others
     CinemachineVirtualCamera cinemachineVirtualCamera;
-    
+    WeaponSwitcher weaponSwitcher;
 
     private void Awake() {
         localCamera = GetComponent<Camera>();
         networkCharacterController = GetComponentInParent<NetworkCharacterController>();
         inGameMessagesUIHandler = GetComponentInChildren<InGameMessagesUIHandler>();
+
+        weaponSwitcher = GetComponentInParent<WeaponSwitcher>();
     }
 
     private void Update() {
@@ -69,14 +71,14 @@ public class LocalCameraHandler : NetworkBehaviour
                     Utils.SetRenderLayerInChildren(NetworkPlayer.Local.playerModel, LayerMask.NameToLayer("Default"));
 
                     // Disable local gun Holders | 3rd cam is on
-                    localGun_onCam.SetActive(false);
+                    /* localGun_onCam.SetActive(false); */
                     
                     //? tim slot transform nao dang active
-                    /* if(weaponSwitcher.GetGunNumber() > 0) {
+                    if(weaponSwitcher.GetGunNumber() > 0) {
                         var slotIndexLocalTransform = weaponSwitcher.GetLocalSlotTransformActive();
                         slotIndexLocalTransform.gameObject.SetActive(false);
                         Debug.Log($"co OFF local gun holder transform trong localCam.cs");
-                    } */
+                    }
                     
                 }
                 // dung lai tai day ko chay cho phan ben duoi do dang su dung 3rd person Cam
@@ -90,12 +92,12 @@ public class LocalCameraHandler : NetworkBehaviour
                     Utils.SetRenderLayerInChildren(NetworkPlayer.Local.playerModel, LayerMask.NameToLayer("LocalPlayerModel"));
 
                     //Enable local guns Holder | 1sr cam is on
-                    localGun_onCam.SetActive(true);
+                    /* localGun_onCam.SetActive(true); */
 
-                    /* if(weaponSwitcher.GetGunNumber() > 0) {
+                    if(weaponSwitcher.GetGunNumber() > 0) {
                         var slotIndexLocalTransform = weaponSwitcher.GetLocalSlotTransformActive();
                         slotIndexLocalTransform.gameObject.SetActive(true);
-                    } */
+                    }
                     
                 }
             }
