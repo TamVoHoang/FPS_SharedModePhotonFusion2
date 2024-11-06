@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using Fusion;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 //todo gameobject = networkPlayerPF
 //todo chuyen doi gun
@@ -17,6 +16,9 @@ public class WeaponSwitcher : NetworkBehaviour
 
     [Networked]
     public Vector3 dropPositon { get; set; }
+
+    [Networked]
+    public Quaternion dropRotation { get; set; }
 
     ChangeDetector changeDetector;
     [SerializeField] Animator animator;
@@ -46,15 +48,11 @@ public class WeaponSwitcher : NetworkBehaviour
     public override void Spawned() {
         Debug.Log($"co override spawned");
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
-
-        
     }
 
     private void Awake() {
         slots_LocalHolder = new Transform[local_GunHolder.GetComponent<Transform>().childCount -1];
         slots_RemoteHolder = new Transform[remote_GunHolder.GetComponent<Transform>().childCount -1];
-
-        
     }
 
     private void Start() {
@@ -122,17 +120,18 @@ public class WeaponSwitcher : NetworkBehaviour
     }
 
     IEnumerator DelayChange() {
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.09f);
         OnIsGunChange(local_GunPF, remote_GunPF);
         updateWeaponUI?.Invoke(indexLocalSlotActive, GunsNumber(), IsGunInIndexSlotActive());
     }
+
     IEnumerator DelaySwitch() {
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.09f);
         OnIsGunsSwitch();
         updateWeaponUI?.Invoke(indexLocalSlotActive, GunsNumber(), IsGunInIndexSlotActive());
     }
     IEnumerator DelayDrop() {
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(0.09f);
         OnIsGunDrop();
         updateWeaponUI?.Invoke(indexLocalSlotActive, GunsNumber(), false);
 
@@ -157,8 +156,9 @@ public class WeaponSwitcher : NetworkBehaviour
     }
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    void RPC_RequestDropPoint(Vector3 dropPoint, RpcInfo info = default) {
+    void RPC_RequestDropPoint(Vector3 dropPoint, Quaternion dropRotation, RpcInfo info = default) {
         this.dropPositon = dropPoint;
+        this.dropRotation = dropRotation;
     }
 
     void SpawnGunsGeneral(int index, Transform[] transforms, Gun gunPF, Transform slotsIndexTransform) {
@@ -288,13 +288,15 @@ public class WeaponSwitcher : NetworkBehaviour
         if(Object.HasInputAuthority) {
             Vector3 playerPosition = this.transform.position + new Vector3(0, 1f, 0);
             Vector3 playerForward = this.transform.forward;
-            Vector3 spawnPoint = playerPosition + playerForward * 1.2f;
 
-            RPC_RequestDropPoint(spawnPoint);
+            Vector3 spawnPoint = playerPosition + playerForward * 1.2f;
+            Quaternion spawnRotation = Quaternion.Euler(0, 90, 0);
+
+            RPC_RequestDropPoint(spawnPoint, spawnRotation);
         }
 
         if(Object.HasStateAuthority) {
-            Runner.Spawn(pickupDrop, this.dropPositon, Quaternion.identity, Object.InputAuthority,
+            Runner.Spawn(pickupDrop, this.dropPositon, this.dropRotation, null,
                 (runner, spawnCurrentPickupWeapon) => {
                     
                 }
@@ -323,6 +325,7 @@ public class WeaponSwitcher : NetworkBehaviour
 
             if(Object.HasInputAuthority)
                 RPC_RequestWeaponChanged(!isChanged);
+
         }
     }
 

@@ -23,17 +23,17 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
     [SerializeField] NetworkObject gun2PickupPF;
     [SerializeField] private int numbersOfWeapon = 2;
     List<NetworkObject> weaponLists = new List<NetworkObject>();
+    bool isWeaponSpawned = false;
 
     [Header ("      Lobby GameMap (Scene)")]
     [SerializeField] string customLobbyName;
     [SerializeField] GameMap gameMap;
-
     public string CustomLobbyName {get => customLobbyName; set => customLobbyName = value;}
     public GameMap GameMap {get => gameMap; set => gameMap = value;}
 
     /* [SerializeField] string sceneToStart;
     public string SceneName {set { sceneToStart = value; } get { return sceneToStart; }} */
-    bool isWeaponSpawned = false;
+    
 
     private void Awake() {
         sessionListUIHandler = FindObjectOfType<SessionListUIHandler>(true);
@@ -42,7 +42,7 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
         // set defaut customLobblyName and gameMap (scene)
         customLobbyName = "OurLobbyID_Survial";
         gameMap = (GameMap)GameMap.World_1;
-        /* sceneToStart = "World_1"; */
+
     }
 
     public void OnConnectedToServer(NetworkRunner runner) {
@@ -98,14 +98,13 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
     //? spawn weapons
     void SpawnWeapons() {
         if(isWeaponSpawned) return;
-        int numberOfWeaponsToSpwan = numbersOfWeapon;
-        for (int i = 0; i < numberOfWeaponsToSpwan; i++)
-        {
+
+        for (int i = 0; i < numbersOfWeapon; i++) {
             NetworkObject gunPF = Runner.Spawn(gunPickupPF, Utils.GetRandomWeaponSpawnPoint(), Quaternion.identity, null);
             NetworkObject gun1PF = Runner.Spawn(gun1PickupPF, Utils.GetRandomWeaponSpawnPoint(), Quaternion.identity, null);
             NetworkObject gun2PF = Runner.Spawn(gun2PickupPF, Utils.GetRandomWeaponSpawnPoint(), Quaternion.identity, null);
 
-            weaponLists.Add(gun1PF);
+            //weaponLists.Add(gun1PF);
         }
         isWeaponSpawned = true;
     }
@@ -151,6 +150,12 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
         sessionListUIHandler.ActiveOnCreateSesison_Button();
     }
 
+    public void OnSceneLoadDone(NetworkRunner runner) {
+        if(SceneManager.GetActiveScene().name != "Ready" && runner.IsSharedModeMasterClient) {
+            SpawnWeapons();
+        }
+    }
+
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason) {
         Debug.Log("On shutdown");
     }
@@ -165,15 +170,8 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
     public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) {}
     public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) {}
     public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
-
     public void OnReliableDataProgress(NetworkRunner runner, PlayerRef player, ReliableKey key, float progress) {}
     public void OnReliableDataReceived(NetworkRunner runner, PlayerRef player, ReliableKey key, ArraySegment<byte> data) {}
-    public void OnSceneLoadDone(NetworkRunner runner) {
-
-        if(SceneManager.GetActiveScene().name != "Ready") {
-            SpawnWeapons();
-        }
-    }
     public void OnSceneLoadStart(NetworkRunner runner) {}
     public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message) {}
 }

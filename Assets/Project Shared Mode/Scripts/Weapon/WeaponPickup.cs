@@ -13,6 +13,11 @@ public class WeaponPickup : NetworkBehaviour
     public Gun remote_GunPF;
     ChangeDetector changeDetector;
 
+
+    public override void Spawned() {
+        changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+    }
+
     public override void Render()
     {
         foreach (var change in changeDetector.DetectChanges(this, out var previousBuffer, out var currentBuffer))
@@ -23,9 +28,17 @@ public class WeaponPickup : NetworkBehaviour
                 var boolReader = GetPropertyReader<bool>(nameof(isTouched));
                 var (previousBool, currentBool) = boolReader.Read(previousBuffer, currentBuffer);
                 OnStateChanged(previousBool, currentBool);
-
                     break;
             }
+        }
+    }
+
+    public override void FixedUpdateNetwork()
+    {
+        if(Object.HasStateAuthority) {
+            // Create rotation around Y axis (up)
+            Quaternion rotation = Quaternion.Euler(0, 90 * Runner.DeltaTime, 0);
+            transform.rotation *= rotation;
         }
     }
 
@@ -54,12 +67,9 @@ public class WeaponPickup : NetworkBehaviour
             if(weaponSwitcher.GetSlotsLocalHolder[slotIndex].GetComponentInChildren<Gun>()) return;
 
             isTouched = true;
-            
         }
+        
         StartCoroutine(Delay());
     }
 
-    public override void Spawned() {
-        changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
-    }
 }
