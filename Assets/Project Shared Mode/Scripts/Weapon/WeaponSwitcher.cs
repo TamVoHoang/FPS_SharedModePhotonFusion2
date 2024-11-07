@@ -37,6 +37,7 @@ public class WeaponSwitcher : NetworkBehaviour
     [SerializeField] Transform playerModel;
 
     bool isTouchedWeaponPickup = false;
+    public bool IsTouchedWeaponPickup {get => isTouchedWeaponPickup;}
     bool isWeaponDroped = false;
 
     //
@@ -46,8 +47,10 @@ public class WeaponSwitcher : NetworkBehaviour
     bool isWeaponSwitched = false;
 
     public override void Spawned() {
-        Debug.Log($"co override spawned");
+        Debug.Log($"co override spawned weapon switcher.cs");
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+
+        
     }
 
     private void Awake() {
@@ -73,6 +76,7 @@ public class WeaponSwitcher : NetworkBehaviour
         /* if(SceneManager.GetActiveScene().name == "Ready") {
             uIWeapon.gameObject.SetActive(false);
         } else uIWeapon.gameObject.SetActive(true); */
+
     }
 
     private void Update() {
@@ -120,7 +124,7 @@ public class WeaponSwitcher : NetworkBehaviour
     }
 
     IEnumerator DelayChange() {
-        yield return new WaitForSeconds(0.09f);
+        yield return new WaitForSeconds(0.2f);  //todo gia tri nay se giup instantiate ra vu khi ko bi nullPF
         OnIsGunChange(local_GunPF, remote_GunPF);
         updateWeaponUI?.Invoke(indexLocalSlotActive, GunsNumber(), IsGunInIndexSlotActive());
     }
@@ -131,7 +135,7 @@ public class WeaponSwitcher : NetworkBehaviour
         updateWeaponUI?.Invoke(indexLocalSlotActive, GunsNumber(), IsGunInIndexSlotActive());
     }
     IEnumerator DelayDrop() {
-        yield return new WaitForSeconds(0.09f);
+        yield return new WaitForSeconds(0.2f);
         OnIsGunDrop();
         updateWeaponUI?.Invoke(indexLocalSlotActive, GunsNumber(), false);
 
@@ -169,7 +173,7 @@ public class WeaponSwitcher : NetworkBehaviour
             }
             transforms[i].gameObject.SetActive(false);
         }
-        Instantiate(gunPF, slotsIndexTransform.position, slotsIndexTransform.rotation, slotsIndexTransform);
+        Instantiate(gunPF, transforms[index].position, transforms[index].rotation, transforms[index]);
     }
 
     //? detect change with render method
@@ -179,31 +183,13 @@ public class WeaponSwitcher : NetworkBehaviour
         indexLocalSlotActive = indexLocal;
         var slotsIndexLocalTransform = slots_LocalHolder[indexLocal];
 
-        /* for (int i = 0; i < 3; i++) {
-            if(i == indexLocal) {
-                slots_LocalHolder[i].gameObject.SetActive(true);
-                continue;
-            }
-            slots_LocalHolder[i].gameObject.SetActive(false);
-        }
-        Instantiate(local_GunPF, slotsIndexLocalTransform.position, slotsIndexLocalTransform.rotation, slotsIndexLocalTransform); */
-        
-        SpawnGunsGeneral(indexLocal,slots_LocalHolder,local_GunPF, slotsIndexLocalTransform);
+        SpawnGunsGeneral(indexLocal, slots_LocalHolder, local_GunPF, slotsIndexLocalTransform);
         
         //spawn gun_remote
         var indexRemote = remote_GunPF.SlotIndex;
         var slotIndexRemoteTransform = slots_RemoteHolder[indexRemote];
 
-        /* for (int i = 0; i < 3; i++) {
-            if(i == indexRemote) {
-                slots_RemoteHolder[i].gameObject.SetActive(true);
-                continue;
-            } 
-            slots_RemoteHolder[i].gameObject.SetActive(false);
-        }
-        Instantiate(remote_GunPF, slotIndexRemoteTransform.position, slotIndexRemoteTransform.rotation, slotIndexRemoteTransform); */
-
-        SpawnGunsGeneral(indexRemote,slots_RemoteHolder,remote_GunPF, slotIndexRemoteTransform);
+        SpawnGunsGeneral(indexRemote, slots_RemoteHolder, remote_GunPF, slotIndexRemoteTransform);
 
         if(!Object.HasInputAuthority) {
             Utils.SetRenderLayerInChildren(playerModel, LayerMask.NameToLayer("Default"));
@@ -283,13 +269,13 @@ public class WeaponSwitcher : NetworkBehaviour
         var gunActiveRemoteIndex = slots_RemoteHolder[indexSlotActive].GetComponentInChildren<Gun>().gameObject;
         Destroy(gunActiveRemoteIndex);
         /* slots_RemoteHolder[indexLocalSlotActive].gameObject.SetActive(false); */
-
+        
         // directon player forwad
         if(Object.HasInputAuthority) {
             Vector3 playerPosition = this.transform.position + new Vector3(0, 1f, 0);
             Vector3 playerForward = this.transform.forward;
 
-            Vector3 spawnPoint = playerPosition + playerForward * 1.2f;
+            Vector3 spawnPoint = playerPosition + playerForward * 2f;
             Quaternion spawnRotation = Quaternion.Euler(0, 90, 0);
 
             RPC_RequestDropPoint(spawnPoint, spawnRotation);
@@ -331,7 +317,7 @@ public class WeaponSwitcher : NetworkBehaviour
 
     IEnumerator Delay() {
         isTouchedWeaponPickup = true;
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(2f);    //0.2f
         isTouchedWeaponPickup = false;
     }
 
@@ -386,5 +372,10 @@ public class WeaponSwitcher : NetworkBehaviour
         else return false;
     }
 
-
+    public void CheckHolster() {
+        if(!local_GunPF && !remote_GunPF)
+            animator.SetBool("isEquiped", false);
+        else
+            animator.SetBool("isEquiped", true);
+    }
 }

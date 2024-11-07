@@ -13,27 +13,27 @@ using System.Threading.Tasks;
 [FirestoreData]
 public class PlayerDataToFireStore {
     [SerializeField] string userName;
-    [SerializeField] int currLevel;
-    [SerializeField] int highScore;
+    [SerializeField] int killedCount;
+    [SerializeField] int deathCount;
     [SerializeField] int coins;
 
     [FirestoreProperty]
     public string UserName { get => userName; set=> userName = value; }
 
     [FirestoreProperty]
-    public int CurrentLevel { get => currLevel; set => currLevel = value; }
+    public int KilledCount { get => killedCount; set => killedCount = value; }
 
     [FirestoreProperty]
-    public int HighScore { get => highScore; set => highScore = value; }
+    public int DeathCount { get => deathCount; set => deathCount = value; }
 
     [FirestoreProperty]
     public int Coins { get => coins; set => coins = value; }
 
     public PlayerDataToFireStore() {}
-    public PlayerDataToFireStore(string userName, int currLevel, int highScore, int coins) {
+    public PlayerDataToFireStore(string userName, int killedCount, int deathCount, int coins) {
         this.userName = userName;
-        this.currLevel = currLevel;
-        this.highScore = highScore;
+        this.killedCount = killedCount;
+        this.deathCount = deathCount;
         this.coins = coins;
     }
 }
@@ -110,8 +110,8 @@ public class DataSaveLoadHander : MonoBehaviour
         DontDestroyOnLoad(this);
     }
     
-    public PlayerDataToFireStore ReturnPlayerData(string username, int currLevel, int hightScore, int coins) {
-        return new PlayerDataToFireStore(username, currLevel, hightScore, coins);
+    public PlayerDataToFireStore ReturnPlayerData(string username, int killedCount, int deathCount, int coins) {
+        return new PlayerDataToFireStore(username, killedCount, deathCount, coins);
     }
 
     // ham khoi tao va gan list
@@ -119,6 +119,8 @@ public class DataSaveLoadHander : MonoBehaviour
         CreateNewItemListJson(ItemAssets.Instance.IKnife01_SO, 1);
         CreateNewItemListJson(ItemAssets.Instance.IPistol01_SO, 1);
         CreateNewItemListJson(ItemAssets.Instance.IRifle01_SO, 1);
+
+        inventoryDataToFireStore.InventoryName = "Inventory";
         return new InventoryDataToFireStore(inventoryDataToFireStore.itemsListJson);
     }
 
@@ -132,7 +134,7 @@ public class DataSaveLoadHander : MonoBehaviour
         /* PlayerDataToFireStore playerDataToSignup = new PlayerDataToFireStore(userName, 1, 0, 0); */
 
         // ham khoi tao
-        PlayerDataToFireStore playerDataToSignup = ReturnPlayerData(userName, 1, 0, 0);
+        PlayerDataToFireStore playerDataToSignup = ReturnPlayerData(userName, 0, 0, 1000);
 
         // conver to string -> gan vao SetAsyn still OK
         /* string dataToFireStore = JsonUtility.ToJson(playerDataToSignup); */

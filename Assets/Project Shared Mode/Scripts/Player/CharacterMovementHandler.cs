@@ -119,15 +119,15 @@ public class CharacterMovementHandler : NetworkBehaviour
         networkCharacterController.Teleport(Utils.GetRandomSpawnPoint());
         
         hPHandler.OnRespawned_ResetHPIsDead(); // khoi tao lai gia tri HP isDeath - false
-        //isRespawnRequested = false;
+        /* isRespawnRequested = false; */
         RPC_SetNetworkedIsDead(false);
         Debug.Log($"_____Ending Respawn");
-
+        
     }
     
     public void RequestRespawn() {
         Debug.Log($"_____Requested Respawn");
-        //isRespawnRequested = true;
+        /* isRespawnRequested = true; */
         RPC_SetNetworkedIsDead(true);
     }
 

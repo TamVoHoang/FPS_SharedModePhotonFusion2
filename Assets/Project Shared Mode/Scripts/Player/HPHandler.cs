@@ -17,7 +17,7 @@ public class HPHandler : NetworkBehaviour
     public NetworkString<_16> Networked_Killer { get; set; }
 
     [Networked]
-    public int deadCount {get; set;}
+    public int deadCountCurr {get; set;}
 
     bool isInitialized = false;
     const byte startingHP = 5;
@@ -52,8 +52,8 @@ public class HPHandler : NetworkBehaviour
     }
     void Start() {
         if(!isSkipSettingStartValues) {
-            //local_HP = startingHP;
-            //deadCount = 0;
+            /* local_HP = startingHP;
+            deadCount = 0; */
         }
 
         ResetMeshRenders();
@@ -113,7 +113,13 @@ public class HPHandler : NetworkBehaviour
             /* RPC_SetNetworkedIsDead(true); */ // can use
 
             /* deadCount ++; */ //! KO THE XET O DAY, VI BIEN NETWORK KO XET LOCAL TAI DAY
-            weaponHandler.killCount ++; // cong diem cho killer
+            weaponHandler.killCountCurr += 1; // cong diem cho killer
+
+            //? SAVE to PlayerDataToFirestore -> save to weaponHander.UserID
+            //weaponHandler.SaveKilledCount();
+
+            //? SAVE deathCount cho this.UserId
+            //SaveDeathCount();
         }
     }
 
@@ -141,7 +147,7 @@ public class HPHandler : NetworkBehaviour
 
         if(Networked_HP <= 0) {
             this.Networked_IsDead = true;
-            this.deadCount += 1;
+            this.deadCountCurr += 1;
             this.Networked_Killer = name;
         } 
         else {
@@ -234,6 +240,9 @@ public class HPHandler : NetworkBehaviour
         localGun.SetActive(true);
         hitboxRoot.HitboxRootActive = true;
         characterMovementHandler.CharacterControllerEnable(true);
+
+        // animate equip animation if player having gun on hand
+        GetComponent<WeaponSwitcher>().CheckHolster();
     }
 
     // sau khi resapwn ben movement -> tra ve gia tri HP va isDead
@@ -241,6 +250,13 @@ public class HPHandler : NetworkBehaviour
         // khoi toa lai gia tri bat dau
         RPC_SetNetworkedHP(startingHP, null);
 
-        //RPC_SetNetworkedIsDead(false);    // can use
+        /* RPC_SetNetworkedIsDead(false); */    // can use
+    }
+
+
+    //? Save deathCount to fireStore
+    void SaveDeathCount() {
+        DataSaveLoadHander.Instance.playerDataToFireStore.DeathCount += 1;
+        DataSaveLoadHander.Instance.SavePlayerDataFireStore();
     }
 }

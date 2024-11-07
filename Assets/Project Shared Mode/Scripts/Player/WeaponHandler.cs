@@ -45,7 +45,7 @@ public class WeaponHandler : NetworkBehaviour
     Vector3 spawnPointRaycastCam = Vector3.zero;
 
     [Networked]
-    public int killCount{get; set;}
+    public int killCountCurr{get; set;}
 
     // others 
     Spawner spawner;
@@ -111,7 +111,7 @@ public class WeaponHandler : NetworkBehaviour
             isFirePressed = false;
         }
 
-        if(isRocketPressed) {
+        if(isRocketPressed && weaponSwitcher.IsGunInIndexSlotActive()) {
             localCameraHandler.RaycastHitPoint();
             var hitPointVector3 = localCameraHandler.hitPoint_Network;
             var spawnedPoint_OnCam = localCameraHandler.spawnedPointOnCam_Network;
@@ -127,7 +127,7 @@ public class WeaponHandler : NetworkBehaviour
             isRocketPressed = false;
         }
 
-        if(isGrandePressed) {
+        if(isGrandePressed && weaponSwitcher.IsGunInIndexSlotActive()) {
             localCameraHandler.RaycastHitPoint();
             var hitPointVector3 = localCameraHandler.hitPoint_Network;
             var spawnedPoint_OnCam = localCameraHandler.spawnedPointOnCam_Network;
@@ -303,5 +303,11 @@ public class WeaponHandler : NetworkBehaviour
         //(!Object.HasInputAuthority) => this.Object dang xuat hien o man hinh cua other clients
         // hien thi cho cac man hinh Clients noi this.Object nay dang xuat hien
         if(!Object.HasInputAuthority) fireParticleSystemRemote.Play();
+    }
+
+    // save killedCount to firestore
+    public void SaveKilledCount() {
+        DataSaveLoadHander.Instance.playerDataToFireStore.KilledCount += 1;
+            DataSaveLoadHander.Instance.SavePlayerDataFireStore();
     }
 }

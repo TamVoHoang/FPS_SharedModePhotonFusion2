@@ -43,7 +43,7 @@ public class WeaponPickup : NetworkBehaviour
     }
 
     IEnumerator Delay() {
-        yield return new WaitForSeconds(0.09f);
+        yield return new WaitForSeconds(0.1f);
         isTouched = false;
     }
 
@@ -63,7 +63,7 @@ public class WeaponPickup : NetworkBehaviour
         if(NetworkPlayer.Local.is3rdPersonCamera) return;
         
         WeaponSwitcher weaponSwitcher = other.GetComponent<WeaponSwitcher>();
-        if(weaponSwitcher != null) {
+        if(weaponSwitcher != null && weaponSwitcher.IsTouchedWeaponPickup == false) {
             if(weaponSwitcher.GetSlotsLocalHolder[slotIndex].GetComponentInChildren<Gun>()) return;
 
             isTouched = true;
@@ -71,5 +71,6 @@ public class WeaponPickup : NetworkBehaviour
         
         StartCoroutine(Delay());
     }
+
 
 }

@@ -9,8 +9,8 @@ public class ShowPlayerInfo : MonoBehaviour
 {
     // show info UI
     [SerializeField] TextMeshProUGUI userName;
-    [SerializeField] TextMeshProUGUI currentLevel;
-    [SerializeField] TextMeshProUGUI highScore;
+    [SerializeField] TextMeshProUGUI killedCountText;
+    [SerializeField] TextMeshProUGUI deathCountText;
     [SerializeField] TextMeshProUGUI coins;
 
     [SerializeField] GameObject loadingScreen;  // loading animation
@@ -121,8 +121,8 @@ public class ShowPlayerInfo : MonoBehaviour
         var data = DataSaveLoadHander.Instance.playerDataToFireStore;   // data from firestore
         
         userName.text = "User name: " + data.UserName;
-        currentLevel.text = "Current Level: " + data.CurrentLevel.ToString();
-        highScore.text = "High Score: " + data.HighScore.ToString();
+        killedCountText.text = "Killed Count: " + data.KilledCount.ToString();
+        deathCountText.text = "Death Count: " + data.DeathCount.ToString();
         coins.text = "Coins: " + data.Coins.ToString();
     }
 }
