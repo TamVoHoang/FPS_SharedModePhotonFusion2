@@ -140,6 +140,4 @@ public class LocalCameraHandler : NetworkBehaviour
         this.spawnedPointOnCam_Network = spawnedPointVector;
         this.spawnedPointOnHand_Network = spawnedPointVector_;
     }
-
-
 }

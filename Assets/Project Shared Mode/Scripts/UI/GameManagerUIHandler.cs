@@ -23,6 +23,7 @@ public class GameManagerUIHandler : NetworkBehaviour
     [SerializeField] TextMeshProUGUI countDownText;
     [SerializeField] GameObject resultTable_Panel;
     [SerializeField] GameObject backMainMenu_Panel;
+    [SerializeField] GameObject howToPlay_Panel;
 
     [Header("       Buttons")]
     [SerializeField] Button backToMainMenuInResultPanel_Button;
@@ -36,6 +37,7 @@ public class GameManagerUIHandler : NetworkBehaviour
     //others
     [SerializeField] ResultListUIHandler resultListUIHandler;
     ChangeDetector changeDetector;
+    bool cursorLocked;
 
     public override void Spawned() {
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
@@ -49,6 +51,11 @@ public class GameManagerUIHandler : NetworkBehaviour
         countDownTickTimer = TickTimer.None;
 
         resultListUIHandler = FindObjectOfType<ResultListUIHandler>(true);
+
+        //Always make sure that our cursor is locked when the game starts!
+        //Update the cursor's state.
+        /* cursorLocked = true;
+        UpdateCursorState(); */
     }
 
     private void Start() {
@@ -56,15 +63,24 @@ public class GameManagerUIHandler : NetworkBehaviour
 
         backToMainMenuInResultPanel_Button.onClick.AddListener(OnLeaveRoomButtonClicked);
         resultTable_Panel.gameObject.SetActive(false);
+        howToPlay_Panel.SetActive(false);
     }
 
     private void Update() {
         if(NetworkPlayer.Local == null) return;
 
+        // ESC to active or deActive cursor
+        //OnLockCursor();
+
         if(Input.GetKeyDown(KeyCode.Escape)) {
             backMainMenu_Panel.SetActive(!backMainMenu_Panel.activeSelf);
             ToggleCursor();
         }
+
+
+        if(Input.GetKey(KeyCode.Tab)) {
+            howToPlay_Panel.SetActive(true);
+        } else howToPlay_Panel.SetActive(false);
     }
 
     public override void FixedUpdateNetwork() {
@@ -98,6 +114,23 @@ public class GameManagerUIHandler : NetworkBehaviour
         }
     }
 
+    //? toggle new version
+    /* void OnLockCursor() {
+        if(Input.GetKeyDown(KeyCode.Escape)) {
+            cursorLocked = !cursorLocked;
+            UpdateCursorState();
+            backMainMenu_Panel.SetActive(!backMainMenu_Panel.activeSelf);
+        }
+    }
+
+    private void UpdateCursorState() {
+        //Update cursor visibility.
+        Cursor.visible = !cursorLocked;
+        //Update cursor lock state.
+        Cursor.lockState = cursorLocked ? CursorLockMode.Locked : CursorLockMode.None;
+    } */
+
+    //? toggle cursor old version
     void ToggleCursor() {
         isCursorShowed = !isCursorShowed;
         if(isCursorShowed) ShowCursor();

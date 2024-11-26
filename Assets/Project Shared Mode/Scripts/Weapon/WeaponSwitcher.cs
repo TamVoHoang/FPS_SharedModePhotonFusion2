@@ -22,13 +22,13 @@ public class WeaponSwitcher : NetworkBehaviour
 
     ChangeDetector changeDetector;
     [SerializeField] Animator animator;
-    [SerializeField] public Gun local_GunPF;
+    [SerializeField] private Gun local_GunPF;
     [SerializeField] private Gun remote_GunPF;
 
     [SerializeField] private Transform local_GunHolder;
     [SerializeField] private Transform remote_GunHolder;
 
-    [SerializeField] int indexLocalSlotActive;
+    [SerializeField] int indexLocalSlotActive = 0;
     public int GetIndexLocalSlotActive { get { return indexLocalSlotActive;}}
     [SerializeField] Transform[] slots_LocalHolder;
     public Transform[] GetSlotsLocalHolder { get { return slots_LocalHolder;}}
@@ -368,6 +368,7 @@ public class WeaponSwitcher : NetworkBehaviour
     public int GetGunNumber() => GunsNumber();
     public bool IsGunInIndexSlotActive() {
         //return slots_LocalHolder[indexLocalSlotActive].GetComponentInChildren<Gun>();
+
         if(slots_LocalHolder[indexLocalSlotActive].GetComponentInChildren<Gun>()) return true;
         else return false;
     }
@@ -377,5 +378,9 @@ public class WeaponSwitcher : NetworkBehaviour
             animator.SetBool("isEquiped", false);
         else
             animator.SetBool("isEquiped", true);
+    }
+
+    public Gun CurrentGunLocal() {
+        return local_GunPF;
     }
 }

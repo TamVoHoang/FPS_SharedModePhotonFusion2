@@ -1,8 +1,5 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
 using Fusion;
 using TMPro;
 using UnityEngine;
@@ -54,20 +51,20 @@ public class MainMenuUIHandler : MonoBehaviour
         OnCreateAndJoinSessionClick_Button.onClick.AddListener(OnCreateJoinSessionClicked);
 
     }
-
+    
     private void Start() {
-        // lay gia tri luu previous in playerPrefs gan vao inputfield
-        /* if(PlayerPrefs.HasKey("PlayerNickName_Local")) {
-            playerNameInputField.text = PlayerPrefs.GetString("PlayerNickName_Local");
-        } */
-
-        //lay gia tri trong firestore khi dang ky nick name gan vao day
-        if(DataSaver.Instance == null) return;
-        //playerNameInputField.text = DataSaveLoadHander.Instance.playerDataToFireStore.userName;
-        playerNameInputField.text = DataSaver.Instance.dataToSave.userName;
-
-
+        if(DataSaver.Instance) {
+            playerNameInputField.text = DataSaver.Instance.dataToSave.userName;
+        }
+        else {
+            playerNameInputField.text = GameManager.names[Random.Range(0, GameManager.names.Length)];
+        }
+        
         //! not using
+        //lay gia tri trong firestore khi dang ky nick name gan vao day
+        /* if(DataSaver.Instance == null) return;
+        playerNameInputField.text = DataSaveLoadHander.Instance.playerDataToFireStore.userName; */
+
         /* if(PlayerPrefs.HasKey("PlayerNickName_Local")) {
             lobbyNameInputField.text = PlayerPrefs.GetString("PlayerNickName_Local");
         } */

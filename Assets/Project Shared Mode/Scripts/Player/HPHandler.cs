@@ -93,7 +93,7 @@ public class HPHandler : NetworkBehaviour
 
     //? server call | coll 55 WeaponHandler.cs | khi hitInfo.HitBox tren player
     public void OnTakeDamage(string damageCausedByPlayerNickName, byte damageAmount, WeaponHandler weaponHandler) {
-        if(Networked_IsDead) return; 
+        if(Networked_IsDead) return;
 
         //gioi han gia tri damageAmount
         if(damageAmount > Networked_HP) damageAmount = Networked_HP;
@@ -115,11 +115,11 @@ public class HPHandler : NetworkBehaviour
             /* deadCount ++; */ //! KO THE XET O DAY, VI BIEN NETWORK KO XET LOCAL TAI DAY
             weaponHandler.killCountCurr += 1; // cong diem cho killer
 
-            //? SAVE to PlayerDataToFirestore -> save to weaponHander.UserID
-            //weaponHandler.SaveKilledCount();
+            //? SAVE to PlayerDataToFirestore -> save to weaponHander.UserID | save cho nguoi ban
+            weaponHandler.SaveKilledCount();
 
-            //? SAVE deathCount cho this.UserId
-            //SaveDeathCount();
+            //? SAVE deathCount cho this.UserId | seve cho nguoi bi ban
+            SaveDeathCount();
         }
     }
 
@@ -190,7 +190,7 @@ public class HPHandler : NetworkBehaviour
 
         // render cho man hinh cua this.Object run this.cs - KO HIEN THI O REMOTE
         if(Object.HasInputAuthority && !Networked_IsDead) {
-            uiOnHitImage.color = new Color(0,0,0,0);  
+            uiOnHitImage.color = new Color(0,0,0,0);
         } 
     }
 
@@ -256,6 +256,7 @@ public class HPHandler : NetworkBehaviour
 
     //? Save deathCount to fireStore
     void SaveDeathCount() {
+        if(!DataSaveLoadHander.Instance) return;
         DataSaveLoadHander.Instance.playerDataToFireStore.DeathCount += 1;
         DataSaveLoadHander.Instance.SavePlayerDataFireStore();
     }

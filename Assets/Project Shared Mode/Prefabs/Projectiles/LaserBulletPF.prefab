@@ -86,6 +86,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   laserParticleBulletPF: {fileID: 4985300727468367164}
+  checkForImpactPoint: {fileID: 0}
+  collisionLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!1 &4757210295203165029
 GameObject:
   m_ObjectHideFlags: 0
@@ -234,7 +238,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5181583837667091456}
   serializedVersion: 8
-  lengthInSec: 1
+  lengthInSec: 0.5
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 1
@@ -5137,7 +5141,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5181664153358614532}
   serializedVersion: 8
-  lengthInSec: 1
+  lengthInSec: 0.5
   simulationSpeed: 1
   stopAction: 2
   cullingMode: 3
@@ -10037,7 +10041,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5182240732174800728}
   serializedVersion: 8
-  lengthInSec: 1
+  lengthInSec: 0.5
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 3
@@ -14865,7 +14869,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5182986525456251512}
   serializedVersion: 8
-  lengthInSec: 1
+  lengthInSec: 0.5
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 3

@@ -51,7 +51,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
     // camera mode
     public bool is3rdPersonCamera {get; set;}
-
+    
     private void Awake() {
         localCameraHandler = GetComponentInChildren<LocalCameraHandler>();
         networkInGameMessages = GetComponent<NetworkInGameMessages>();
@@ -79,6 +79,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
         if(Input.GetKeyDown(KeyCode.C)) {
             is3rdPersonCamera = !is3rdPersonCamera;
         }
+
     }
 
     //? nhung thay doi cua bien Network
@@ -194,6 +195,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
         transform.name = $"P_{Object.Id} -> {nickName_Network.ToString()}";
     }
 
+    
+
     //? gan nickName_Network cho bien texMeshPro GUI local
     private void OnNickNameChanged() {
         Debug.Log($"NickName changed to {nickName_Network} for player {gameObject.name}");
@@ -201,16 +204,29 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     }
 
     private void OnIsEnemyChanged() {
-        if(spawner.CustomLobbyName != "OurLobbyID_Team") return;
+        // che do dau don
+        if(spawner.CustomLobbyName != "OurLobbyID_Team") {
+            if(!Object.HasStateAuthority) {
+                nickName_TM.color = Color.red;
+            }
+            return;
+        }
 
+        // neu che do dau Team | mau chu se duoc xet dua theo bien isEnemy_Network
+        // duoc xet o row 91 Spawner.cs
         if(isEnemy_Network) {
-            nickName_TM.color = Color.red;
-        } else nickName_TM.color = Color.green;
+            nickName_TM.color = Color.cyan;
+        } else nickName_TM.color = Color.white;
     }
 
     //? phuong thuc de local player send data cua rieng no len stateAuthority
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     public void RPC_SetNickName(string nickName, RpcInfo info = default) {
+        // neu vao thang world 1 | ko co ten | random ten
+        if(nickName == null) {
+            nickName = GameManager.names[Random.Range(0, GameManager.names.Length)];
+        }
+
         Debug.Log($"[RPC] Set nickName {nickName} for localPlayer");
         this.nickName_Network = nickName;
 
@@ -260,7 +276,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     }
 
     void OnDestroy() {
-        // neu this.Object DeSpawn coll 240 - this.Object destroy - se destroy luon localCam cua no
+        // neu this.Object DeSpawn coll 265 - this.Object destroy - se destroy luon localCam cua no
         if(localCameraHandler != null) {
             Debug.Log("SU KIEN ONDESTROY LOCAL CAMERA HANDLER IN NETWORKPLAYER.CS");
             Destroy(localCameraHandler.gameObject);

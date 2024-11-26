@@ -134,12 +134,12 @@ GameObject:
   - component: {fileID: 55111270}
   - component: {fileID: 55111269}
   m_Layer: 0
-  m_Name: "CM V\u1EC9tualCam"
+  m_Name: CM VirtualCam
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &55111269
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -209,7 +209,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1815880877517470402, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
       propertyPath: SortKey
-      value: 4211311460
+      value: 205121930
       objectReference: {fileID: 0}
     - target: {fileID: 2348756039869142370, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
       propertyPath: SortKey
@@ -337,7 +337,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9072332672367005774, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
       propertyPath: SortKey
-      value: 2068611177
+      value: 2357388943
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -868,6 +868,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &770669651
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1981524470255532815, guid: 0e404ce19076e954396b734685517b6d, type: 3}
+      propertyPath: m_Name
+      value: CM VirtualCame
+      objectReference: {fileID: 0}
+    - target: {fileID: 8821923975598687524, guid: 0e404ce19076e954396b734685517b6d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.57
+      objectReference: {fileID: 0}
+    - target: {fileID: 8821923975598687524, guid: 0e404ce19076e954396b734685517b6d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8821923975598687524, guid: 0e404ce19076e954396b734685517b6d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8821923975598687524, guid: 0e404ce19076e954396b734685517b6d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8821923975598687524, guid: 0e404ce19076e954396b734685517b6d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8821923975598687524, guid: 0e404ce19076e954396b734685517b6d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8821923975598687524, guid: 0e404ce19076e954396b734685517b6d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8821923975598687524, guid: 0e404ce19076e954396b734685517b6d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8821923975598687524, guid: 0e404ce19076e954396b734685517b6d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8821923975598687524, guid: 0e404ce19076e954396b734685517b6d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 0e404ce19076e954396b734685517b6d, type: 3}
 --- !u!1 &921161747
 GameObject:
   m_ObjectHideFlags: 0
@@ -4498,7 +4555,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8338352567276823092, guid: 9f8ac87d5cd760a4c84e8d4692bfd913, type: 3}
       propertyPath: SortKey
-      value: 4285255253
+      value: 279065723
       objectReference: {fileID: 0}
     - target: {fileID: 8882738750037047504, guid: 9f8ac87d5cd760a4c84e8d4692bfd913, type: 3}
       propertyPath: m_AnchorMax.y
@@ -7762,6 +7819,7 @@ SceneRoots:
   - {fileID: 705507995}
   - {fileID: 1146648565}
   - {fileID: 55111270}
+  - {fileID: 770669651}
   - {fileID: 1634102407}
   - {fileID: 502976695}
   - {fileID: 528947845}

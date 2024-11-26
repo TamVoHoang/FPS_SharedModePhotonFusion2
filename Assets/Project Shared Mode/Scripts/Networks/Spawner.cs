@@ -16,7 +16,7 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
     [SerializeField] SessionListUIHandler sessionListUIHandler;
     [SerializeField] MainMenuUIHandler mainMenuUIHandler;
 
-    [Header("NetworkPlayerPF and GunPF")]
+    [Header("       NetworkPlayerPF and GunPF")]
     [SerializeField] NetworkPlayer networkPlayerPrefab;
     [SerializeField] NetworkObject gunPickupPF;
     [SerializeField] NetworkObject gun1PickupPF;

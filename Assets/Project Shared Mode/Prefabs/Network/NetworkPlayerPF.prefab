@@ -822,6 +822,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3577745082857751755}
   - component: {fileID: 1759755566039054161}
+  - component: {fileID: 5135286457006678955}
   - component: {fileID: 1820887941646437712}
   m_Layer: 0
   m_Name: NickNameText(TMP)
@@ -857,6 +858,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5815840132763180277}
   m_CullTransparentMesh: 1
+--- !u!114 &5135286457006678955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5815840132763180277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef6bc8e839ee23a45900909413d36ef0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1820887941646437712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1163,8 +1176,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 129
   _isFiring: 0
+  lastTimeFired: 0
   localCameraHandler: {fileID: 0}
   _killCountCurr: 0
+  isFirePressed: 0
 --- !u!114 &2356012116495728008
 MonoBehaviour:
   m_ObjectHideFlags: 0
