@@ -30,11 +30,11 @@ public class RocketHandler : NetworkBehaviour
     NetworkObject networkObject;
     WeaponHandler weaponHandler;
 
-    // dectect collison Enter
-    private NetworkRigidbody3D networkRigidbody;
+    // dectect collison Enter _ not using
+    /* private NetworkRigidbody3D networkRigidbody;
     private Collider rocketCollider;
+    [SerializeField] float collisionRadius = 0.5f; */
 
-    [SerializeField] float collisionRadius = 0.5f;
     float detectionRadius = 0.5f;
     private Collider[] hitColliders = new Collider[10];
     public void Fire(PlayerRef fireByPlayerPref, NetworkObject fireByNetworkObject, string fireByPlayerName, WeaponHandler weaponHandler) {

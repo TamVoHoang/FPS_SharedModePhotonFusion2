@@ -14,6 +14,10 @@ public class EmailLogin : MonoBehaviour
     public TMP_InputField loginPassword;
     [SerializeField] Button loginButton;
 
+    [Header("Reset Request")]
+    public TMP_InputField resetEmail;
+    [SerializeField] Button sendRequestButton;
+
     [Header("Sign up")]
     public TMP_InputField signupEmail;
     public TMP_InputField userName;
@@ -38,7 +42,7 @@ public class EmailLogin : MonoBehaviour
 
         loginButton.onClick.AddListener(Login);
         signUpButton.onClick.AddListener(SignUp);
-
+        // sendRequestButton.onClick.AddListener(SendRequest);
         PlayerInfoUI.SetActive(false);
 
         // show mail and pass if PlayerPrefs having key "mail" "pass"
@@ -63,16 +67,20 @@ public class EmailLogin : MonoBehaviour
             if (task.IsCanceled)
             {
                 Debug.LogError("CreateUserWithEmailAndPasswordAsync was canceled.");
+                StartCoroutine(ResetLoadingScreenCo());
                 return;
             }
             if (task.IsFaulted)
             {
                 Debug.LogError("CreateUserWithEmailAndPasswordAsync encountered an error: " + task.Exception);
+                ShowLogMsg_SingUP("Sign up unsuccessfully");
+                StartCoroutine(ResetLoadingScreenCo());
                 return;
             }
             // Firebase user has been created.
 
-            loadingScreen.SetActive(false);
+            //loadingScreen.SetActive(false);
+            StartCoroutine(ResetLoadingScreenCo());
             AuthResult result = task.Result;
             Debug.LogFormat("Firebase user created successfully: {0} ({1})",
                 result.User.DisplayName, result.User.UserId);
@@ -84,19 +92,24 @@ public class EmailLogin : MonoBehaviour
 
             if (result.User.IsEmailVerified)
             {
-                showLogMsg_SingUP("Sign up Successful");
+                ShowLogMsg_SingUP("Sign up Successful");
             }
             else {
-                showLogMsg_SingUP("Please verify your email!!");
+                ShowLogMsg_SingUP("Please verify your email!!");
                 SendEmailVerification();
             }
 
             //? save after signup with having email and password
-            DataSaver.Instance.SaveToSignup(useName, result.User.UserId);
-            DataSaveLoadHander.Instance.SavePlayerDataToSignup(useName, result.User.UserId);
+            DataSaver.Instance.SaveToSignup(useName, result.User.UserId);                       // save info realtime
+            DataSaveLoadHander.Instance.SavePlayerDataToSignup(useName, result.User.UserId);    // save info firestore
 
-            //DataSaveLoadHander.Instance.SaveInventoryDataFireStoreToSignUp();
+        /* DataSaveLoadHander.Instance.SaveInventoryDataFireStoreToSignUp();   */               // save inventory firestore
         });
+    }
+
+    IEnumerator ResetLoadingScreenCo() {
+        yield return new WaitForSeconds(1f);
+        loadingScreen.SetActive(false);
     }
 
     public void SendEmailVerification() {
@@ -290,6 +303,17 @@ public class EmailLogin : MonoBehaviour
 
     #endregion
 
+    #region ResetPassword
+
+    public void SendRequest() {
+
+    }
+    public void SendRequest(string resetEmail) {
+
+    }
+
+    #endregion ReadPassword
+
     #region Login
     public void Login() {
         loadingScreen.SetActive(true);
@@ -304,25 +328,32 @@ public class EmailLogin : MonoBehaviour
             if (task.IsCanceled)
             {
                 Debug.LogError("SignInAndRetrieveDataWithCredentialAsync was canceled.");
+                StartCoroutine(ResetLoadingScreenCo());
                 return;
             }
             if (task.IsFaulted)
             {
                 Debug.LogError("SignInAndRetrieveDataWithCredentialAsync encountered an error: " + task.Exception);
+                ShowLogMsg("Log in fail");
+                StartCoroutine(ResetLoadingScreenCo());
                 return;
             }
             
-            loadingScreen.SetActive(false);
+            //loadingScreen.SetActive(false);
+            StartCoroutine(ResetLoadingScreenCo());
             AuthResult result = task.Result;
             Debug.LogFormat("User signed in successfully: {0} ({1})",
                 result.User.DisplayName, result.User.UserId);
 
             if (result.User.IsEmailVerified)
             {
-                showLogMsg("Log in Successful");
+                ShowLogMsg("Log in Successful");
+                StartCoroutine(DelayCo(1));
 
-                loginUi.SetActive(false);
-                SuccessUi.SetActive(true);
+                // old _ Not using
+                /* loginUi.SetActive(false);
+                SuccessUi.SetActive(true); */
+
                 /* SuccessUi.transform.Find("Desc").GetComponent<TextMeshProUGUI>().text = "Id: " + result.User.UserId; */
                 id.text = $"ID: {result.User.UserId}";
 
@@ -331,7 +362,7 @@ public class EmailLogin : MonoBehaviour
                 DataSaveLoadHander.Instance.userId = result.User.UserId;
             }
             else {
-                showLogMsg("Please verify email!!");
+                ShowLogMsg("Please verify email!!");
             }
 
             SetPlayerPref(email, password);
@@ -340,38 +371,48 @@ public class EmailLogin : MonoBehaviour
             DataSaver.Instance.LoadData();
             DataSaveLoadHander.Instance.LoadPlayerDataFireStore();
         });
-
     }
+
+    IEnumerator DelayCo(float time) {
+        SuccessUi.SetActive(true);
+        yield return new WaitForSeconds(time);
+        loginUi.SetActive(false);
+        yield return new WaitForSeconds(0.2f);
+        if(PlayerInfoUI != null) PlayerInfoUI.SetActive(true);
+    }
+
     #endregion
 
     #region extra
-    void showLogMsg(string msg)
+    void ShowLogMsg(string msg)
     {
         logTxt.text = msg;
         //logTxt.GetComponent<Animation>().Play("FadeOutAnimation");
-        StartCoroutine(TextFadeOut(1f));
+        StartCoroutine(TextFadeOut(1.5f));
     }
     IEnumerator TextFadeOut(float time) {
         yield return new WaitForSeconds(time);
         logTxt.text = "";
 
-        SuccessUi.SetActive(false);
-
-        PlayerInfoUI.SetActive(true);
+        if(SuccessUi != null) {
+            SuccessUi.SetActive(false);   // chu tat -> tat vong loading
+        }
     }
 
-    void showLogMsg_SingUP(string msg)
+    void ShowLogMsg_SingUP(string msg)
     {
         logTxt.text = msg;
         //logTxt.GetComponent<Animation>().Play("FadeOutAnimation");
-        StartCoroutine(TextFadeOut_SignUp(1f));
+        StartCoroutine(TextFadeOut_SignUp(1.5f));
     }
     
     IEnumerator TextFadeOut_SignUp(float time) {
         yield return new WaitForSeconds(time);
         logTxt.text = "";
 
-        SuccessUi.SetActive(false);
+        if(SuccessUi != null) {
+            SuccessUi.SetActive(false);
+        }
     }
     #endregion
 
