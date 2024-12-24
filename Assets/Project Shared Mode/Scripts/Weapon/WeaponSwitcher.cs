@@ -31,8 +31,12 @@ public class WeaponSwitcher : NetworkBehaviour
     [SerializeField] int indexLocalSlotActive = 0;
     public int GetIndexLocalSlotActive { get { return indexLocalSlotActive;}}
     [SerializeField] Transform[] slots_LocalHolder;
+
     public Transform[] GetSlotsLocalHolder { get { return slots_LocalHolder;}}
     [SerializeField] Transform[] slots_RemoteHolder;
+
+    /* [SerializeField] NetworkObject[] slots_LocalHolder_Network;
+    [SerializeField] NetworkObject[] slots_RemoteHolder_Network; */
 
     [SerializeField] Transform playerModel;
 
@@ -56,6 +60,8 @@ public class WeaponSwitcher : NetworkBehaviour
     private void Awake() {
         slots_LocalHolder = new Transform[local_GunHolder.GetComponent<Transform>().childCount -1];
         slots_RemoteHolder = new Transform[remote_GunHolder.GetComponent<Transform>().childCount -1];
+
+
     }
 
     private void Start() {
@@ -165,6 +171,7 @@ public class WeaponSwitcher : NetworkBehaviour
         this.dropRotation = dropRotation;
     }
 
+    //[Networked] [SerializeField] NetworkObject networkObject_Parent {get; set;}
     void SpawnGunsGeneral(int index, Transform[] transforms, Gun gunPF, Transform slotsIndexTransform) {
         for (int i = 0; i < slots_LocalHolder.Length; i++) {
             if(i == index) {
@@ -173,6 +180,8 @@ public class WeaponSwitcher : NetworkBehaviour
             }
             transforms[i].gameObject.SetActive(false);
         }
+
+        // old version
         Instantiate(gunPF, transforms[index].position, transforms[index].rotation, transforms[index]);
     }
 
@@ -304,20 +313,23 @@ public class WeaponSwitcher : NetworkBehaviour
             
             if(slots_LocalHolder[weaponPickup.SlotIndex].GetComponentInChildren<Gun>()) return;
             
-            StartCoroutine(Delay());
+            StartCoroutine(Delay(2f));
             SetNew_GunPF(weaponPickup.local_GunPF, weaponPickup.remote_GunPF);
 
-            var isChanged = isGunChange; //true
-
+            // old version
+            /* var isChanged = isGunChange; //true
             if(Object.HasInputAuthority)
-                RPC_RequestWeaponChanged(!isChanged);
+                RPC_RequestWeaponChanged(!isChanged); */
 
+            // new version
+            OnIsGunChange(weaponPickup.local_GunPF, weaponPickup.remote_GunPF);
+            updateWeaponUI?.Invoke(indexLocalSlotActive, GunsNumber(), IsGunInIndexSlotActive());
         }
     }
 
-    IEnumerator Delay() {
+    IEnumerator Delay(float time) {
         isTouchedWeaponPickup = true;
-        yield return new WaitForSeconds(2f);    //0.2f
+        yield return new WaitForSeconds(time);    //0.2f
         isTouchedWeaponPickup = false;
     }
 

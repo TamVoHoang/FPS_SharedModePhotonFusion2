@@ -131,13 +131,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 36243832781417140, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
+      propertyPath: SortKey
+      value: 953139822
+      objectReference: {fileID: 0}
     - target: {fileID: 245668799533509152, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
       propertyPath: SortKey
       value: 464928209
       objectReference: {fileID: 0}
+    - target: {fileID: 625077105964294828, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
+      propertyPath: SortKey
+      value: 3098169442
+      objectReference: {fileID: 0}
     - target: {fileID: 1815880877517470402, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
       propertyPath: SortKey
       value: 4211311460
+      objectReference: {fileID: 0}
+    - target: {fileID: 2166018296994845904, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
+      propertyPath: SortKey
+      value: 233431586
       objectReference: {fileID: 0}
     - target: {fileID: 2348756039869142370, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
       propertyPath: SortKey
@@ -207,6 +219,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4674570611072813081, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
+      propertyPath: SortKey
+      value: 1363504819
+      objectReference: {fileID: 0}
     - target: {fileID: 4990986185618260317, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -255,6 +271,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -30
       objectReference: {fileID: 0}
+    - target: {fileID: 6263570569632235583, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
+      propertyPath: SortKey
+      value: 204819992
+      objectReference: {fileID: 0}
     - target: {fileID: 7314756524467492152, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
       propertyPath: m_Name
       value: NetworkPlayerPF
@@ -262,6 +282,10 @@ PrefabInstance:
     - target: {fileID: 7314756524467492152, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7791772895239413392, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
+      propertyPath: SortKey
+      value: 1538120348
       objectReference: {fileID: 0}
     - target: {fileID: 9072332672367005774, guid: d0abf8c1cb6635b4bb06d5d9868e8d42, type: 3}
       propertyPath: SortKey
