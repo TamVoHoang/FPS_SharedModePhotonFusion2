@@ -11,8 +11,6 @@ public class WeaponPickup : NetworkBehaviour
 
     public Gun local_GunPF;
     public Gun remote_GunPF;
-
-
     ChangeDetector changeDetector;
 
 
@@ -29,7 +27,7 @@ public class WeaponPickup : NetworkBehaviour
                 case nameof(isTouched):
                 var boolReader = GetPropertyReader<bool>(nameof(isTouched));
                 var (previousBool, currentBool) = boolReader.Read(previousBuffer, currentBuffer);
-                //OnStateChanged(previousBool, currentBool);
+                OnStateChanged(previousBool, currentBool);
                     break;
             }
         }
@@ -58,7 +56,7 @@ public class WeaponPickup : NetworkBehaviour
 
     void DestroyWeapon() {
         Destroy(this.gameObject);
-        Debug.Log("co goi ham destroy weapon object");
+        Debug.Log($"co goi ham destroy weapon object");
     }
 
     private void OnTriggerEnter(Collider other) {
@@ -68,11 +66,10 @@ public class WeaponPickup : NetworkBehaviour
         if(weaponSwitcher != null && weaponSwitcher.IsTouchedWeaponPickup == false) {
             if(weaponSwitcher.GetSlotsLocalHolder[slotIndex].GetComponentInChildren<Gun>()) return;
 
-            //isTouched = true;
-            DestroyWeapon();
+            isTouched = true;
         }
         
-        //StartCoroutine(Delay());
+        StartCoroutine(Delay());
     }
 
 

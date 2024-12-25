@@ -102,9 +102,6 @@ public class WeaponSwitcher : NetworkBehaviour
             isWeaponDroped = false;
             OnWeaponDropPressed();
         }
-
-
-        
     }
 
     public override void Render() {
@@ -169,24 +166,11 @@ public class WeaponSwitcher : NetworkBehaviour
     }
 
     void SpawnGunsGeneral(int index, Transform[] transforms, Gun gunPF, bool isLocal) {
-        Debug.Log($"__________________SpawnGunsGeneral");
-        /* for (int i = 0; i < slots_LocalHolder.Length; i++) {
-            if(i == indexLocalSlotActive) {
-                transforms[i].gameObject.SetActive(true);
-                continue;
-            }
-            transforms[i].gameObject.SetActive(false);
-        } */
-
-        // old version
-        //Instantiate(gunPF, transforms[index].position, transforms[index].rotation, transforms[index]);
-
         var pos = isLocal? slots_LocalHolder[index].position : slots_RemoteHolder[index].position;
         NetworkObject newGun = Runner.Spawn(gunPF.gameObject);
         if(Object.HasStateAuthority) {
             RPC_RequestParent(newGun, index, isLocal);
         }
-        //return newGun;
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
@@ -209,7 +193,6 @@ public class WeaponSwitcher : NetworkBehaviour
 
     //? detect change with render method
     void OnIsGunChange(Gun local_GunPF, Gun remote_GunPF) {
-        Debug.Log($"_____________________OnIsGunChange");
         //spawn gun_local
         var indexLocal = local_GunPF.SlotIndex;
         indexLocalSlotActive = indexLocal;
@@ -327,19 +310,15 @@ public class WeaponSwitcher : NetworkBehaviour
     //? pickup weapon add to holder local and remote
     private void OnTriggerEnter(Collider other) {
         if(NetworkPlayer.Local.is3rdPersonCamera) return;   // neu la 3rd camaera thi ko change - dang tat local camera holder
-        /* if(indexLocalSlotActive == weaponPickup.SlotIndex) return; */
-        WeaponPickup weaponPickup = other.GetComponent<WeaponPickup>();
+        var weaponPickup = other.GetComponent<WeaponPickup>();
         if (weaponPickup != null && isTouchedWeaponPickup == false) {
             
             if(slots_LocalHolder[weaponPickup.SlotIndex].GetComponentInChildren<Gun>()) return;
             StartCoroutine(Delay(2f));
             SetNew_GunPF(weaponPickup.local_GunPF, weaponPickup.remote_GunPF);
-            // old version
-            /* var isChanged = isGunChange; //true
-            if(Object.HasInputAuthority)
-                RPC_RequestWeaponChanged(!isChanged); */
 
             // new version
+            
             if(Object.HasStateAuthority) {
                 OnIsGunChange(weaponPickup.local_GunPF, weaponPickup.remote_GunPF);
                 updateWeaponUI?.Invoke(indexLocalSlotActive, GunsNumber(), IsGunInIndexSlotActive());
