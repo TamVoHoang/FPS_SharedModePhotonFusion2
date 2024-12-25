@@ -325,6 +325,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slotIndex: 1
   weaponPickup: {fileID: 3701913043656924722, guid: cd6739381cf593744ac7547e253af418, type: 3}
+  isLocal: 1
 --- !u!114 &5515571864399908346
 MonoBehaviour:
   m_ObjectHideFlags: 0

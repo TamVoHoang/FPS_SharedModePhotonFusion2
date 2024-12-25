@@ -388,7 +388,7 @@ MonoBehaviour:
   backToMainMenuInResultPanel_Button: {fileID: 7544518165401011450}
   backToMainMenu_Button: {fileID: 6558918004203177613}
   isStarted: 0
-  timeRemainingToFinish: 60
+  timeRemainingToFinish: 180
   resultListUIHandler: {fileID: 0}
 --- !u!223 &5145143933830116597
 Canvas:

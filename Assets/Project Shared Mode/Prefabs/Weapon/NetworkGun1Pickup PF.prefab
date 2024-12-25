@@ -328,6 +328,8 @@ MonoBehaviour:
   slotIndex: 1
   local_GunPF: {fileID: 4605578384553539915, guid: b2542040b8ffa284aab108128e3d3a08, type: 3}
   remote_GunPF: {fileID: 3617593667846957166, guid: b5ba7712959458d46b7cd01ee0b07485, type: 3}
+  _localGun_Network: {fileID: 5515571864399908346, guid: b2542040b8ffa284aab108128e3d3a08, type: 3}
+  _remoteGun_Network: {fileID: -7602972372973753429, guid: b5ba7712959458d46b7cd01ee0b07485, type: 3}
 --- !u!114 &5515571864399908346
 MonoBehaviour:
   m_ObjectHideFlags: 0

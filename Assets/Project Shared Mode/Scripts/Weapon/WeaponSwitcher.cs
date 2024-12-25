@@ -53,15 +53,11 @@ public class WeaponSwitcher : NetworkBehaviour
     public override void Spawned() {
         Debug.Log($"co override spawned weapon switcher.cs");
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
-
-        
     }
 
     private void Awake() {
         slots_LocalHolder = new Transform[local_GunHolder.GetComponent<Transform>().childCount -1];
         slots_RemoteHolder = new Transform[remote_GunHolder.GetComponent<Transform>().childCount -1];
-
-
     }
 
     private void Start() {
@@ -106,6 +102,8 @@ public class WeaponSwitcher : NetworkBehaviour
             isWeaponDroped = false;
             OnWeaponDropPressed();
         }
+
+
         
     }
 
@@ -115,7 +113,7 @@ public class WeaponSwitcher : NetworkBehaviour
             switch (change)
             {
                 case nameof(isGunChange):
-                StartCoroutine(DelayChange());
+                //StartCoroutine(DelayChange());
                     break;
 
                 case nameof(isGunSwitch):
@@ -140,14 +138,13 @@ public class WeaponSwitcher : NetworkBehaviour
         OnIsGunsSwitch();
         updateWeaponUI?.Invoke(indexLocalSlotActive, GunsNumber(), IsGunInIndexSlotActive());
     }
+
     IEnumerator DelayDrop() {
         yield return new WaitForSeconds(0.2f);
         OnIsGunDrop();
         updateWeaponUI?.Invoke(indexLocalSlotActive, GunsNumber(), false);
 
     }
-
-    
 
     //? send to RPC then get value (to trigger changed value of variable to use Render method)
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
@@ -171,34 +168,58 @@ public class WeaponSwitcher : NetworkBehaviour
         this.dropRotation = dropRotation;
     }
 
-    //[Networked] [SerializeField] NetworkObject networkObject_Parent {get; set;}
-    void SpawnGunsGeneral(int index, Transform[] transforms, Gun gunPF, Transform slotsIndexTransform) {
+    void SpawnGunsGeneral(int index, Transform[] transforms, Gun gunPF, bool isLocal) {
+        Debug.Log($"__________________SpawnGunsGeneral");
+        /* for (int i = 0; i < slots_LocalHolder.Length; i++) {
+            if(i == indexLocalSlotActive) {
+                transforms[i].gameObject.SetActive(true);
+                continue;
+            }
+            transforms[i].gameObject.SetActive(false);
+        } */
+
+        // old version
+        //Instantiate(gunPF, transforms[index].position, transforms[index].rotation, transforms[index]);
+
+        var pos = isLocal? slots_LocalHolder[index].position : slots_RemoteHolder[index].position;
+        NetworkObject newGun = Runner.Spawn(gunPF.gameObject);
+        if(Object.HasStateAuthority) {
+            RPC_RequestParent(newGun, index, isLocal);
+        }
+        //return newGun;
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    void RPC_RequestParent(NetworkObject newGun, int index, bool isLocal) {
+        indexLocalSlotActive = index;
+
+        Transform[] transforms = isLocal ? slots_LocalHolder : slots_RemoteHolder;
         for (int i = 0; i < slots_LocalHolder.Length; i++) {
-            if(i == index) {
+            if(i == indexLocalSlotActive) {
                 transforms[i].gameObject.SetActive(true);
                 continue;
             }
             transforms[i].gameObject.SetActive(false);
         }
 
-        // old version
-        Instantiate(gunPF, transforms[index].position, transforms[index].rotation, transforms[index]);
+        newGun.transform.SetParent(isLocal? slots_LocalHolder[index] : slots_RemoteHolder[index], false);
+        newGun.GetComponent<NetworkTransform>().Teleport(isLocal? slots_LocalHolder[index].position : slots_RemoteHolder[index].position);
     }
+
 
     //? detect change with render method
     void OnIsGunChange(Gun local_GunPF, Gun remote_GunPF) {
+        Debug.Log($"_____________________OnIsGunChange");
         //spawn gun_local
         var indexLocal = local_GunPF.SlotIndex;
         indexLocalSlotActive = indexLocal;
-        var slotsIndexLocalTransform = slots_LocalHolder[indexLocal];
 
-        SpawnGunsGeneral(indexLocal, slots_LocalHolder, local_GunPF, slotsIndexLocalTransform);
-        
+        SpawnGunsGeneral(indexLocal, slots_LocalHolder, local_GunPF, true);
+
         //spawn gun_remote
         var indexRemote = remote_GunPF.SlotIndex;
-        var slotIndexRemoteTransform = slots_RemoteHolder[indexRemote];
 
-        SpawnGunsGeneral(indexRemote, slots_RemoteHolder, remote_GunPF, slotIndexRemoteTransform);
+        SpawnGunsGeneral(indexRemote, slots_RemoteHolder, remote_GunPF, false);
 
         if(!Object.HasInputAuthority) {
             Utils.SetRenderLayerInChildren(playerModel, LayerMask.NameToLayer("Default"));
@@ -262,6 +283,7 @@ public class WeaponSwitcher : NetworkBehaviour
 
         var gunLocal = slots_LocalHolder[indexLocalSlotActive].GetComponentInChildren<Gun>();
         var gunRemote = slots_RemoteHolder[indexLocalSlotActive].GetComponentInChildren<Gun>();
+
         SetNew_GunPF(gunLocal, gunRemote);
     }
 
@@ -297,33 +319,31 @@ public class WeaponSwitcher : NetworkBehaviour
                 }
             );
         }
-
         SetNew_GunPF(null, null);
+
         indexLocalSlotActive = indexSlotActive;
     }
 
     //? pickup weapon add to holder local and remote
     private void OnTriggerEnter(Collider other) {
-
         if(NetworkPlayer.Local.is3rdPersonCamera) return;   // neu la 3rd camaera thi ko change - dang tat local camera holder
         /* if(indexLocalSlotActive == weaponPickup.SlotIndex) return; */
-
         WeaponPickup weaponPickup = other.GetComponent<WeaponPickup>();
         if (weaponPickup != null && isTouchedWeaponPickup == false) {
             
             if(slots_LocalHolder[weaponPickup.SlotIndex].GetComponentInChildren<Gun>()) return;
-            
             StartCoroutine(Delay(2f));
             SetNew_GunPF(weaponPickup.local_GunPF, weaponPickup.remote_GunPF);
-
             // old version
             /* var isChanged = isGunChange; //true
             if(Object.HasInputAuthority)
                 RPC_RequestWeaponChanged(!isChanged); */
 
             // new version
-            OnIsGunChange(weaponPickup.local_GunPF, weaponPickup.remote_GunPF);
-            updateWeaponUI?.Invoke(indexLocalSlotActive, GunsNumber(), IsGunInIndexSlotActive());
+            if(Object.HasStateAuthority) {
+                OnIsGunChange(weaponPickup.local_GunPF, weaponPickup.remote_GunPF);
+                updateWeaponUI?.Invoke(indexLocalSlotActive, GunsNumber(), IsGunInIndexSlotActive());
+            }
         }
     }
 
@@ -353,7 +373,7 @@ public class WeaponSwitcher : NetworkBehaviour
     }
 
     //? set current local and remote weapon after pickup or switching
-    public void SetNew_GunPF(Gun local_GunPF, Gun remote_GunPF) {
+    void SetNew_GunPF(Gun local_GunPF, Gun remote_GunPF) {
         this.local_GunPF = local_GunPF;
         this.remote_GunPF = remote_GunPF;
 
@@ -362,6 +382,7 @@ public class WeaponSwitcher : NetworkBehaviour
             animator.SetBool("isEquiped", false);
         else
             animator.SetBool("isEquiped", true);
+
     }
 
     public Transform GetLocalSlotTransformActive() {
