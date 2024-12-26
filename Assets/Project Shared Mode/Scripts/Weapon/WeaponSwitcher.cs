@@ -41,7 +41,9 @@ public class WeaponSwitcher : NetworkBehaviour
     [SerializeField] Transform playerModel;
 
     bool isTouchedWeaponPickup = false;
-    public bool IsTouchedWeaponPickup {get => isTouchedWeaponPickup;}
+    [Networked] public NetworkBool isTouched_Network {get; set;} = false;
+    [Networked] public NetworkBool isHasGunInInventory_Network {get; set;} = false;
+
     bool isWeaponDroped = false;
 
     //
@@ -310,10 +312,17 @@ public class WeaponSwitcher : NetworkBehaviour
     //? pickup weapon add to holder local and remote
     private void OnTriggerEnter(Collider other) {
         if(NetworkPlayer.Local.is3rdPersonCamera) return;   // neu la 3rd camaera thi ko change - dang tat local camera holder
+        
         var weaponPickup = other.GetComponent<WeaponPickup>();
         if (weaponPickup != null && isTouchedWeaponPickup == false) {
             
-            if(slots_LocalHolder[weaponPickup.SlotIndex].GetComponentInChildren<Gun>()) return;
+            if(slots_LocalHolder[weaponPickup.SlotIndex].GetComponentInChildren<Gun>()) {
+                if(Object.HasStateAuthority) RPC_RequestIsHasGunInInventory(true);
+                return;
+            } else {
+                if(Object.HasStateAuthority) RPC_RequestIsHasGunInInventory(false);
+            }
+            
             StartCoroutine(Delay(2f));
             SetNew_GunPF(weaponPickup.local_GunPF, weaponPickup.remote_GunPF);
 
@@ -328,8 +337,11 @@ public class WeaponSwitcher : NetworkBehaviour
 
     IEnumerator Delay(float time) {
         isTouchedWeaponPickup = true;
+        //if(Object.HasStateAuthority) RPC_RequestIsTouchedPickupWeapon(true);
         yield return new WaitForSeconds(time);    //0.2f
         isTouchedWeaponPickup = false;
+        //if(Object.HasStateAuthority) RPC_RequestIsTouchedPickupWeapon(false);
+
     }
 
     void OnTriggerSwitch() {
@@ -392,7 +404,13 @@ public class WeaponSwitcher : NetworkBehaviour
             animator.SetBool("isEquiped", true);
     }
 
-    public Gun CurrentGunLocal() {
-        return local_GunPF;
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    void RPC_RequestIsTouchedPickupWeapon(NetworkBool networkBool) {
+        this.isTouched_Network = networkBool;
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    void RPC_RequestIsHasGunInInventory(NetworkBool networkBool) {
+        this.isHasGunInInventory_Network = networkBool;
     }
 }

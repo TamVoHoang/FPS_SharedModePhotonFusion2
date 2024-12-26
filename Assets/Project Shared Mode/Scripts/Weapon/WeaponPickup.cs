@@ -35,11 +35,11 @@ public class WeaponPickup : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
-        if(Object.HasStateAuthority) {
+        /* if(Object.HasStateAuthority) {
             // Create rotation around Y axis (up)
             Quaternion rotation = Quaternion.Euler(0, 90 * Runner.DeltaTime, 0);
             transform.rotation *= rotation;
-        }
+        } */
     }
 
     IEnumerator Delay() {
@@ -60,17 +60,38 @@ public class WeaponPickup : NetworkBehaviour
     }
 
     private void OnTriggerEnter(Collider other) {
-        if(NetworkPlayer.Local.is3rdPersonCamera) return;
-        
-        WeaponSwitcher weaponSwitcher = other.GetComponent<WeaponSwitcher>();
-        if(weaponSwitcher != null && weaponSwitcher.IsTouchedWeaponPickup == false) {
-            if(weaponSwitcher.GetSlotsLocalHolder[slotIndex].GetComponentInChildren<Gun>()) return;
+        /* if(NetworkPlayer.Local.is3rdPersonCamera) return;
+        if(!Object.HasStateAuthority) return;
+        if(other.GetComponent<WeaponSwitcher>().IsTouchedWeaponPickup == true) return;
 
-            isTouched = true;
-        }
-        
-        StartCoroutine(Delay());
+        if(other.TryGetComponent<WeaponSwitcher>(out var weaponSwitcher)) {
+            if(weaponSwitcher.IsTouchedWeaponPickup == true) return;
+            if(!weaponSwitcher.GetSlotsLocalHolder[slotIndex].GetComponentInChildren<Gun>()) {
+                Runner.Despawn(Object);
+            }
+        } */
+
+        if(NetworkPlayer.Local.is3rdPersonCamera) return;
+        if(!Object.HasStateAuthority) return;
+        WeaponSwitcher weaponSwitcher_ = other.GetComponent<WeaponSwitcher>();
+
+        /* if(!weaponSwitcher_.isHasGunInInventory_Network) {
+            Debug.Log("_______________co destroy");
+            Runner.Despawn(Object);
+        } else {
+            Debug.Log("_______________KO co destroy");
+        } */
+
+        StartCoroutine(DelayDesTroy(weaponSwitcher_));
     }
 
-
+    IEnumerator DelayDesTroy(WeaponSwitcher weaponSwitcher_) {
+        yield return new WaitForSeconds(0.1f);
+        if(!weaponSwitcher_.isHasGunInInventory_Network) {
+            Debug.Log("_______________co destroy");
+            Runner.Despawn(Object);
+        } else {
+            Debug.Log("_______________KO co destroy");
+        }
+    }
 }
