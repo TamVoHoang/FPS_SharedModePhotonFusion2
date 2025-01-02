@@ -329,8 +329,6 @@ MonoBehaviour:
   slotIndex: 2
   local_GunPF: {fileID: 5197312293380064238, guid: 54ae3bcd10e7ec54e985b24166ef5ad8, type: 3}
   remote_GunPF: {fileID: 3166656292052358350, guid: 7554bd2bae794b74bb4c6bdd2e717992, type: 3}
-  _localGun_Network: {fileID: 5515571864399908346, guid: 54ae3bcd10e7ec54e985b24166ef5ad8, type: 3}
-  _remoteGun_Network: {fileID: -7602972372973753429, guid: 7554bd2bae794b74bb4c6bdd2e717992, type: 3}
 --- !u!114 &5515571864399908346
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -369,8 +367,8 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.3
-  m_Height: 0.3
+  m_Radius: 0.2
+  m_Height: 0.2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0.15}
 --- !u!114 &-3129286164241897102

@@ -86,8 +86,8 @@ public class WeaponPickup : NetworkBehaviour
     }
 
     IEnumerator DelayDesTroy(WeaponSwitcher weaponSwitcher_) {
-        yield return new WaitForSeconds(0.1f);
-        if(!weaponSwitcher_.isHasGunInInventory_Network) {
+        yield return new WaitForSeconds(0.00f);
+        if(weaponSwitcher_.isTouched_Network && !weaponSwitcher_.isHasGunInInventory_Network) {
             Debug.Log("_______________co destroy");
             Runner.Despawn(Object);
         } else {

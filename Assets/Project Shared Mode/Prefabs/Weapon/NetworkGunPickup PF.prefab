@@ -324,8 +324,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e29b9cf36333ee4d9aae209266a764e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _isTouched:
-    _value: 0
+  _isTouched: 0
   slotIndex: 0
   local_GunPF: {fileID: 5326901184572139872, guid: aee1855f35ee9fd4985d8d223681cdaa, type: 3}
   remote_GunPF: {fileID: 4452918686570415678, guid: 2d1783cf6e2f7c7408870ac4b5143976, type: 3}
@@ -367,8 +366,8 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.3
-  m_Height: 0.3
+  m_Radius: 0.2
+  m_Height: 0.2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0.15}
 --- !u!114 &-3129286164241897102

@@ -1236,9 +1236,9 @@ MonoBehaviour:
   jumpImpulse: 8
   acceleration: 50
   braking: 30
-  maxSpeed: 6
-  rotationSpeed: 90
-  viewRotationSpeed: 90
+  maxSpeed: 5
+  rotationSpeed: 70
+  viewRotationSpeed: 70
 --- !u!114 &4111817304655517300
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1392,17 +1392,12 @@ MonoBehaviour:
   indexLocalSlotActive: 0
   slots_LocalHolder: []
   slots_RemoteHolder: []
-  slots_LocalHolder_Network:
-  - {fileID: 36243832781417140}
-  - {fileID: 625077105964294828}
-  - {fileID: 7791772895239413392}
-  slots_RemoteHolder_Network:
-  - {fileID: 4674570611072813081}
-  - {fileID: 2166018296994845904}
-  - {fileID: 6263570569632235583}
   playerModel: {fileID: 4371002194789412503}
+  _isTouched_Network:
+    _value: 0
+  _isHasGunInInventory_Network:
+    _value: 0
   uIWeapon: {fileID: 4371710729779245706}
-  networkObject_Parent: {fileID: 0}
 --- !u!1 &8013862553777737680
 GameObject:
   m_ObjectHideFlags: 0

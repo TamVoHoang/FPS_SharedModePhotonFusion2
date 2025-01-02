@@ -323,7 +323,7 @@ public class WeaponSwitcher : NetworkBehaviour
                 if(Object.HasStateAuthority) RPC_RequestIsHasGunInInventory(false);
             }
             
-            StartCoroutine(Delay(2f));
+            StartCoroutine(Delay(0.2f)); //! 0.2f
             SetNew_GunPF(weaponPickup.local_GunPF, weaponPickup.remote_GunPF);
 
             // new version
@@ -337,10 +337,10 @@ public class WeaponSwitcher : NetworkBehaviour
 
     IEnumerator Delay(float time) {
         isTouchedWeaponPickup = true;
-        //if(Object.HasStateAuthority) RPC_RequestIsTouchedPickupWeapon(true);
+        if(Object.HasStateAuthority) RPC_RequestIsTouchedPickupWeapon(true);
         yield return new WaitForSeconds(time);    //0.2f
         isTouchedWeaponPickup = false;
-        //if(Object.HasStateAuthority) RPC_RequestIsTouchedPickupWeapon(false);
+        if(Object.HasStateAuthority) RPC_RequestIsTouchedPickupWeapon(false);
 
     }
 
