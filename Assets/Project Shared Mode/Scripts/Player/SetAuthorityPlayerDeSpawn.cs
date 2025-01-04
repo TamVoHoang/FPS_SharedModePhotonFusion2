@@ -27,6 +27,10 @@ public class SetAuthorityPlayerDeSpawn : NetworkBehaviour
                 if(playerRef == PlayerRef.None) return;
                 Debug.Log($"_____master client next = " + playerRef);
                 runner.SetMasterClient(playerRef);
+                
+                // set scene to start to new master client
+                string sceneToStart = NetworkPlayer.Local.SceneToStart;
+                
             }
             
         } else {

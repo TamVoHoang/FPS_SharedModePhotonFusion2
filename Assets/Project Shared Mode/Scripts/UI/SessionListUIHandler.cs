@@ -73,6 +73,16 @@ public class SessionListUIHandler : MonoBehaviour
         Spawner spawner = FindObjectOfType<Spawner>();
         networkRunnerHandler.JoinGame(sessionInfo, spawner.CustomLobbyName, spawner.GameMap);
 
+        //! set game map cho spawner cua nhan var vao nut Join cua phong co san
+        if (sessionInfo.Properties.TryGetValue("mapName", out var propertyType) 
+            && propertyType.IsInt) {
+            var mapName = (int)propertyType.PropertyValue;
+            string map = ((GameMap)mapName).ToString();
+            Debug.Log($"_____mapName" + map);
+            spawner.GameMap = ((GameMap)mapName);
+        }
+        //! set game map cho spawner cua nhan var vao nut Join cua phong co san
+        
         MainMenuUIHandler mainMenuUIHandler = FindObjectOfType<MainMenuUIHandler>();
         mainMenuUIHandler.OnJoiningServer();
     }
