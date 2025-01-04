@@ -35,11 +35,11 @@ public class WeaponPickup : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
-        /* if(Object.HasStateAuthority) {
+        if(Object.HasStateAuthority) {
             // Create rotation around Y axis (up)
             Quaternion rotation = Quaternion.Euler(0, 90 * Runner.DeltaTime, 0);
             transform.rotation *= rotation;
-        } */
+        }
     }
 
     IEnumerator Delay() {
@@ -59,39 +59,19 @@ public class WeaponPickup : NetworkBehaviour
         Debug.Log($"co goi ham destroy weapon object");
     }
 
-    private void OnTriggerEnter(Collider other) {
-        /* if(NetworkPlayer.Local.is3rdPersonCamera) return;
-        if(!Object.HasStateAuthority) return;
-        if(other.GetComponent<WeaponSwitcher>().IsTouchedWeaponPickup == true) return;
-
-        if(other.TryGetComponent<WeaponSwitcher>(out var weaponSwitcher)) {
-            if(weaponSwitcher.IsTouchedWeaponPickup == true) return;
-            if(!weaponSwitcher.GetSlotsLocalHolder[slotIndex].GetComponentInChildren<Gun>()) {
-                Runner.Despawn(Object);
-            }
-        } */
+    private void OnTriggerStay(Collider other) {
 
         if(NetworkPlayer.Local.is3rdPersonCamera) return;
         if(!Object.HasStateAuthority) return;
         WeaponSwitcher weaponSwitcher_ = other.GetComponent<WeaponSwitcher>();
 
-        /* if(!weaponSwitcher_.isHasGunInInventory_Network) {
-            Debug.Log("_______________co destroy");
-            Runner.Despawn(Object);
-        } else {
-            Debug.Log("_______________KO co destroy");
-        } */
-
         StartCoroutine(DelayDesTroy(weaponSwitcher_));
     }
 
     IEnumerator DelayDesTroy(WeaponSwitcher weaponSwitcher_) {
-        yield return new WaitForSeconds(0.00f);
-        if(weaponSwitcher_.isTouched_Network && !weaponSwitcher_.isHasGunInInventory_Network) {
-            Debug.Log("_______________co destroy");
+        yield return new WaitForSeconds(0.00f); //! need to 0
+
+        if(weaponSwitcher_.CurrentObjectTouched_Network == Object)
             Runner.Despawn(Object);
-        } else {
-            Debug.Log("_______________KO co destroy");
-        }
     }
 }

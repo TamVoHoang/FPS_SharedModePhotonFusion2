@@ -2,9 +2,11 @@ using System;
 using System.Collections;
 using Fusion;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 //todo gameobject = networkPlayerPF
 //todo chuyen doi gun
+
 public class WeaponSwitcher : NetworkBehaviour
 {
     [Networked]
@@ -29,14 +31,10 @@ public class WeaponSwitcher : NetworkBehaviour
     [SerializeField] private Transform remote_GunHolder;
 
     [SerializeField] int indexLocalSlotActive = 0;
-    public int GetIndexLocalSlotActive { get { return indexLocalSlotActive;}}
     [SerializeField] Transform[] slots_LocalHolder;
 
-    public Transform[] GetSlotsLocalHolder { get { return slots_LocalHolder;}}
     [SerializeField] Transform[] slots_RemoteHolder;
 
-    /* [SerializeField] NetworkObject[] slots_LocalHolder_Network;
-    [SerializeField] NetworkObject[] slots_RemoteHolder_Network; */
 
     [SerializeField] Transform playerModel;
 
@@ -52,14 +50,22 @@ public class WeaponSwitcher : NetworkBehaviour
 
     bool isWeaponSwitched = false;
 
+    [Networked] public NetworkObject CurrentObjectTouched_Network {get; set;}
+    
     public override void Spawned() {
         Debug.Log($"co override spawned weapon switcher.cs");
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+
     }
+
 
     private void Awake() {
         slots_LocalHolder = new Transform[local_GunHolder.GetComponent<Transform>().childCount -1];
         slots_RemoteHolder = new Transform[remote_GunHolder.GetComponent<Transform>().childCount -1];
+
+        /* if(SceneManager.GetActiveScene().name == "Ready") {
+            uIWeapon.gameObject.SetActive(false);
+        } else uIWeapon.gameObject.SetActive(true); */
     }
 
     private void Start() {
@@ -76,11 +82,7 @@ public class WeaponSwitcher : NetworkBehaviour
         if(Object.HasInputAuthority) {
             uIWeapon.Set(this);
         }
-
-        /* if(SceneManager.GetActiveScene().name == "Ready") {
-            uIWeapon.gameObject.SetActive(false);
-        } else uIWeapon.gameObject.SetActive(true); */
-
+        
     }
 
     private void Update() {
@@ -111,10 +113,6 @@ public class WeaponSwitcher : NetworkBehaviour
         {
             switch (change)
             {
-                case nameof(isGunChange):
-                //StartCoroutine(DelayChange());
-                    break;
-
                 case nameof(isGunSwitch):
                 StartCoroutine(DelaySwitch());
                     break;
@@ -124,12 +122,6 @@ public class WeaponSwitcher : NetworkBehaviour
                 break;
             }
         }
-    }
-
-    IEnumerator DelayChange() {
-        yield return new WaitForSeconds(0.2f);  //todo gia tri nay se giup instantiate ra vu khi ko bi nullPF
-        OnIsGunChange(local_GunPF, remote_GunPF);
-        updateWeaponUI?.Invoke(indexLocalSlotActive, GunsNumber(), IsGunInIndexSlotActive());
     }
 
     IEnumerator DelaySwitch() {
@@ -143,12 +135,6 @@ public class WeaponSwitcher : NetworkBehaviour
         OnIsGunDrop();
         updateWeaponUI?.Invoke(indexLocalSlotActive, GunsNumber(), false);
 
-    }
-
-    //? send to RPC then get value (to trigger changed value of variable to use Render method)
-    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    void RPC_RequestWeaponChanged(NetworkBool isChanged ,RpcInfo info = default) {
-        this.isGunChange = isChanged;
     }
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
@@ -310,24 +296,24 @@ public class WeaponSwitcher : NetworkBehaviour
     }
 
     //? pickup weapon add to holder local and remote
-    private void OnTriggerEnter(Collider other) {
+    private void OnTriggerStay(Collider other) {
         if(NetworkPlayer.Local.is3rdPersonCamera) return;   // neu la 3rd camaera thi ko change - dang tat local camera holder
         
         var weaponPickup = other.GetComponent<WeaponPickup>();
         if (weaponPickup != null && isTouchedWeaponPickup == false) {
             
             if(slots_LocalHolder[weaponPickup.SlotIndex].GetComponentInChildren<Gun>()) {
-                if(Object.HasStateAuthority) RPC_RequestIsHasGunInInventory(true);
+                /* if(Object.HasStateAuthority) RPC_RequestIsHasGunInInventory(true); */
                 return;
             } else {
-                if(Object.HasStateAuthority) RPC_RequestIsHasGunInInventory(false);
+                /* if(Object.HasStateAuthority) RPC_RequestIsHasGunInInventory(false); */
             }
-            
-            StartCoroutine(Delay(0.2f)); //! 0.2f
+
+            StartCoroutine(PickupObjectCO(0.5f)); //! 0.5f
+
+            if(Object.HasStateAuthority) RPC_RequestNetworkObjectTouched(weaponPickup.GetComponentInChildren<NetworkObject>());
             SetNew_GunPF(weaponPickup.local_GunPF, weaponPickup.remote_GunPF);
 
-            // new version
-            
             if(Object.HasStateAuthority) {
                 OnIsGunChange(weaponPickup.local_GunPF, weaponPickup.remote_GunPF);
                 updateWeaponUI?.Invoke(indexLocalSlotActive, GunsNumber(), IsGunInIndexSlotActive());
@@ -335,12 +321,12 @@ public class WeaponSwitcher : NetworkBehaviour
         }
     }
 
-    IEnumerator Delay(float time) {
+    IEnumerator PickupObjectCO(float time) {
         isTouchedWeaponPickup = true;
-        if(Object.HasStateAuthority) RPC_RequestIsTouchedPickupWeapon(true);
-        yield return new WaitForSeconds(time);    //0.2f
+        /* if(Object.HasStateAuthority) RPC_RequestIsTouchedPickupWeapon(true); */
+        yield return new WaitForSeconds(time);
         isTouchedWeaponPickup = false;
-        if(Object.HasStateAuthority) RPC_RequestIsTouchedPickupWeapon(false);
+        /* if(Object.HasStateAuthority) RPC_RequestIsTouchedPickupWeapon(false); */
 
     }
 
@@ -412,5 +398,10 @@ public class WeaponSwitcher : NetworkBehaviour
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     void RPC_RequestIsHasGunInInventory(NetworkBool networkBool) {
         this.isHasGunInInventory_Network = networkBool;
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    void RPC_RequestNetworkObjectTouched(NetworkObject networkObject) {
+        this.CurrentObjectTouched_Network = networkObject;
     }
 }
