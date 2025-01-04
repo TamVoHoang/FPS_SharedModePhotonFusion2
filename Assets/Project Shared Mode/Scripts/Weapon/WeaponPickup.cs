@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Fusion;
 using UnityEngine;
@@ -12,7 +13,6 @@ public class WeaponPickup : NetworkBehaviour
     public Gun local_GunPF;
     public Gun remote_GunPF;
     ChangeDetector changeDetector;
-
 
     public override void Spawned() {
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
@@ -65,13 +65,36 @@ public class WeaponPickup : NetworkBehaviour
         if(!Object.HasStateAuthority) return;
         WeaponSwitcher weaponSwitcher_ = other.GetComponent<WeaponSwitcher>();
 
-        StartCoroutine(DelayDesTroy(weaponSwitcher_));
+        StartCoroutine(DelayDestroyCo(weaponSwitcher_));
     }
 
-    IEnumerator DelayDesTroy(WeaponSwitcher weaponSwitcher_) {
+    IEnumerator DelayDestroyCo(WeaponSwitcher weaponSwitcher_) {
         yield return new WaitForSeconds(0.00f); //! need to 0
 
-        if(weaponSwitcher_.CurrentObjectTouched_Network == Object)
+        if(weaponSwitcher_.CurrentObjectTouched_Network == Object) {
             Runner.Despawn(Object);
+        }
+    }
+
+
+    public void WeaponPickupRequestStateAuthority() {
+        if (Object == null) return;
+
+        if (!Object.HasStateAuthority)
+        {
+            try
+            {
+                Object.RequestStateAuthority();
+                Debug.Log($"///Requesting state authority for bot {gameObject.name}.");
+            }
+            catch (Exception ex)
+            {
+                Debug.Log($"///Failed to request state authority: {ex.Message}");
+            }
+        }
+        else
+        {
+            Debug.Log("///Object already has state authority.");
+        }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Fusion;
@@ -240,6 +241,27 @@ public class GameManagerUIHandler : NetworkBehaviour
     public void OnLeaveRoomButtonClicked() {
         if(NetworkPlayer.Local)
             NetworkPlayer.Local.ShutdownLeftRoom();
+    }
+
+    public void GameManagerRequestStateAuthority() {
+        if (Object == null) return;
+
+        if (!Object.HasStateAuthority)
+        {
+            try
+            {
+                Object.RequestStateAuthority();
+                Debug.Log($"///Requesting state authority for bot {gameObject.name}.");
+            }
+            catch (Exception ex)
+            {
+                Debug.Log($"///Failed to request state authority: {ex.Message}");
+            }
+        }
+        else
+        {
+            Debug.Log("///Object already has state authority.");
+        }
     }
 
 }

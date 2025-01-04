@@ -51,6 +51,8 @@ public class WeaponSwitcher : NetworkBehaviour
     bool isWeaponSwitched = false;
 
     [Networked] public NetworkObject CurrentObjectTouched_Network {get; set;}
+    [Networked] public NetworkObject CurrentPlayerTouched_Network {get; set;}
+
     
     public override void Spawned() {
         Debug.Log($"co override spawned weapon switcher.cs");
@@ -311,7 +313,8 @@ public class WeaponSwitcher : NetworkBehaviour
 
             StartCoroutine(PickupObjectCO(0.5f)); //! 0.5f
 
-            if(Object.HasStateAuthority) RPC_RequestNetworkObjectTouched(weaponPickup.GetComponentInChildren<NetworkObject>());
+            NetworkObject newNetworkOb = weaponPickup.GetComponent<NetworkObject>();
+            if(Object.HasStateAuthority) RPC_RequestNetworkObjectTouched(newNetworkOb);
             SetNew_GunPF(weaponPickup.local_GunPF, weaponPickup.remote_GunPF);
 
             if(Object.HasStateAuthority) {
@@ -401,7 +404,13 @@ public class WeaponSwitcher : NetworkBehaviour
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    void RPC_RequestNetworkObjectTouched(NetworkObject networkObject) {
-        this.CurrentObjectTouched_Network = networkObject;
+    void RPC_RequestNetworkObjectTouched(NetworkObject currentNetworkObjectPickup) {
+        this.CurrentObjectTouched_Network = currentNetworkObjectPickup;
     }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    void RPC_RequestNetworkPlayerTouched(NetworkObject currentNetworkPlayerTouch) {
+        this.CurrentPlayerTouched_Network = currentNetworkPlayerTouch;
+    }
+
 }
