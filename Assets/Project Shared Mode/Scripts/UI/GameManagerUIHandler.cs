@@ -9,12 +9,16 @@ using UnityEngine.UI;
 //todo gameobject = canvasInGame world1 scene
 public class GameManagerUIHandler : NetworkBehaviour
 {
+
     [Networked]
     byte countDown {get; set;}
 
     [Networked]
     public bool isFinished {get; set;}
-    
+    [Networked]
+    private NetworkBool isTimerRunning { get; set; }
+    [Networked]
+    private float networkTimerStart { get; set; }
     bool isCursorShowed = false;
 
     [SerializeField] List<NetworkPlayer> networkPlayerList = new List<NetworkPlayer>();
@@ -42,6 +46,10 @@ public class GameManagerUIHandler : NetworkBehaviour
 
     public override void Spawned() {
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+        if (Object.HasStateAuthority) {
+            isTimerRunning = false;
+            countDown = (byte)timeRemainingToFinish;
+        }
     }
 
     private void Awake() {
@@ -63,6 +71,7 @@ public class GameManagerUIHandler : NetworkBehaviour
         StartCoroutine(DelayToStartGame(1));
 
         backToMainMenuInResultPanel_Button.onClick.AddListener(OnLeaveRoomButtonClicked);
+        backToMainMenu_Button.onClick.AddListener(OnLeaveRoomButtonClicked);
         resultTable_Panel.gameObject.SetActive(false);
         howToPlay_Panel.SetActive(false);
     }
@@ -85,7 +94,7 @@ public class GameManagerUIHandler : NetworkBehaviour
     }
 
     public override void FixedUpdateNetwork() {
-        if(Object.HasStateAuthority) {
+        /* if(Object.HasStateAuthority) {
 
             // vao game timer dem nguoc
             StartGameTimer();
@@ -98,21 +107,32 @@ public class GameManagerUIHandler : NetworkBehaviour
             else if(countDownTickTimer.IsRunning) {
                 countDown = (byte)countDownTickTimer.RemainingTime(Runner);
             }
+        } */
+
+        if(Object.HasStateAuthority) {
+            if (Object.HasStateAuthority) {
+                if (isStarted && !isTimerRunning) {
+                    StartGameTimer();
+                }
+
+                if (isTimerRunning) {
+                    UpdateTimer();
+                }
+            }
         }
     }
 
     public override void Render() {
         foreach (var change in changeDetector.DetectChanges(this, out var previousBuffer, out var currentBuffer)) {
-            switch (change)
-            {
+            switch (change) {
                 case nameof(countDown):
-                OnCountDownChanged();
+                    OnCountDownChanged();
                     break;
 
                 case nameof(isFinished):
-                var boolReader = GetPropertyReader<bool>(nameof(isFinished));
-                var (previousBool, currentBool) = boolReader.Read(previousBuffer, currentBuffer);
-                OnTableResultChanged(previousBool, currentBool);
+                    var boolReader = GetPropertyReader<bool>(nameof(isFinished));
+                    var (previousBool, currentBool) = boolReader.Read(previousBuffer, currentBuffer);
+                    OnTableResultChanged(previousBool, currentBool);
                     break;
             }
         }
@@ -152,14 +172,23 @@ public class GameManagerUIHandler : NetworkBehaviour
     }
     
     void StartGameTimer() {
-        if(isStarted) {
-            if(Runner.IsSharedModeMasterClient)
-                countDownTickTimer = TickTimer.CreateFromSeconds(Runner, timeRemainingToFinish);
-            else {
-                countDownTickTimer = TickTimer.None;
-                countDown = 0;
+        networkTimerStart = Runner.SimulationTime;
+        isTimerRunning = true;
+        isStarted = false;
+    }
+
+    void UpdateTimer() {
+        float elapsed = Runner.SimulationTime - networkTimerStart;
+        float remaining = timeRemainingToFinish - elapsed;
+        
+        if (remaining <= 0) {
+            isTimerRunning = false;
+            countDown = 0;
+            if (!isFinished) {
+                FinishedGame();
             }
-            isStarted = false;
+        } else {
+            countDown = (byte)Mathf.Ceil(remaining);
         }
     }
 
@@ -169,8 +198,11 @@ public class GameManagerUIHandler : NetworkBehaviour
     }
 
     void OnCountDownChanged() {
-        if(countDown == 0) countDownText.text = $"";
-        else countDownText.text = $"TIME: {countDown}";
+        if (countDown == 0) {
+            countDownText.text = "";
+        } else {
+            countDownText.text = $"TIME: {countDown}";
+        }
     }
 
     private void FinishedGame() {

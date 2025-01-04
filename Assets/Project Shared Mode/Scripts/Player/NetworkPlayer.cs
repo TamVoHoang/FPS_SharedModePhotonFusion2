@@ -120,6 +120,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
             if(isReadyScene) {
                 // (this.sceneToStart) networkPlayer <- spawner.cs <- dropdownscenename.cs
                 if(Runner.IsSharedModeMasterClient) sceneToStart = spawner.GameMap.ToString();
+                else sceneToStart = spawner.GameMap.ToString();
 
                 Camera.main.transform.position = new Vector3(transform.position.x, Camera.main.transform.position.y, Camera.main.transform.position.z);
 
