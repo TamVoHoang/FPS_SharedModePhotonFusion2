@@ -85,16 +85,19 @@ public class GameManagerUIHandler : NetworkBehaviour
     }
 
     public override void FixedUpdateNetwork() {
-        // vao game timer dem nguoc
-        StartGameTimer();
+        if(Object.HasStateAuthority) {
 
-        // checking countdown timer to show finish game
-        if(countDownTickTimer.Expired(Runner) && !isFinished) {
-            FinishedGame();
-            countDownTickTimer = TickTimer.None;
-        }
-        else if(countDownTickTimer.IsRunning) {
-            countDown = (byte)countDownTickTimer.RemainingTime(Runner);
+            // vao game timer dem nguoc
+            StartGameTimer();
+
+            // checking countdown timer to show finish game
+            if(countDownTickTimer.Expired(Runner) && !isFinished) {
+                FinishedGame();
+                countDownTickTimer = TickTimer.None;
+            }
+            else if(countDownTickTimer.IsRunning) {
+                countDown = (byte)countDownTickTimer.RemainingTime(Runner);
+            }
         }
     }
 

@@ -2,6 +2,7 @@ using UnityEngine;
 using Fusion;
 using TMPro;
 using UnityEngine.UI;
+using System;
 
 public class ReadyUIHandler : NetworkBehaviour
 {
@@ -69,13 +70,27 @@ public class ReadyUIHandler : NetworkBehaviour
             Vector3.Lerp(Camera.main.transform.position, desiredCameraPosition, Time.deltaTime * lerpSpeed);
         
         // neu thoi gian dem nguoi het -> vao game
-        if(countDownTickTimer.Expired(Runner)) {
+        /* if(countDownTickTimer.Expired(Runner)) {
             StartGame();
             countDownTickTimer = TickTimer.None;
         }
         else if(countDownTickTimer.IsRunning) {
             countDown = (byte)countDownTickTimer.RemainingTime(Runner);
+        } */
+    }
+
+    public override void FixedUpdateNetwork()
+    {
+        if(Object.HasStateAuthority) {
+            if(countDownTickTimer.Expired(Runner)) {
+                StartGame();
+                countDownTickTimer = TickTimer.None;
+            }
+            else if(countDownTickTimer.IsRunning) {
+                countDown = (byte)countDownTickTimer.RemainingTime(Runner);
+            }
         }
+        
     }
 
 
@@ -175,4 +190,24 @@ public class ReadyUIHandler : NetworkBehaviour
     // disable Leve butotn if networkObject is host session
     public void SetOnLeaveButtonActive(bool isActice) => OnLeaveClick_Button.interactable = isActice;
 
+    public void ReadyUIhandlerRequestStateAuthority() {
+        if (Object == null) return;
+
+        if (!Object.HasStateAuthority)
+        {
+            try
+            {
+                Object.RequestStateAuthority();
+                Debug.Log($"///Requesting state authority for bot {gameObject.name}.");
+            }
+            catch (Exception ex)
+            {
+                Debug.Log($"///Failed to request state authority: {ex.Message}");
+            }
+        }
+        else
+        {
+            Debug.Log("///Object already has state authority.");
+        }
+    }
 }

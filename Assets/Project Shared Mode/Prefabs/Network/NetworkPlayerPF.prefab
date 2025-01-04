@@ -1401,6 +1401,7 @@ MonoBehaviour:
     _value: 0
   uIWeapon: {fileID: 4371710729779245706}
   _CurrentObjectTouched_Network: {fileID: 0}
+  _CurrentPlayerTouched_Network: {fileID: 0}
 --- !u!114 &7581653673994853113
 MonoBehaviour:
   m_ObjectHideFlags: 0
