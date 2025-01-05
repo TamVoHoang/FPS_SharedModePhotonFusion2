@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 using Fusion;
 using TMPro;
-using Unity.VisualScripting.ReorderableList.Element_Adder_Menu;
+
 
 public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 {

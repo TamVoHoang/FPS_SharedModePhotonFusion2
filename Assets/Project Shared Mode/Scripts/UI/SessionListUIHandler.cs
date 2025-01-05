@@ -46,14 +46,14 @@ public class SessionListUIHandler : MonoBehaviour
     }
 
     //? add sessionItemListPF vao panel transform - tao thanh room name count join button
-    public void AddToList(SessionInfo sessionInfo, string mapName) {
+    public void AddToList(SessionInfo sessionInfo,string typeName, string mapName) {
 
         SessionInfoUIListItem sessionInfoUIListItem = 
             Instantiate(sessionItemListPF, verticalLayoutGroup.transform).GetComponent<SessionInfoUIListItem>();
         
         // sessionListUpdate -> se set ham nay nho vao session Info
         // dung sessionInfo show name, count, active JoinButton
-        sessionInfoUIListItem.SetInfomation(sessionInfo, mapName);
+        sessionInfoUIListItem.SetInfomation(sessionInfo, typeName, mapName);
 
         //todo neu sessionInfo lock || having enough active Players => now showing joinButton
         /* if(sessionInfo.IsOpen == false || sessionInfo.PlayerCount >= sessionInfo.MaxPlayers) {
@@ -71,7 +71,7 @@ public class SessionListUIHandler : MonoBehaviour
     {
         NetworkRunnerHandler networkRunnerHandler = FindObjectOfType<NetworkRunnerHandler>();
         Spawner spawner = FindObjectOfType<Spawner>();
-        networkRunnerHandler.JoinGame(sessionInfo, spawner.CustomLobbyName, spawner.GameMap);
+        networkRunnerHandler.JoinGame(sessionInfo, spawner.CustomLobbyName, spawner.TypeGame, spawner.GameMap);
 
         //! set game map cho spawner cua nhan var vao nut Join cua phong co san
         if (sessionInfo.Properties.TryGetValue("mapName", out var propertyType) 
@@ -80,6 +80,7 @@ public class SessionListUIHandler : MonoBehaviour
             string map = ((GameMap)mapName).ToString();
             Debug.Log($"_____mapName" + map);
             spawner.GameMap = ((GameMap)mapName);
+
         }
         //! set game map cho spawner cua nhan var vao nut Join cua phong co san
         
@@ -190,7 +191,7 @@ public class SessionListUIHandler : MonoBehaviour
         if(sessionInfo != null) {
             sessionListStatusText.text = $"Join session {sessionInfo.Name}";
             sessionListStatusText.gameObject.SetActive(true);
-            networkRunnerHandler.JoinGame(sessionInfo, spawner.CustomLobbyName, spawner.GameMap);
+            networkRunnerHandler.JoinGame(sessionInfo, spawner.CustomLobbyName, spawner.TypeGame, spawner.GameMap);
         }
         else {
             // row 90 da thong bao sessionlistUpdate call OnNoSessionFound() -> set sessionListStatusText
