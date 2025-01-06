@@ -59,7 +59,7 @@ public class GameManagerUIHandler : NetworkBehaviour
         countDownText.text = "";
         countDownTickTimer = TickTimer.None;
 
-        resultListUIHandler = FindObjectOfType<ResultListUIHandler>(true);
+        resultListUIHandler = GetComponentInChildren<ResultListUIHandler>(true);
 
         //Always make sure that our cursor is locked when the game starts!
         //Update the cursor's state.
