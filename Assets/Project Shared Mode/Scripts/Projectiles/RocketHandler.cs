@@ -36,7 +36,7 @@ public class RocketHandler : NetworkBehaviour
     [SerializeField] float collisionRadius = 0.5f; */
 
     float detectionRadius = 0.5f;
-    private Collider[] hitColliders = new Collider[10];
+    private Collider[] hitColliders = new Collider[15];
     public void Fire(PlayerRef fireByPlayerPref, NetworkObject fireByNetworkObject, string fireByPlayerName, WeaponHandler weaponHandler) {
         this.fireByPlayerRef = fireByPlayerPref;
         this.fireByPlayerName = fireByPlayerName;

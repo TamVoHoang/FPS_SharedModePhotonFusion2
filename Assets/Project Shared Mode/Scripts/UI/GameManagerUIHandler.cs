@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Fusion;
 using TMPro;
 using UnityEngine;
@@ -94,21 +95,6 @@ public class GameManagerUIHandler : NetworkBehaviour
     }
 
     public override void FixedUpdateNetwork() {
-        /* if(Object.HasStateAuthority) {
-
-            // vao game timer dem nguoc
-            StartGameTimer();
-
-            // checking countdown timer to show finish game
-            if(countDownTickTimer.Expired(Runner) && !isFinished) {
-                FinishedGame();
-                countDownTickTimer = TickTimer.None;
-            }
-            else if(countDownTickTimer.IsRunning) {
-                countDown = (byte)countDownTickTimer.RemainingTime(Runner);
-            }
-        } */
-
         if(Object.HasStateAuthority) {
             if (Object.HasStateAuthority) {
                 if (isStarted && !isTimerRunning) {
@@ -253,7 +239,11 @@ public class GameManagerUIHandler : NetworkBehaviour
 
         if(networkPlayerList.Count != 0) {
             resultListUIHandler.ClearList();
-            foreach (NetworkPlayer item in networkPlayerList) {
+
+            // sort list theo thu tu kill giam dan
+            var newList = networkPlayerList.OrderByDescending(s => s.GetComponent<WeaponHandler>().killCountCurr).ToList();
+
+            foreach (NetworkPlayer item in newList) {
                 resultListUIHandler.AddToList(item);
             }
         }
