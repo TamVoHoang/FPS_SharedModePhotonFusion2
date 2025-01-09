@@ -20,10 +20,14 @@ public class GameManagerUIHandler : NetworkBehaviour
 
     [Header("       Panels")]
     [SerializeField] TextMeshProUGUI countDownText;
-    [SerializeField] GameObject resultTable_Panel;
+    [SerializeField] GameObject resultTableSolo_Panel;
+    [SerializeField] GameObject resultTableTeam_Panel;
+
 
     [Header("       Buttons")]
-    [SerializeField] Button backToMainMenuInResultPanel_Button;
+    [SerializeField] Button backToMainMenuInResultPanelSolo_Button;
+    [SerializeField] Button backToMainMenuInResultPanelTeam_Button;
+
 
     [Header("       Timer")]
     [SerializeField] bool isStarted = false;
@@ -31,9 +35,12 @@ public class GameManagerUIHandler : NetworkBehaviour
     TickTimer countDownTickTimer = TickTimer.None; // khi vao game thi bat dau dem
     
     //others
-    [SerializeField] ResultListUIHandler resultListUIHandler;
+    [SerializeField] ResultListUIHandler resultListUIHandler_Solo;
+    [SerializeField] ResultListUIHandler_Team resultListUIHandler_Team;
+
     ChangeDetector changeDetector;
     bool cursorLocked;
+    [SerializeField] bool isSoloMode;
 
     public override void Spawned() {
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
@@ -47,7 +54,10 @@ public class GameManagerUIHandler : NetworkBehaviour
         countDownText.text = "";
         countDownTickTimer = TickTimer.None;
 
-        resultListUIHandler = GetComponentInChildren<ResultListUIHandler>(true);
+        //resultListUIHandler_Solo = GetComponentInChildren<ResultListUIHandler>(true);
+        resultListUIHandler_Solo = resultTableSolo_Panel.GetComponent<ResultListUIHandler>();
+        resultListUIHandler_Team = resultTableTeam_Panel.GetComponent<ResultListUIHandler_Team>();
+        isSoloMode = NetworkPlayer.Local.IsSoloMode();
 
         //Always make sure that our cursor is locked when the game starts!
         //Update the cursor's state.
@@ -58,8 +68,11 @@ public class GameManagerUIHandler : NetworkBehaviour
     private void Start() {
         StartCoroutine(DelayToStartGame(1));
 
-        backToMainMenuInResultPanel_Button.onClick.AddListener(OnLeaveRoomButtonClicked);
-        resultTable_Panel.gameObject.SetActive(false);
+        backToMainMenuInResultPanelSolo_Button.onClick.AddListener(OnLeaveRoomButtonClicked);
+        backToMainMenuInResultPanelTeam_Button.onClick.AddListener(OnLeaveRoomButtonClicked);
+
+        resultTableSolo_Panel.gameObject.SetActive(false);
+        resultTableTeam_Panel.gameObject.SetActive(false);
     }
 
     private void Update() {
@@ -155,7 +168,7 @@ public class GameManagerUIHandler : NetworkBehaviour
         ShowCursor();
 
         FinActivePlayersGeneric(networkPlayerList);
-        resultTable_Panel.gameObject.SetActive(true);
+        
         UpdateResult(networkPlayerList);
 
         StartCoroutine(ShowResultTableCO(0.09f));
@@ -171,17 +184,28 @@ public class GameManagerUIHandler : NetworkBehaviour
     }
 
     private void UpdateResult(List<NetworkPlayer> networkPlayerList) {
-        if(resultListUIHandler == null) return;
+        if(resultListUIHandler_Solo == null) return;
+        if(resultListUIHandler_Team == null) return;
 
         if(networkPlayerList.Count != 0) {
-            resultListUIHandler.ClearList();
+            resultListUIHandler_Solo.ClearList();
+            resultListUIHandler_Team.ClearList();
 
             // sort list theo thu tu kill giam dan
             var newList = networkPlayerList.OrderByDescending(s => s.GetComponent<WeaponHandler>().killCountCurr).ToList();
 
-            foreach (NetworkPlayer item in newList) {
-                resultListUIHandler.AddToList(item);
+            if(isSoloMode) {
+                resultTableSolo_Panel.gameObject.SetActive(true);
+                foreach (NetworkPlayer item in newList) {
+                    resultListUIHandler_Solo.AddToList(item);
+                }
+            } else {
+                resultTableTeam_Panel.gameObject.SetActive(true);
+                foreach (NetworkPlayer item in newList) {
+                    resultListUIHandler_Team.AddToList(item);
+                }
             }
+            
         }
         
         Debug.Log($"networkPlayerList.Count = {networkPlayerList.Count}");
@@ -199,7 +223,7 @@ public class GameManagerUIHandler : NetworkBehaviour
         if(current && !previous) {
             
             Debug.Log($"networkPlayerListRemote {networkPlayerListRemote.Count}");
-            resultTable_Panel.gameObject.SetActive(true);
+            
             UpdateResult(networkPlayerListRemote);
             Debug.Log($"co update result table client");
         }
