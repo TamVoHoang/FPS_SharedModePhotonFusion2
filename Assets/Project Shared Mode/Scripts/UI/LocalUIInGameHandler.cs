@@ -13,6 +13,7 @@ public class LocalUIInGameHandler : MonoBehaviour
     [SerializeField] GameObject backToMainMenu_Panel;   // quit panel in game
     [SerializeField] GameObject realtTimeResultSolo_Panel;
     [SerializeField] GameObject realtTimeResultTeam_Panel;
+    [SerializeField] GameObject inGameTeamResult_Panel;
 
 
     [Header("       Buttons")]
@@ -21,7 +22,6 @@ public class LocalUIInGameHandler : MonoBehaviour
     [SerializeField] List<NetworkPlayer> networkPlayerList = new List<NetworkPlayer>();
     [SerializeField] ResultListUIHandler resultListUIHandler_Solo;
     [SerializeField] ResultListUIHandler_Team resultListUIHandler_Team;
-
     
     bool isCursorShowed = false;
     bool isShowingRealtimeResultLocal = false;
@@ -31,8 +31,14 @@ public class LocalUIInGameHandler : MonoBehaviour
         //resultListUIHandler = GetComponentInChildren<ResultListUIHandler>(true);
         resultListUIHandler_Solo = realtTimeResultSolo_Panel.GetComponent<ResultListUIHandler>();
         resultListUIHandler_Team = realtTimeResultTeam_Panel.GetComponent<ResultListUIHandler_Team>();
-        isSoloMode = NetworkPlayer.Local.IsSoloMode();
 
+        if(!NetworkPlayer.Local) {
+            Debug.Log($"_____ solo mode is true player directly join at battle scene");
+            isSoloMode = true;
+        } else isSoloMode = NetworkPlayer.Local.IsSoloMode();
+        
+        if(!isSoloMode) inGameTeamResult_Panel.SetActive(true);
+        
         //Always make sure that our cursor is locked when the game starts!
         //Update the cursor's state.
         cursorLocked = true;

@@ -57,7 +57,11 @@ public class GameManagerUIHandler : NetworkBehaviour
         //resultListUIHandler_Solo = GetComponentInChildren<ResultListUIHandler>(true);
         resultListUIHandler_Solo = resultTableSolo_Panel.GetComponent<ResultListUIHandler>();
         resultListUIHandler_Team = resultTableTeam_Panel.GetComponent<ResultListUIHandler_Team>();
-        isSoloMode = NetworkPlayer.Local.IsSoloMode();
+
+        if(!NetworkPlayer.Local) {
+            Debug.Log($"_____ solo mode is true player directly join at battle scene");
+            isSoloMode = true;
+        } else isSoloMode = NetworkPlayer.Local.IsSoloMode();
 
         //Always make sure that our cursor is locked when the game starts!
         //Update the cursor's state.

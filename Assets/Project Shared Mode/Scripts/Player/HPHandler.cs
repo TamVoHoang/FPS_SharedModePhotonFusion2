@@ -116,6 +116,9 @@ public class HPHandler : NetworkBehaviour
             
             if(weaponHandler != GetComponent<WeaponHandler>()) {
                 weaponHandler.killCountCurr += 1; // cong diem cho killer
+                
+                //? killer gui va cong don cho team
+                weaponHandler.SendKillCountCurrToTeamResult(weaponHandler.killCountCurr);
 
                 //? SAVE to PlayerDataToFirestore -> save to weaponHander.UserID | save cho nguoi ban
                 weaponHandler.SaveKilledCount();
