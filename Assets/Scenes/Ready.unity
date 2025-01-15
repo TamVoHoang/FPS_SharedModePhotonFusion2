@@ -783,8 +783,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1618757605}
-  - component: {fileID: 1618757607}
   - component: {fileID: 1618757606}
+  - component: {fileID: 1618757607}
   - component: {fileID: 1618757604}
   - component: {fileID: 1618757603}
   - component: {fileID: 1618757602}
@@ -894,7 +894,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SortKey: 1262462210
   ObjectInterest: 1
-  Flags: 262145
+  Flags: 524289
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 1618757607}

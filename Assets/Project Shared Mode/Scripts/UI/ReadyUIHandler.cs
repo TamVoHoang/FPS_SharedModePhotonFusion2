@@ -2,13 +2,21 @@ using UnityEngine;
 using Fusion;
 using TMPro;
 using UnityEngine.UI;
+using System;
 
 public class ReadyUIHandler : NetworkBehaviour
 {
     [Header("UI")]
     [SerializeField] TextMeshProUGUI readyButtonText;
     [SerializeField] TextMeshProUGUI countDownText;
-    [SerializeField] bool isReady = false;
+    //[SerializeField] bool isReady = false;
+
+    [Networked]
+    private NetworkBool isReady { get; set; }
+    [Networked]
+    private float startTimeStamp { get; set; }
+    [Networked]
+    private NetworkBool isTimerActive { get; set; }
 
     [Header("Count Down")]
     [SerializeField] private int timeRemainingToBattle = 10;
@@ -49,6 +57,12 @@ public class ReadyUIHandler : NetworkBehaviour
 
     public override void Spawned() {
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+
+        if (Object.HasStateAuthority)
+        {
+            isTimerActive = false;
+            countDown = 0;
+        }
     }
 
     private void Update() {
@@ -69,14 +83,47 @@ public class ReadyUIHandler : NetworkBehaviour
             Vector3.Lerp(Camera.main.transform.position, desiredCameraPosition, Time.deltaTime * lerpSpeed);
         
         // neu thoi gian dem nguoi het -> vao game
-        if(countDownTickTimer.Expired(Runner)) {
+        /* if(countDownTickTimer.Expired(Runner)) {
             StartGame();
             countDownTickTimer = TickTimer.None;
         }
         else if(countDownTickTimer.IsRunning) {
             countDown = (byte)countDownTickTimer.RemainingTime(Runner);
-        }
+        } */
     }
+
+    public override void FixedUpdateNetwork()
+    {
+        /* if(Object.HasStateAuthority) {
+            if(countDownTickTimer.Expired(Runner)) {
+                StartGame();
+                countDownTickTimer = TickTimer.None;
+            }
+            else if(countDownTickTimer.IsRunning) {
+                countDown = (byte)countDownTickTimer.RemainingTime(Runner);
+            }
+        } */
+        if (!Object.HasStateAuthority) return;
+
+        if (isTimerActive)
+        {
+            float elapsedTime = Runner.SimulationTime - startTimeStamp;
+            float remainingTime = timeRemainingToBattle - elapsedTime;
+
+            if (remainingTime <= 0)
+            {
+                isTimerActive = false;
+                countDown = 0;
+                StartGame();
+            }
+            else
+            {
+                countDown = (byte)Mathf.Ceil(remainingTime);
+            }
+        }
+        
+    }
+
 
 
     //todo nhung thay doi cua bien Network
@@ -141,7 +188,7 @@ public class ReadyUIHandler : NetworkBehaviour
     // Ready Button
     private void OnReadyClicked()
     {
-        if(isReady) isReady = false;
+        /* if(isReady) isReady = false;
         else isReady = true;
 
         if(isReady) readyButtonText.text = "NOT READY";
@@ -158,7 +205,38 @@ public class ReadyUIHandler : NetworkBehaviour
         }
 
         // thong bao rpc isReady - set active readyImage
+        NetworkPlayer.Local.GetComponent<CharacterOutfitHandler>().OnReady(isReady); */
+        isReady = !isReady;
+        readyButtonText.text = isReady ? "NOT READY" : "READY";
+
+        if (Object.HasStateAuthority)
+        {
+            if (isReady)
+            {
+                StartTimer();
+            }
+            else
+            {
+                StopTimer();
+            }
+        }
+
         NetworkPlayer.Local.GetComponent<CharacterOutfitHandler>().OnReady(isReady);
+    }
+    private void StartTimer()
+    {
+        if (!Object.HasStateAuthority) return;
+        
+        startTimeStamp = Runner.SimulationTime;
+        isTimerActive = true;
+    }
+
+    private void StopTimer()
+    {
+        if (!Object.HasStateAuthority) return;
+
+        isTimerActive = false;
+        countDown = 0;
     }
     
     private void OnLeaveClicked()
@@ -175,4 +253,24 @@ public class ReadyUIHandler : NetworkBehaviour
     // disable Leve butotn if networkObject is host session
     public void SetOnLeaveButtonActive(bool isActice) => OnLeaveClick_Button.interactable = isActice;
 
+    public void ReadyUIhandlerRequestStateAuthority() {
+        if (Object == null) return;
+
+        if (!Object.HasStateAuthority)
+        {
+            try
+            {
+                Object.RequestStateAuthority();
+                Debug.Log($"///Requesting state authority for bot {gameObject.name}.");
+            }
+            catch (Exception ex)
+            {
+                Debug.Log($"///Failed to request state authority: {ex.Message}");
+            }
+        }
+        else
+        {
+            Debug.Log("///Object already has state authority.");
+        }
+    }
 }

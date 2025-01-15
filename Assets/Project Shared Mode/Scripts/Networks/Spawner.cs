@@ -11,6 +11,12 @@ public enum GameMap : int {
     World_3
 }
 
+public enum TypeGame : int
+{
+    Survival,
+    Team,
+}
+
 public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
 {
     [SerializeField] SessionListUIHandler sessionListUIHandler;
@@ -28,8 +34,10 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
     [Header ("      Lobby GameMap (Scene)")]
     [SerializeField] string customLobbyName;
     [SerializeField] GameMap gameMap;
+    [SerializeField] TypeGame typeGame;
     public string CustomLobbyName {get => customLobbyName; set => customLobbyName = value;}
     public GameMap GameMap {get => gameMap; set => gameMap = value;}
+    public TypeGame TypeGame {get => typeGame; set => typeGame = value;}
 
     /* [SerializeField] string sceneToStart;
     public string SceneName {set { sceneToStart = value; } get { return sceneToStart; }} */
@@ -42,6 +50,7 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
         // set defaut customLobblyName and gameMap (scene)
         customLobbyName = "OurLobbyID_Survial";
         gameMap = (GameMap)GameMap.World_1;
+        typeGame = (TypeGame)TypeGame.Survival;
 
     }
 
@@ -132,6 +141,7 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
             foreach (SessionInfo sessionInfo in sessionList)
             {
                 string name = null;
+                
                 if (sessionInfo.Properties.TryGetValue("mapName", out var propertyType) 
                     && propertyType.IsInt) {
                     var mapName = (int)propertyType.PropertyValue;
@@ -140,7 +150,17 @@ public class Spawner : SimulationBehaviour, INetworkRunnerCallbacks
                     name = map;
                 }
 
-                sessionListUIHandler.AddToList(sessionInfo, name);
+                string typeTemp = null;
+                if (sessionInfo.Properties.TryGetValue("typeName", out var propertyType_) 
+                    && propertyType_.IsInt) {
+                    var typeName = (int)propertyType_.PropertyValue;
+                    string type = ((TypeGame)typeName).ToString();
+                    Debug.Log($"_____typeName" + type);
+                    typeTemp = type;
+                }
+                
+
+                sessionListUIHandler.AddToList(sessionInfo, typeTemp, name);
                 Debug.Log($"sessionName: {sessionInfo.Name} playerCount: {sessionInfo.PlayerCount}");
                 Debug.Log($"host -" + sessionInfo.Properties);
             }

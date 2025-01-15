@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Fusion;
 using TMPro;
 using UnityEngine;
@@ -9,26 +10,24 @@ using UnityEngine.UI;
 //todo gameobject = canvasInGame world1 scene
 public class GameManagerUIHandler : NetworkBehaviour
 {
-    [Networked]
-    byte countDown {get; set;}
+    [Networked] byte countDown {get; set;}
+    [Networked] public bool isFinished {get; set;}
+    [Networked] private NetworkBool isTimerRunning { get; set; }
+    [Networked] private float networkTimerStart { get; set; }
 
-    [Networked]
-    public bool isFinished {get; set;}
-    
-    bool isCursorShowed = false;
-
-    [SerializeField] List<NetworkPlayer> networkPlayerList = new List<NetworkPlayer>();
-    [SerializeField] List<NetworkPlayer> networkPlayerListRemote = new List<NetworkPlayer>();
+    [SerializeField] List<NetworkPlayer> networkPlayerList = new List<NetworkPlayer>();         // list show local
+    [SerializeField] List<NetworkPlayer> networkPlayerListRemote = new List<NetworkPlayer>();   // list show remote
 
     [Header("       Panels")]
     [SerializeField] TextMeshProUGUI countDownText;
-    [SerializeField] GameObject resultTable_Panel;
-    [SerializeField] GameObject backMainMenu_Panel;
-    [SerializeField] GameObject howToPlay_Panel;
+    [SerializeField] GameObject resultTableSolo_Panel;
+    [SerializeField] GameObject resultTableTeam_Panel;
+
 
     [Header("       Buttons")]
-    [SerializeField] Button backToMainMenuInResultPanel_Button;
-    [SerializeField] Button backToMainMenu_Button;
+    [SerializeField] Button backToMainMenuInResultPanelSolo_Button;
+    [SerializeField] Button backToMainMenuInResultPanelTeam_Button;
+
 
     [Header("       Timer")]
     [SerializeField] bool isStarted = false;
@@ -36,22 +35,33 @@ public class GameManagerUIHandler : NetworkBehaviour
     TickTimer countDownTickTimer = TickTimer.None; // khi vao game thi bat dau dem
     
     //others
-    [SerializeField] ResultListUIHandler resultListUIHandler;
+    [SerializeField] ResultListUIHandler resultListUIHandler_Solo;
+    [SerializeField] ResultListUIHandler_Team resultListUIHandler_Team;
+
     ChangeDetector changeDetector;
     bool cursorLocked;
+    [SerializeField] bool isSoloMode;
 
     public override void Spawned() {
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
+        if (Object.HasStateAuthority) {
+            isTimerRunning = false;
+            countDown = (byte)timeRemainingToFinish;
+        }
     }
 
     private void Awake() {
-        backToMainMenu_Button.onClick.AddListener(OnLeaveRoomButtonClicked);
-        backMainMenu_Panel.SetActive(false);
-
         countDownText.text = "";
         countDownTickTimer = TickTimer.None;
 
-        resultListUIHandler = FindObjectOfType<ResultListUIHandler>(true);
+        //resultListUIHandler_Solo = GetComponentInChildren<ResultListUIHandler>(true);
+        resultListUIHandler_Solo = resultTableSolo_Panel.GetComponent<ResultListUIHandler>();
+        resultListUIHandler_Team = resultTableTeam_Panel.GetComponent<ResultListUIHandler_Team>();
+
+        if(!NetworkPlayer.Local) {
+            Debug.Log($"_____ solo mode is true player directly join at battle scene");
+            isSoloMode = true;
+        } else isSoloMode = NetworkPlayer.Local.IsSoloMode();
 
         //Always make sure that our cursor is locked when the game starts!
         //Update the cursor's state.
@@ -62,54 +72,39 @@ public class GameManagerUIHandler : NetworkBehaviour
     private void Start() {
         StartCoroutine(DelayToStartGame(1));
 
-        backToMainMenuInResultPanel_Button.onClick.AddListener(OnLeaveRoomButtonClicked);
-        resultTable_Panel.gameObject.SetActive(false);
-        howToPlay_Panel.SetActive(false);
+        backToMainMenuInResultPanelSolo_Button.onClick.AddListener(OnLeaveRoomButtonClicked);
+        backToMainMenuInResultPanelTeam_Button.onClick.AddListener(OnLeaveRoomButtonClicked);
+
+        resultTableSolo_Panel.gameObject.SetActive(false);
+        resultTableTeam_Panel.gameObject.SetActive(false);
     }
 
     private void Update() {
         if(NetworkPlayer.Local == null) return;
 
         // ESC to active or deActive cursor
-        //OnLockCursor();
-
-        if(Input.GetKeyDown(KeyCode.Escape)) {
-            backMainMenu_Panel.SetActive(!backMainMenu_Panel.activeSelf);
-            ToggleCursor();
-        }
-
-
-        if(Input.GetKey(KeyCode.Tab)) {
-            howToPlay_Panel.SetActive(true);
-        } else howToPlay_Panel.SetActive(false);
+        /* OnLockCursor(); */
     }
 
     public override void FixedUpdateNetwork() {
-        // vao game timer dem nguoc
-        StartGameTimer();
+        if (Object.HasStateAuthority) {
+            if (isStarted && !isTimerRunning) StartGameTimer();
 
-        // checking countdown timer to show finish game
-        if(countDownTickTimer.Expired(Runner) && !isFinished) {
-            FinishedGame();
-            countDownTickTimer = TickTimer.None;
-        }
-        else if(countDownTickTimer.IsRunning) {
-            countDown = (byte)countDownTickTimer.RemainingTime(Runner);
+            if (isTimerRunning) UpdateTimer();
         }
     }
 
     public override void Render() {
         foreach (var change in changeDetector.DetectChanges(this, out var previousBuffer, out var currentBuffer)) {
-            switch (change)
-            {
+            switch (change) {
                 case nameof(countDown):
-                OnCountDownChanged();
+                    OnCountDownChanged();
                     break;
 
                 case nameof(isFinished):
-                var boolReader = GetPropertyReader<bool>(nameof(isFinished));
-                var (previousBool, currentBool) = boolReader.Read(previousBuffer, currentBuffer);
-                OnTableResultChanged(previousBool, currentBool);
+                    var boolReader = GetPropertyReader<bool>(nameof(isFinished));
+                    var (previousBool, currentBool) = boolReader.Read(previousBuffer, currentBuffer);
+                    OnTableResultChanged(previousBool, currentBool);
                     break;
             }
         }
@@ -132,31 +127,30 @@ public class GameManagerUIHandler : NetworkBehaviour
     } */
 
     //? toggle cursor old version
-    void ToggleCursor() {
-        isCursorShowed = !isCursorShowed;
-        if(isCursorShowed) ShowCursor();
-        else HideCursor();
-    }
-        
     void ShowCursor() {
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
     }
-
-    void HideCursor() {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
-    }
     
     void StartGameTimer() {
-        if(isStarted) {
-            if(Runner.IsSharedModeMasterClient)
-                countDownTickTimer = TickTimer.CreateFromSeconds(Runner, timeRemainingToFinish);
-            else {
-                countDownTickTimer = TickTimer.None;
-                countDown = 0;
+        networkTimerStart = Runner.SimulationTime;
+        isTimerRunning = true;
+        isStarted = false;
+    }
+
+    void UpdateTimer() {
+        float elapsed = Runner.SimulationTime - networkTimerStart;
+        float remaining = timeRemainingToFinish - elapsed;
+        
+        if (remaining <= 0) {
+            isTimerRunning = false;
+            countDown = 0;
+            if (!isFinished) {
+                FinishedGame();
             }
-            isStarted = false;
+        }
+        else {
+            countDown = (byte)Mathf.Ceil(remaining);
         }
     }
 
@@ -166,47 +160,27 @@ public class GameManagerUIHandler : NetworkBehaviour
     }
 
     void OnCountDownChanged() {
-        if(countDown == 0) countDownText.text = $"";
-        else countDownText.text = $"TIME: {countDown}";
+        if (countDown == 0) {
+            countDownText.text = "";
+        } else {
+            countDownText.text = $"TIME: {countDown}";
+        }
     }
 
     private void FinishedGame() {
         Debug.Log($"finish game___________");
         ShowCursor();
 
-        //FindActivePlayers(networkPlayerList);
         FinActivePlayersGeneric(networkPlayerList);
-        resultTable_Panel.gameObject.SetActive(true);
+        
         UpdateResult(networkPlayerList);
 
         StartCoroutine(ShowResultTableCO(0.09f));
     }
-
-    IEnumerator ShowResultTableCO(float time) {
-        isFinished = true;
-        yield return new WaitForSeconds(time);
-        isFinished = false;
-    }
-
-    /* void FindActivePlayers(NetworkLinkedList<NetworkPlayer> networkPlayerList) {
-        GameObject[] gameObjectsToTransfer = GameObject.FindGameObjectsWithTag("Player");
-        foreach (var item in gameObjectsToTransfer)
-            networkPlayerList.Add(item.GetComponent<NetworkPlayer>());
-
-        Debug.Log($"FindActivePlayers = {networkPlayerList.Count}");
-    }
-
-    void FindActivePlayersRemote() {
-        GameObject[] gameObjectsToTransfer = GameObject.FindGameObjectsWithTag("Player");
-        foreach (var item in gameObjectsToTransfer)
-            networkPlayerListRemote.Add(item.GetComponent<NetworkPlayer>());
-
-        Debug.Log($"FindActivePlayers = {networkPlayerListRemote.Count}");
-    } */
-
     List<NetworkPlayer> FinActivePlayersGeneric(List<NetworkPlayer> activePlayersList)
     {
         GameObject[] gameObjectsToTransfer = GameObject.FindGameObjectsWithTag("Player");
+        activePlayersList.Clear();
         foreach (var item in gameObjectsToTransfer)
             activePlayersList.Add(item.GetComponent<NetworkPlayer>());
 
@@ -214,25 +188,46 @@ public class GameManagerUIHandler : NetworkBehaviour
     }
 
     private void UpdateResult(List<NetworkPlayer> networkPlayerList) {
-        if(resultListUIHandler == null) return;
+        if(resultListUIHandler_Solo == null) return;
+        if(resultListUIHandler_Team == null) return;
 
         if(networkPlayerList.Count != 0) {
-            resultListUIHandler.ClearList();
-            foreach (NetworkPlayer item in networkPlayerList) {
-                resultListUIHandler.AddToList(item);
+            resultListUIHandler_Solo.ClearList();
+            resultListUIHandler_Team.ClearList();
+
+            // sort list theo thu tu kill giam dan
+            var newList = networkPlayerList.OrderByDescending(s => s.GetComponent<WeaponHandler>().killCountCurr).ToList();
+
+            if(isSoloMode) {
+                resultTableSolo_Panel.gameObject.SetActive(true);
+                foreach (NetworkPlayer item in newList) {
+                    resultListUIHandler_Solo.AddToList(item);
+                }
+            } else {
+                resultTableTeam_Panel.gameObject.SetActive(true);
+                foreach (NetworkPlayer item in newList) {
+                    resultListUIHandler_Team.AddToList(item);
+                }
             }
+            
         }
         
         Debug.Log($"networkPlayerList.Count = {networkPlayerList.Count}");
     }
+
+    IEnumerator ShowResultTableCO(float time) {
+        isFinished = true;
+        yield return new WaitForSeconds(time);
+        isFinished = false;
+    }
     
-    // remote result table change after isFinish == true
+    //? remote result table change after isFinish == true
     void OnTableResultChanged(bool previous, bool current) {
         FinActivePlayersGeneric(networkPlayerListRemote);
         if(current && !previous) {
             
             Debug.Log($"networkPlayerListRemote {networkPlayerListRemote.Count}");
-            resultTable_Panel.gameObject.SetActive(true);
+            
             UpdateResult(networkPlayerListRemote);
             Debug.Log($"co update result table client");
         }
@@ -263,5 +258,4 @@ public class GameManagerUIHandler : NetworkBehaviour
             Debug.Log("///Object already has state authority.");
         }
     }
-
 }

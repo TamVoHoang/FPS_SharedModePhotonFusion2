@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Fusion;
 using UnityEngine;
@@ -54,7 +55,7 @@ public class WeaponHandler : NetworkBehaviour
     bool isRocketPressed = false;
     bool isGrandePressed = false;
     WeaponSwitcher weaponSwitcher;
-    
+
     private void Awake() {
         
         networkPlayer = GetComponent<NetworkPlayer>();
@@ -317,5 +318,12 @@ public class WeaponHandler : NetworkBehaviour
         if(!DataSaveLoadHander.Instance) return;
         DataSaveLoadHander.Instance.playerDataToFireStore.KilledCount += 1;
         DataSaveLoadHander.Instance.SavePlayerDataFireStore();
+    }
+
+    public void SendKillCountCurrToTeamResult(int killCountCurr) {
+        if(Object.HasStateAuthority) {
+            bool isEnemy = NetworkPlayer.Local.isEnemy_Network;
+            GetComponent<NetworkInGameTeamResult>().SendInGameResultTeamRPC(isEnemy, killCountCurr);
+        }
     }
 }

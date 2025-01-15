@@ -5,6 +5,7 @@ using UnityEngine;
 using Fusion;
 using TMPro;
 
+
 public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 {
     // player name
@@ -48,7 +49,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     public string SceneToStart { get => sceneToStart;}
 
     Spawner spawner;
-
+    
     // camera mode
     public bool is3rdPersonCamera {get; set;}
     
@@ -120,7 +121,8 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
             if(isReadyScene) {
                 // (this.sceneToStart) networkPlayer <- spawner.cs <- dropdownscenename.cs
                 if(Runner.IsSharedModeMasterClient) sceneToStart = spawner.GameMap.ToString();
-
+                else sceneToStart = spawner.GameMap.ToString();
+                
                 Camera.main.transform.position = new Vector3(transform.position.x, Camera.main.transform.position.y, Camera.main.transform.position.z);
 
                 // OF localCam
@@ -319,18 +321,26 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
     void AddNetworkedDictionary() {
         foreach (var player in Runner.ActivePlayers)
-            {
-                PlayerRef playerRef = player;
-                NetworkObject playerObject = Runner.GetPlayerObject(playerRef);
-                if(playerObject != null && playerObject.TryGetComponent<NetworkPlayer>(out var nameComponent)) {
-                    Debug.Log($"playerID - {playerRef.PlayerId} | name - {nameComponent.nickName_Network}");
-                    NetDict.Add(playerRef.PlayerId, nameComponent.nickName_Network.ToString());
-                }
+        {
+            PlayerRef playerRef = player;
+            NetworkObject playerObject = Runner.GetPlayerObject(playerRef);
+            if(playerObject != null && playerObject.TryGetComponent<NetworkPlayer>(out var nameComponent)) {
+                Debug.Log($"playerID - {playerRef.PlayerId} | name - {nameComponent.nickName_Network}");
+                NetDict.Add(playerRef.PlayerId, nameComponent.nickName_Network.ToString());
             }
+        }
 
-            LocalDict.Clear();
-            foreach (var item in NetDict) {
-                LocalDict.Add(item.Key, item.Value.ToString());
-            }
+        LocalDict.Clear();
+        foreach (var item in NetDict) {
+            LocalDict.Add(item.Key, item.Value.ToString());
+        }
+    }
+
+    public bool IsSoloMode() {
+        if(spawner.TypeGame == TypeGame.Survival) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -137,7 +137,7 @@ public class MainMenuUIHandler : MonoBehaviour
         // vao thang Game Random character
         /* networkRunnerHandler.CreateGame(sessionNameInputField.text, "World1"); */
 
-        networkRunnerHandler.CreateGame(sessionNameInputField.text, spawner.GameMap, READY_SCENE, spawner.CustomLobbyName);
+        networkRunnerHandler.CreateGame(sessionNameInputField.text, spawner.TypeGame, spawner.GameMap, READY_SCENE, spawner.CustomLobbyName);
 
         HidePanels();
         joiningGamePanel.gameObject.SetActive(true);
@@ -199,7 +199,7 @@ public class MainMenuUIHandler : MonoBehaviour
             quickPlayResultText.text = $"Join session {sessionInfo.Name}";
 
             //? Option 1: OK join khong can quan tam GamMap this.spawner.GameMap != GameMap OF Runner.IsSharedModeMasterClient
-            networkRunnerHandler.JoinGame(sessionInfo, spawner.CustomLobbyName, spawner.GameMap);   
+            networkRunnerHandler.JoinGame(sessionInfo, spawner.CustomLobbyName, spawner.TypeGame, spawner.GameMap);   
 
             //? Option 1: kiem tra sessionInfo chuan bi join co GameMap la gi (do nguoi tao phong quyet dinh)
             //? truyen dung tham so GameMap de join

@@ -113,10 +113,16 @@ public class HPHandler : NetworkBehaviour
             /* RPC_SetNetworkedIsDead(true); */ // can use
 
             /* deadCount ++; */ //! KO THE XET O DAY, VI BIEN NETWORK KO XET LOCAL TAI DAY
-            weaponHandler.killCountCurr += 1; // cong diem cho killer
+            
+            if(weaponHandler != GetComponent<WeaponHandler>()) {
+                weaponHandler.killCountCurr += 1; // cong diem cho killer
+                
+                //? killer gui va cong don cho team
+                weaponHandler.SendKillCountCurrToTeamResult(weaponHandler.killCountCurr);
 
-            //? SAVE to PlayerDataToFirestore -> save to weaponHander.UserID | save cho nguoi ban
-            weaponHandler.SaveKilledCount();
+                //? SAVE to PlayerDataToFirestore -> save to weaponHander.UserID | save cho nguoi ban
+                weaponHandler.SaveKilledCount();
+            }
 
             //? SAVE deathCount cho this.UserId | seve cho nguoi bi ban
             SaveDeathCount();
