@@ -465,7 +465,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2476422875202358252
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3269,7 +3269,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6344960502328494085
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4092,7 +4092,7 @@ GameObject:
   - component: {fileID: 281963549282598385}
   - component: {fileID: 209460785559010274}
   m_Layer: 5
-  m_Name: GotoLobby_Button
+  m_Name: GotoMainMenu_Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6494,7 +6494,7 @@ MonoBehaviour:
   saveFireStoreSignUpButton: {fileID: 7814949284809422592}
   saveFireStoreRealtimeButton: {fileID: 3074345917233572940}
   loadFireStoreButton: {fileID: 2777106529542175016}
-  gotoLobby: {fileID: 209460785559010274}
+  gotoMainMenu: {fileID: 209460785559010274}
   quickPlay: {fileID: 1872268238534799833}
 --- !u!1 &7224820954108445083
 GameObject:

@@ -23,7 +23,7 @@ public class ShowPlayerInfo : MonoBehaviour
     [SerializeField] Button saveFireStoreRealtimeButton;
     [SerializeField] Button loadFireStoreButton;
 
-    [SerializeField] Button gotoLobby;
+    [SerializeField] Button gotoMainMenu;
     [SerializeField] Button quickPlay;
 
     const string MAINMENU = "MainMenu";
@@ -47,7 +47,7 @@ public class ShowPlayerInfo : MonoBehaviour
         saveFireStoreRealtimeButton.onClick.AddListener(LoadFireStoreManulTestRealTime);
 
 
-        gotoLobby.onClick.AddListener(GoToLobby);
+        gotoMainMenu.onClick.AddListener(GoToLobby);
         quickPlay.onClick.AddListener(GoToQickBattle);
 
 
