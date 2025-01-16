@@ -6,14 +6,20 @@ using Firebase.Auth;
 using Firebase;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System;
 
 public class EmailLogin : MonoBehaviour
 {
     #region variables
+    [Header("Overview")]
+    [SerializeField] Button QuitButton;
+
     [Header("Login")]
     public TMP_InputField loginEmail;
     public TMP_InputField loginPassword;
     [SerializeField] Button loginButton;
+    public TMP_InputField emailRequest;
+    [SerializeField] Button sendRequestPass;
 
     [Header("Reset Request")]
     public TMP_InputField resetEmail;
@@ -45,6 +51,8 @@ public class EmailLogin : MonoBehaviour
         signUpButton.onClick.AddListener(SignUp);
         // sendRequestButton.onClick.AddListener(SendRequest);
         PlayerInfoUI.SetActive(false);
+        sendRequestPass.onClick.AddListener(SendResetPass);
+        QuitButton.onClick.AddListener(() => Application.Quit());
 
         // show mail and pass if PlayerPrefs having key "mail" "pass"
         if(PlayerPrefs.HasKey(MAILKEY) && PlayerPrefs.HasKey(PASSKEY)) {
@@ -305,12 +313,35 @@ public class EmailLogin : MonoBehaviour
     #endregion
 
     #region ResetPassword
+    public void SendResetPass() {
+        if(string.IsNullOrEmpty(emailRequest.text)) {
+            ShowLogMsg("Email is not accepted, Please input again");
+            return;
+        }
 
-    public void SendRequest() {
-
+        SendResetPass(emailRequest.text);
     }
-    public void SendRequest(string resetEmail) {
+    
+    public void SendResetPass(string emailRequest) {
+        FirebaseAuth auth = FirebaseAuth.DefaultInstance;
+        auth.SendPasswordResetEmailAsync(emailRequest).ContinueWithOnMainThread(task => {
+            if(task.IsCanceled) {
+                Debug.Log($"SendPassWordResetEmailAsync was canceled");
+            }
+            if(task.IsFaulted) {
+                foreach (Exception exception in task.Exception.Flatten().InnerExceptions)
+                {
+                    Firebase.FirebaseException firebaseEx = exception as FirebaseException;
+                    if(firebaseEx != null) {
+                        var errorCode = (AuthError)firebaseEx.ErrorCode;
+                        // thong bao
+                        ShowLogMsg("Can not send reset mail");
+                    }
+                }
+            }
 
+            ShowLogMsg("succesully send mail to reset pass, Please check mail");
+        });
     }
 
     #endregion ReadPassword

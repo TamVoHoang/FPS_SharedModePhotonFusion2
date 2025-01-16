@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System;
 using NaughtyAttributes;
+using Firebase.Auth;
 
 //gameobject = 
 public class ShowPlayerInfo : MonoBehaviour
@@ -63,15 +64,6 @@ public class ShowPlayerInfo : MonoBehaviour
         playerStats_Button.onClick.AddListener(PlayerStatsOnClick);
         backToLoginScene_Button.onClick.AddListener(GoToLoginOnClick);
         StartCoroutine(ShowPlayerDataCo(0.5f));
-    }
-
-    private void GoToLoginOnClick() {
-        StartCoroutine(GoToLoginCo(0.5f));
-    }
-    IEnumerator GoToLoginCo(float time) {
-        loadingScreen.SetActive(true);
-        yield return new WaitForSeconds(time);
-        SceneManager.LoadSceneAsync(LOGIN);
     }
 
     private void PlayerStatsOnClick()
@@ -144,6 +136,24 @@ public class ShowPlayerInfo : MonoBehaviour
     IEnumerator LoadToQuickBattle(float time) {
         yield return new WaitForSeconds(time);
         SceneManager.LoadSceneAsync(WORLD_1);
+    }
+
+    private void GoToLoginOnClick() {
+        SignOut();
+        StartCoroutine(GoToLoginCo(0.5f));
+    }
+
+    IEnumerator GoToLoginCo(float time) {
+        loadingScreen.SetActive(true);
+        yield return new WaitForSeconds(time);
+        SceneManager.LoadSceneAsync(LOGIN);
+    }
+
+    public void SignOut()
+    {
+        // Firebase sign-out
+        FirebaseAuth auth = FirebaseAuth.DefaultInstance;
+        auth.SignOut();
     }
     
     void ShowInfoFireStore() {
