@@ -7464,13 +7464,15 @@ MonoBehaviour:
   deathCountText: {fileID: 3400998150215768181}
   coins: {fileID: 6694709211679280990}
   loadingScreen: {fileID: 3661062297228552701}
-  saveFirebaseButton: {fileID: 5952275200556552494}
-  loadFirebaseButton: {fileID: 3648201020760486292}
-  saveFireStoreSignUpButton: {fileID: 7814949284809422592}
-  saveFireStoreRealtimeButton: {fileID: 3074345917233572940}
-  loadFireStoreButton: {fileID: 2777106529542175016}
+  saveFirebasePlayerData_Button: {fileID: 0}
+  loadFirebasePlayerData_Button: {fileID: 0}
+  saveFireStoreInvenSignUp_Button: {fileID: 0}
+  saveFireStoreInvenRealtime_Button: {fileID: 0}
+  loadFireStoreInven_Button: {fileID: 0}
   gotoMainMenu: {fileID: 209460785559010274}
   quickPlay: {fileID: 1872268238534799833}
+  playerStats_Button: {fileID: 0}
+  playerStats_Panel: {fileID: 0}
 --- !u!1 &7224820954108445083
 GameObject:
   m_ObjectHideFlags: 0

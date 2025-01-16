@@ -24,6 +24,7 @@ public class ShowPlayerInfo : MonoBehaviour
     [SerializeField] Button saveFireStoreInvenSignUp_Button;
     [SerializeField] Button saveFireStoreInvenRealtime_Button;
     [SerializeField] Button loadFireStoreInven_Button;
+    [SerializeField] Button backToLoginScene_Button;
 
     [SerializeField] Button gotoMainMenu;
     [SerializeField] Button quickPlay;
@@ -33,6 +34,8 @@ public class ShowPlayerInfo : MonoBehaviour
 
     const string MAINMENU = "MainMenu";
     const string WORLD_1 = "World_1";
+    const string LOGIN = "Login";
+
 
     //ohters
     DataSaver _dataSaver;
@@ -54,11 +57,21 @@ public class ShowPlayerInfo : MonoBehaviour
         loadFireStoreInven_Button.onClick.AddListener(LoadFSInvenRealtime);
 
 
-        gotoMainMenu.onClick.AddListener(GoToLobby);
+        gotoMainMenu.onClick.AddListener(GoToMainMenu);
         quickPlay.onClick.AddListener(GoToQickBattle);
 
         playerStats_Button.onClick.AddListener(PlayerStatsOnClick);
+        backToLoginScene_Button.onClick.AddListener(GoToLoginOnClick);
         StartCoroutine(ShowPlayerDataCo(0.5f));
+    }
+
+    private void GoToLoginOnClick() {
+        StartCoroutine(GoToLoginCo(0.5f));
+    }
+    IEnumerator GoToLoginCo(float time) {
+        loadingScreen.SetActive(true);
+        yield return new WaitForSeconds(time);
+        SceneManager.LoadSceneAsync(LOGIN);
     }
 
     private void PlayerStatsOnClick()
@@ -109,7 +122,7 @@ public class ShowPlayerInfo : MonoBehaviour
         StartCoroutine(ShowPlayerDataCo(0.5f));
     }
     
-    private void GoToLobby()
+    private void GoToMainMenu()
     {
         StartCoroutine(LoadToMainLobby(1f));
     }
