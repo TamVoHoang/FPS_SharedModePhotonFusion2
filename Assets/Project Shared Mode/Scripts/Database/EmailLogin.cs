@@ -5,6 +5,7 @@ using Firebase.Extensions;
 using Firebase.Auth;
 using Firebase;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class EmailLogin : MonoBehaviour
 {
@@ -103,7 +104,7 @@ public class EmailLogin : MonoBehaviour
             DataSaver.Instance.SaveToSignup(useName, result.User.UserId);                       // save info realtime
             DataSaveLoadHander.Instance.SavePlayerDataToSignup(useName, result.User.UserId);    // save info firestore
 
-        /* DataSaveLoadHander.Instance.SaveInventoryDataFireStoreToSignUp();   */               // save inventory firestore
+            /* DataSaveLoadHander.Instance.SaveInventoryDataFireStoreToSignUp(); */                 // save inventory firestore
         });
     }
 
@@ -339,7 +340,6 @@ public class EmailLogin : MonoBehaviour
                 return;
             }
             
-            //loadingScreen.SetActive(false);
             StartCoroutine(ResetLoadingScreenCo());
             AuthResult result = task.Result;
             Debug.LogFormat("User signed in successfully: {0} ({1})",
@@ -348,13 +348,8 @@ public class EmailLogin : MonoBehaviour
             if (result.User.IsEmailVerified)
             {
                 ShowLogMsg("Log in Successful");
-                StartCoroutine(DelayCo(1));
+                //StartCoroutine(ShowingPlayerInfoCo(0.5f));
 
-                // old _ Not using
-                /* loginUi.SetActive(false);
-                SuccessUi.SetActive(true); */
-
-                /* SuccessUi.transform.Find("Desc").GetComponent<TextMeshProUGUI>().text = "Id: " + result.User.UserId; */
                 id.text = $"ID: {result.User.UserId}";
 
                 //? gan userId cho saveLoadHander Firebase | FireStore
@@ -370,13 +365,22 @@ public class EmailLogin : MonoBehaviour
             //? Load data after Login with UserID
             DataSaver.Instance.LoadData();
             DataSaveLoadHander.Instance.LoadPlayerDataFireStore();
+
+            // chuyen qua scene MainLobby
+            StartCoroutine(LoadMainMenuSceneCo());
         });
     }
 
-    IEnumerator DelayCo(float time) {
+    IEnumerator LoadMainMenuSceneCo() {
+        yield return new WaitForSeconds(1f);
+        SceneManager.LoadSceneAsync("MainLobby");
+    }
+
+    IEnumerator ShowingPlayerInfoCo(float time) {
         SuccessUi.SetActive(true);
         yield return new WaitForSeconds(time);
         loginUi.SetActive(false);
+        
         yield return new WaitForSeconds(0.2f);
         if(PlayerInfoUI != null) PlayerInfoUI.SetActive(true);
     }

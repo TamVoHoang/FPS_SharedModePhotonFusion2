@@ -3,6 +3,8 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System;
+using NaughtyAttributes;
 
 //gameobject = 
 public class ShowPlayerInfo : MonoBehaviour
@@ -16,18 +18,21 @@ public class ShowPlayerInfo : MonoBehaviour
     [SerializeField] GameObject loadingScreen;  // loading animation
 
     // buttons
-    [SerializeField] Button saveFirebaseButton; // playerdata test
-    [SerializeField] Button loadFirebaseButton; // playerdata test
+    [SerializeField] Button saveFirebasePlayerData_Button; // playerdata test
+    [SerializeField] Button loadFirebasePlayerData_Button; // playerdata test
 
-    [SerializeField] Button saveFireStoreSignUpButton;
-    [SerializeField] Button saveFireStoreRealtimeButton;
-    [SerializeField] Button loadFireStoreButton;
+    [SerializeField] Button saveFireStoreInvenSignUp_Button;
+    [SerializeField] Button saveFireStoreInvenRealtime_Button;
+    [SerializeField] Button loadFireStoreInven_Button;
 
     [SerializeField] Button gotoMainMenu;
     [SerializeField] Button quickPlay;
+    [SerializeField] Button playerStats_Button;
+    [SerializeField] GameObject playerStats_Panel;
+    bool isPlayerStatsPopUp = false;
 
     const string MAINMENU = "MainMenu";
-    const string WORLD1 = "World1";
+    const string WORLD_1 = "World_1";
 
     //ohters
     DataSaver _dataSaver;
@@ -38,20 +43,30 @@ public class ShowPlayerInfo : MonoBehaviour
     }
 
     private void Start() {
-        saveFirebaseButton.onClick.AddListener(SaveManualTest);
-        loadFirebaseButton.onClick.AddListener(LoadMaunalTest);
+        playerStats_Panel.SetActive(false);
+        isPlayerStatsPopUp = false;
 
-        saveFireStoreSignUpButton.onClick.AddListener(SaveFireStoreManulTest);
-        loadFireStoreButton.onClick.AddListener(LoadFireStoreManulTest);
+        saveFirebasePlayerData_Button.onClick.AddListener(SaveFBPlayerData);
+        loadFirebasePlayerData_Button.onClick.AddListener(LoadFBPlayerData);
 
-        saveFireStoreRealtimeButton.onClick.AddListener(LoadFireStoreManulTestRealTime);
+        saveFireStoreInvenSignUp_Button.onClick.AddListener(SaveFSInvenSignUp);
+        saveFireStoreInvenRealtime_Button.onClick.AddListener(SaveFSInvenRealtime);
+        loadFireStoreInven_Button.onClick.AddListener(LoadFSInvenRealtime);
 
 
         gotoMainMenu.onClick.AddListener(GoToLobby);
         quickPlay.onClick.AddListener(GoToQickBattle);
 
-
+        playerStats_Button.onClick.AddListener(PlayerStatsOnClick);
         StartCoroutine(ShowPlayerDataCo(0.5f));
+    }
+
+    private void PlayerStatsOnClick()
+    {
+        isPlayerStatsPopUp = !isPlayerStatsPopUp;
+        if (isPlayerStatsPopUp) {
+            playerStats_Panel.SetActive(true);
+        } else playerStats_Panel.SetActive(false);
     }
 
     IEnumerator ShowPlayerDataCo(float time) {
@@ -60,13 +75,15 @@ public class ShowPlayerInfo : MonoBehaviour
         StopAllCoroutines();
     }
 
-    void SaveManualTest() {
+    [Button]
+    void SaveFBPlayerData() {
         //_dataSaver.SaveData();  // save realtime database
 
         _dataSaveLoadHander.SavePlayerDataFireStore();
     }
 
-    void LoadMaunalTest() {
+    [Button]
+    void LoadFBPlayerData() {
         // _dataSaver.LoadData();
         // StartCoroutine(ShowPlayerDataCo(0.5f));
 
@@ -74,17 +91,18 @@ public class ShowPlayerInfo : MonoBehaviour
         StartCoroutine(ShowPlayerDataCo(0.5f));
     }
 
-
-    private void SaveFireStoreManulTest()
+    [Button]
+    private void SaveFSInvenSignUp()
     {
         _dataSaveLoadHander.SaveInventoryDataFireStoreToSignUp();
     }
-    
-    private void LoadFireStoreManulTestRealTime(){
+    [Button]
+    private void SaveFSInvenRealtime(){
         _dataSaveLoadHander.SaveInventoryDataFireStoreRealtime();
     }
 
-    private async void LoadFireStoreManulTest()
+    [Button]
+    private async void LoadFSInvenRealtime()
     {
         await _dataSaveLoadHander.LoadInventoryDataFireStore_();
 
@@ -112,7 +130,7 @@ public class ShowPlayerInfo : MonoBehaviour
 
     IEnumerator LoadToQuickBattle(float time) {
         yield return new WaitForSeconds(time);
-        SceneManager.LoadSceneAsync(WORLD1);
+        SceneManager.LoadSceneAsync(WORLD_1);
     }
     
     void ShowInfoFireStore() {
