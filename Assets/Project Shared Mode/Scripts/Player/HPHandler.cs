@@ -3,8 +3,7 @@ using UnityEngine;
 using Fusion;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using NaughtyAttributes.Test;
-using UnityEditor.ShaderGraph.Internal;
+
 
 public class HPHandler : NetworkBehaviour
 {
@@ -117,14 +116,20 @@ public class HPHandler : NetworkBehaviour
             /* deadCount ++; */ //! KO THE XET O DAY, VI BIEN NETWORK KO XET LOCAL TAI DAY
             
             if(weaponHandler != GetComponent<WeaponHandler>()) {
-                weaponHandler.killCountCurr += 1; // cong diem cho killer
-                
-                //? killer gui va cong don cho team
-                //weaponHandler.SendKillCountCurrToTeamResult();  // tang 1 cho team cua minh
-                StartCoroutine(SetKillCountFOrTeam(0.1f, weaponHandler));
-
-                //? SAVE to PlayerDataToFirestore -> save to weaponHander.UserID | save cho nguoi ban
-                weaponHandler.SaveKilledCount();
+                if(networkPlayer.IsSoloMode()) {
+                    weaponHandler.killCountCurr += 1; // cong diem cho killer
+                    //? SAVE to PlayerDataToFirestore -> save to weaponHander.UserID | save cho nguoi ban
+                    weaponHandler.SaveKilledCount();
+                }
+                else {
+                    bool isWeaponKillerTeam = weaponHandler.GetComponent<NetworkPlayer>().isEnemy_Network;
+                    if(networkPlayer.isEnemy_Network == isWeaponKillerTeam) return;
+                    //? killer gui va cong don cho team
+                    StartCoroutine(SetKillCountFOrTeam(0.1f, weaponHandler));
+                    weaponHandler.killCountCurr += 1; // cong diem cho killer
+                    //? SAVE to PlayerDataToFirestore -> save to weaponHander.UserID | save cho nguoi ban
+                    weaponHandler.SaveKilledCount();
+                }
             }
 
             //? SAVE deathCount cho this.UserId | seve cho nguoi bi ban

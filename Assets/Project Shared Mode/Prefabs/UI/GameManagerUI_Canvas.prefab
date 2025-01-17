@@ -82,7 +82,7 @@ MonoBehaviour:
   backToMainMenuInResultPanelSolo_Button: {fileID: 8241194935284072093}
   backToMainMenuInResultPanelTeam_Button: {fileID: 2429964951644502662}
   isStarted: 0
-  timeRemainingToFinish: 30
+  timeRemainingToFinish: 180
   resultListUIHandler_Solo: {fileID: 0}
   resultListUIHandler_Team: {fileID: 0}
   isSoloMode: 0
