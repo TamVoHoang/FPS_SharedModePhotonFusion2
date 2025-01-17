@@ -58,8 +58,8 @@ public class MainMenuUIHandler : MonoBehaviour
     }
     
     private void Start() {
-        if(DataSaver.Instance) {
-            playerNameInputField.text = DataSaver.Instance.dataToSave.userName;
+        if(DataSaveLoadHander.Instance) {
+            playerNameInputField.text = DataSaveLoadHander.Instance.playerDataToFireStore.UserName;
         }
         else {
             playerNameInputField.text = GameManager.names[Random.Range(0, GameManager.names.Length)];

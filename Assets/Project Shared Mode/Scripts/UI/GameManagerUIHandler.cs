@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Fusion;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -42,6 +43,11 @@ public class GameManagerUIHandler : NetworkBehaviour
     bool cursorLocked;
     [SerializeField] bool isSoloMode;
 
+    [Networked] public int KillCountTeamA {get; set;}
+    [Networked] public int KillCountTeamB {get; set;}
+
+    public static Func<bool, int> action_;
+
     public override void Spawned() {
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
         if (Object.HasStateAuthority) {
@@ -67,6 +73,8 @@ public class GameManagerUIHandler : NetworkBehaviour
         //Update the cursor's state.
         /* cursorLocked = true;
         UpdateCursorState(); */
+
+        action_ = GetKillCountTeam;
     }
 
     private void Start() {
@@ -92,7 +100,11 @@ public class GameManagerUIHandler : NetworkBehaviour
 
             if (isTimerRunning) UpdateTimer();
         }
+
+        
     }
+
+    
 
     public override void Render() {
         foreach (var change in changeDetector.DetectChanges(this, out var previousBuffer, out var currentBuffer)) {
@@ -169,6 +181,7 @@ public class GameManagerUIHandler : NetworkBehaviour
 
     private void FinishedGame() {
         Debug.Log($"finish game___________");
+        
         ShowCursor();
 
         FinActivePlayersGeneric(networkPlayerList);
@@ -176,6 +189,7 @@ public class GameManagerUIHandler : NetworkBehaviour
         UpdateResult(networkPlayerList);
 
         StartCoroutine(ShowResultTableCO(0.09f));
+
     }
     List<NetworkPlayer> FinActivePlayersGeneric(List<NetworkPlayer> activePlayersList)
     {
@@ -207,12 +221,27 @@ public class GameManagerUIHandler : NetworkBehaviour
                 resultTableTeam_Panel.gameObject.SetActive(true);
                 foreach (NetworkPlayer item in newList) {
                     resultListUIHandler_Team.AddToList(item);
+
+                    CheckWin(item, item.isEnemy_Network);
                 }
             }
             
         }
         
         Debug.Log($"networkPlayerList.Count = {networkPlayerList.Count}");
+    }
+
+    void CheckWin(NetworkPlayer networkPlayer, bool isEnemy) {
+        bool isWin = false;
+        if(!isEnemy) {
+            if(KillCountTeamA > KillCountTeamB) isWin = true;
+            else isWin = false;
+        } else {
+            if(KillCountTeamA > KillCountTeamB) isWin = false;
+            else isWin = true;
+        }
+
+        networkPlayer.RPC_SetWinOrLoss(isWin, true);
     }
 
     IEnumerator ShowResultTableCO(float time) {
@@ -258,4 +287,16 @@ public class GameManagerUIHandler : NetworkBehaviour
             Debug.Log("///Object already has state authority.");
         }
     }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_SetKillCount(bool isTeam, int addKillCount) {
+        if(!isTeam) KillCountTeamA += addKillCount;
+        else KillCountTeamB += addKillCount;
+    }
+
+    public int GetKillCountTeam(bool isTeam) {
+        if(!isTeam) return KillCountTeamA;
+        else return KillCountTeamB;
+    }
+
 }

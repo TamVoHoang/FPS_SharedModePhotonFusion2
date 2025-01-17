@@ -151,6 +151,7 @@ public class ShowPlayerInfo : MonoBehaviour
 
     public void SignOut()
     {
+        DataSaveLoadHander.Instance.ResetDataLogout();
         // Firebase sign-out
         FirebaseAuth auth = FirebaseAuth.DefaultInstance;
         auth.SignOut();

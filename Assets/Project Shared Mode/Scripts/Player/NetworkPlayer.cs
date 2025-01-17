@@ -42,6 +42,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     [Networked]
     public NetworkBool isEnemy_Network{ get; set; } // <- RPC
 
+    [Networked] public NetworkBool isWin_Network{get; set;}
+    [Networked] public NetworkBool isFinished_Network{get; set;}
+
+
     // Spanwer -> set this.networkRunner and this.scenetoStart
     /* NetworkRunner networkRunner;
     public NetworkRunner NetworkRunner{get => networkRunner;} */
@@ -101,6 +105,10 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
     public override void Spawned()
     {
+        if(SceneManager.GetActiveScene().name != "Ready") {
+            FindObjectOfType<LocalUIInGameHandler>().SetNetworkPlayer(this);
+        }
+        
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
         OnNickNameChanged();//? phai co de show ten khi spawn vao world1 scene
         OnIsEnemyChanged();
@@ -343,4 +351,11 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
             return false;
         }
     }
+    
+    //[Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_SetWinOrLoss(bool isWin, bool isFinish) {
+        this.isWin_Network = isWin;
+        this.isFinished_Network = isFinish;
+    }
+
 }

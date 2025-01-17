@@ -320,10 +320,24 @@ public class WeaponHandler : NetworkBehaviour
         DataSaveLoadHander.Instance.SavePlayerDataFireStore();
     }
 
-    public void SendKillCountCurrToTeamResult(int killCountCurr) {
+    public void SendKillCountCurrToTeamResult() {
         if(Object.HasStateAuthority) {
             bool isEnemy = NetworkPlayer.Local.isEnemy_Network;
-            GetComponent<NetworkInGameTeamResult>().SendInGameResultTeamRPC(isEnemy, killCountCurr);
+
+            GameManagerUIHandler gameManagerUIHandler = FindObjectOfType<GameManagerUIHandler>();
+            gameManagerUIHandler.RPC_SetKillCount(isEnemy, 1);
+
+            /* int killCountNetwork = gameManagerUIHandler.GetKillCountTeam(isEnemy);
+            GetComponent<NetworkInGameTeamResult>().SendInGameResultTeamRPC(isEnemy, killCountNetwork); */
+
+            StartCoroutine(Delay(0.5f, isEnemy));
         }
     }
+
+    IEnumerator Delay(float time, bool isEnemy) {
+        yield return new WaitForSeconds(time);
+        int killCountNetwork = GameManagerUIHandler.action_(isEnemy);
+        GetComponent<NetworkInGameTeamResult>().SendInGameResultTeamRPC(isEnemy, killCountNetwork);
+    }
+
 }

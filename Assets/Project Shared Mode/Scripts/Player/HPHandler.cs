@@ -3,6 +3,8 @@ using UnityEngine;
 using Fusion;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using NaughtyAttributes.Test;
+using UnityEditor.ShaderGraph.Internal;
 
 public class HPHandler : NetworkBehaviour
 {
@@ -118,7 +120,8 @@ public class HPHandler : NetworkBehaviour
                 weaponHandler.killCountCurr += 1; // cong diem cho killer
                 
                 //? killer gui va cong don cho team
-                weaponHandler.SendKillCountCurrToTeamResult(weaponHandler.killCountCurr);
+                //weaponHandler.SendKillCountCurrToTeamResult();  // tang 1 cho team cua minh
+                StartCoroutine(SetKillCountFOrTeam(0.1f, weaponHandler));
 
                 //? SAVE to PlayerDataToFirestore -> save to weaponHander.UserID | save cho nguoi ban
                 weaponHandler.SaveKilledCount();
@@ -127,6 +130,11 @@ public class HPHandler : NetworkBehaviour
             //? SAVE deathCount cho this.UserId | seve cho nguoi bi ban
             SaveDeathCount();
         }
+    }
+
+    IEnumerator SetKillCountFOrTeam(float time, WeaponHandler weaponHandler) {
+        yield return new WaitForSeconds(time);
+        weaponHandler.SendKillCountCurrToTeamResult();  // tang 1 cho team cua minh
     }
 
     void CheckPlayerDeath(byte networkHP) {

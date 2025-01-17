@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,7 +16,6 @@ public class LocalUIInGameHandler : MonoBehaviour
     [SerializeField] GameObject realtTimeResultTeam_Panel;
     [SerializeField] GameObject inGameTeamResult_Panel;
 
-
     [Header("       Buttons")]
     [SerializeField] Button backToMainMenuInQuitPanel_Button;
 
@@ -27,10 +27,16 @@ public class LocalUIInGameHandler : MonoBehaviour
     bool isShowingRealtimeResultLocal = false;
     [SerializeField] bool isSoloMode;
     bool cursorLocked;
+    [SerializeField] TextMeshProUGUI finalResultTeam;
+    [SerializeField] NetworkPlayer networkPlayer;
+    public bool isShowed = false;
+    
+
     private void Awake() {
         //resultListUIHandler = GetComponentInChildren<ResultListUIHandler>(true);
         resultListUIHandler_Solo = realtTimeResultSolo_Panel.GetComponent<ResultListUIHandler>();
         resultListUIHandler_Team = realtTimeResultTeam_Panel.GetComponent<ResultListUIHandler_Team>();
+        networkPlayer = FindObjectOfType<NetworkPlayer>();
 
         if(!NetworkPlayer.Local) {
             Debug.Log($"_____ solo mode is true player directly join at battle scene");
@@ -43,6 +49,7 @@ public class LocalUIInGameHandler : MonoBehaviour
         //Update the cursor's state.
         cursorLocked = true;
         UpdateCursorState();
+        
     }
     private void Start() {
         howToPlay_Panel.SetActive(false);
@@ -82,7 +89,14 @@ public class LocalUIInGameHandler : MonoBehaviour
                 realtTimeResultTeam_Panel.SetActive(false);
             }
         }
+
+        // hci hien thi win or loss cho che do team + finish battle
+        if(!isShowed && networkPlayer.isFinished_Network && !networkPlayer.IsSoloMode()) {
+            isShowed = true;
+            ShowWinOrLossResult();
+        }
     }
+
     //? toggle new version
     void OnLockCursor() {
         cursorLocked = !cursorLocked;
@@ -162,5 +176,14 @@ public class LocalUIInGameHandler : MonoBehaviour
         }
         
         Debug.Log($"networkPlayerList.Count = {networkPlayerList.Count}");
+    }
+
+    public void ShowWinOrLossResult() {
+        if(networkPlayer.isWin_Network) finalResultTeam.text = "WIN";
+        else finalResultTeam.text = "LOSS";
+    }
+
+    public void SetNetworkPlayer(NetworkPlayer networkPlayer) {
+        this.networkPlayer = networkPlayer;
     }
 }

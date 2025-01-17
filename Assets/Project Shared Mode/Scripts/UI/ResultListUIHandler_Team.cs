@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,4 +33,5 @@ public class ResultListUIHandler_Team : MonoBehaviour
             resultInfoUIListItem.SetInfomation(networkPlayer);
         }
     }
+
 }

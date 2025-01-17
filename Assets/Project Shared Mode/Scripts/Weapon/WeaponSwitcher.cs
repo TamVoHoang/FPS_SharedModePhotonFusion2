@@ -58,6 +58,7 @@ public class WeaponSwitcher : NetworkBehaviour
         Debug.Log($"co override spawned weapon switcher.cs");
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
 
+        
     }
 
 
@@ -65,9 +66,7 @@ public class WeaponSwitcher : NetworkBehaviour
         slots_LocalHolder = new Transform[local_GunHolder.GetComponent<Transform>().childCount -1];
         slots_RemoteHolder = new Transform[remote_GunHolder.GetComponent<Transform>().childCount -1];
 
-        /* if(SceneManager.GetActiveScene().name == "Ready") {
-            uIWeapon.gameObject.SetActive(false);
-        } else uIWeapon.gameObject.SetActive(true); */
+        
     }
 
     private void Start() {
@@ -84,7 +83,14 @@ public class WeaponSwitcher : NetworkBehaviour
         if(Object.HasInputAuthority) {
             uIWeapon.Set(this);
         }
-        
+
+    }
+
+    IEnumerator DelayCo(float time) {
+        yield return new WaitForSeconds(time);
+        if(SceneManager.GetActiveScene().name == "Ready") {
+            uIWeapon.gameObject.SetActive(false);
+        } else uIWeapon.gameObject.SetActive(true);
     }
 
     private void Update() {
@@ -95,6 +101,8 @@ public class WeaponSwitcher : NetworkBehaviour
         if(Input.GetKeyDown(KeyCode.X)) {
             isWeaponDroped = true;
         }
+
+        
     }
 
     public override void FixedUpdateNetwork()
