@@ -44,6 +44,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
     [Networked] public NetworkBool isWin_Network{get; set;}
     [Networked] public NetworkBool isFinished_Network{get; set;}
+    public bool isFinishedLocal = false;
 
 
     // Spanwer -> set this.networkRunner and this.scenetoStart
@@ -356,6 +357,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     public void RPC_SetWinOrLoss(bool isWin, bool isFinish) {
         this.isWin_Network = isWin;
         this.isFinished_Network = isFinish;
+        this.isFinishedLocal = isFinished_Network;
     }
 
 }

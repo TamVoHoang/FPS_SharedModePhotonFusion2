@@ -91,7 +91,7 @@ public class LocalUIInGameHandler : MonoBehaviour
         }
 
         // hci hien thi win or loss cho che do team + finish battle
-        if(!isShowed && networkPlayer.isFinished_Network && !networkPlayer.IsSoloMode()) {
+        if(!isShowed && networkPlayer.isFinishedLocal && !networkPlayer.IsSoloMode()) {
             isShowed = true;
             ShowWinOrLossResult();
         }
