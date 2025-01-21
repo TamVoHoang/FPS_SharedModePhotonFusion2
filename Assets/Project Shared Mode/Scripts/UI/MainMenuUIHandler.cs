@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Fusion;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 //todo gameObject = canvas trong mainmenu scene
@@ -15,6 +16,7 @@ public class MainMenuUIHandler : MonoBehaviour
 
     public GameObject findingSessionPanel; // panel Finding Room ... | dang tim session de join
     public GameObject joiningGamePanel;  // panel Joining Game ... | vao phog cho
+    [SerializeField] GameObject loadingScreen;  // loading animation
     [SerializeField] TextMeshProUGUI quickPlayResultText;   // show text quickPlay 
 
     [Header("       Input Field")]
@@ -25,6 +27,8 @@ public class MainMenuUIHandler : MonoBehaviour
     [SerializeField] Button OnQuickPlayClick_Button;    // quick play not active SessionList panel
     [SerializeField] Button OnFindGameClick_Button;     // active sessionlist panel
     [SerializeField] Button OnEquipClick_Button;
+    [SerializeField] Button OnBackLoginClick_Button;
+
     [SerializeField] Button OnQuitGameClick_Button;
 
     // nam trong sessionList Panel | active creategamepanel UI -> show input field session name
@@ -39,36 +43,27 @@ public class MainMenuUIHandler : MonoBehaviour
     
     const string READY_SCENE = "Ready";
     const string EQUIP_SCENE = "Equip";
-
+    const string LOBBY = "MainLobby";
 
     private void Awake() {
         OnQuickPlayClick_Button.onClick.AddListener(OnQuickPlayClicked);
         OnFindGameClick_Button.onClick.AddListener(OnFindGameClicked);
         OnEquipClick_Button.onClick.AddListener(OnEquipClicked);
         OnQuitGameClick_Button.onClick.AddListener(OnQuitGameClicked);
+        OnBackLoginClick_Button.onClick.AddListener(OnBackLoginClicked);
 
         OnCreateSessionClick_Button.onClick.AddListener(OnActiveCreateGamePanelClicked);
         OnCreateAndJoinSessionClick_Button.onClick.AddListener(OnCreateJoinSessionClicked);
-
+        loadingScreen.SetActive(false);
     }
     
     private void Start() {
-        if(DataSaver.Instance) {
-            playerNameInputField.text = DataSaver.Instance.dataToSave.userName;
+        if(DataSaveLoadHander.Instance) {
+            playerNameInputField.text = DataSaveLoadHander.Instance.playerDataToFireStore.UserName;
         }
         else {
             playerNameInputField.text = GameManager.names[Random.Range(0, GameManager.names.Length)];
         }
-        
-        //! not using
-        //lay gia tri trong firestore khi dang ky nick name gan vao day
-        /* if(DataSaver.Instance == null) return;
-        playerNameInputField.text = DataSaveLoadHander.Instance.playerDataToFireStore.userName; */
-
-        /* if(PlayerPrefs.HasKey("PlayerNickName_Local")) {
-            lobbyNameInputField.text = PlayerPrefs.GetString("PlayerNickName_Local");
-        } */
-        
     }
 
     void HidePanels() {
@@ -118,7 +113,15 @@ public class MainMenuUIHandler : MonoBehaviour
     }
 
     public void OnQuitGameClicked() => Application.Quit();
+    void OnBackLoginClicked() {
+        StartCoroutine(BackToLogin(0.5f));
+    }
 
+    IEnumerator BackToLogin(float time) {
+        loadingScreen.SetActive(true);
+        yield return new WaitForSeconds(time);
+        SceneManager.LoadSceneAsync(LOBBY);
+    }
     // sau khi looking no session -> vao ui tao session
     public void OnActiveCreateGamePanelClicked() {
         //? old version not popup

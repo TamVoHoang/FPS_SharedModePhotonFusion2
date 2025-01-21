@@ -5,14 +5,23 @@ using Firebase.Extensions;
 using Firebase.Auth;
 using Firebase;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using System;
 
 public class EmailLogin : MonoBehaviour
 {
     #region variables
+    [Header("Overview")]
+    [SerializeField] Button QuitButton;
+    [SerializeField] Button LoginGestButton;
+
+
     [Header("Login")]
     public TMP_InputField loginEmail;
     public TMP_InputField loginPassword;
     [SerializeField] Button loginButton;
+    public TMP_InputField emailRequest;
+    [SerializeField] Button sendRequestPass;
 
     [Header("Reset Request")]
     public TMP_InputField resetEmail;
@@ -44,6 +53,9 @@ public class EmailLogin : MonoBehaviour
         signUpButton.onClick.AddListener(SignUp);
         // sendRequestButton.onClick.AddListener(SendRequest);
         PlayerInfoUI.SetActive(false);
+        sendRequestPass.onClick.AddListener(SendResetPass);
+        QuitButton.onClick.AddListener(() => Application.Quit());
+        LoginGestButton.onClick.AddListener(LoginGuest);
 
         // show mail and pass if PlayerPrefs having key "mail" "pass"
         if(PlayerPrefs.HasKey(MAILKEY) && PlayerPrefs.HasKey(PASSKEY)) {
@@ -103,7 +115,7 @@ public class EmailLogin : MonoBehaviour
             DataSaver.Instance.SaveToSignup(useName, result.User.UserId);                       // save info realtime
             DataSaveLoadHander.Instance.SavePlayerDataToSignup(useName, result.User.UserId);    // save info firestore
 
-        /* DataSaveLoadHander.Instance.SaveInventoryDataFireStoreToSignUp();   */               // save inventory firestore
+            /* DataSaveLoadHander.Instance.SaveInventoryDataFireStoreToSignUp(); */                 // save inventory firestore
         });
     }
 
@@ -304,12 +316,35 @@ public class EmailLogin : MonoBehaviour
     #endregion
 
     #region ResetPassword
+    public void SendResetPass() {
+        if(string.IsNullOrEmpty(emailRequest.text)) {
+            ShowLogMsg("Email is not accepted, Please input again");
+            return;
+        }
 
-    public void SendRequest() {
-
+        SendResetPass(emailRequest.text);
     }
-    public void SendRequest(string resetEmail) {
+    
+    public void SendResetPass(string emailRequest) {
+        FirebaseAuth auth = FirebaseAuth.DefaultInstance;
+        auth.SendPasswordResetEmailAsync(emailRequest).ContinueWithOnMainThread(task => {
+            if(task.IsCanceled) {
+                Debug.Log($"SendPassWordResetEmailAsync was canceled");
+            }
+            if(task.IsFaulted) {
+                foreach (Exception exception in task.Exception.Flatten().InnerExceptions)
+                {
+                    Firebase.FirebaseException firebaseEx = exception as FirebaseException;
+                    if(firebaseEx != null) {
+                        var errorCode = (AuthError)firebaseEx.ErrorCode;
+                        // thong bao
+                        ShowLogMsg("Can not send reset mail");
+                    }
+                }
+            }
 
+            ShowLogMsg("succesully send mail to reset pass, Please check mail");
+        });
     }
 
     #endregion ReadPassword
@@ -339,7 +374,6 @@ public class EmailLogin : MonoBehaviour
                 return;
             }
             
-            //loadingScreen.SetActive(false);
             StartCoroutine(ResetLoadingScreenCo());
             AuthResult result = task.Result;
             Debug.LogFormat("User signed in successfully: {0} ({1})",
@@ -348,13 +382,8 @@ public class EmailLogin : MonoBehaviour
             if (result.User.IsEmailVerified)
             {
                 ShowLogMsg("Log in Successful");
-                StartCoroutine(DelayCo(1));
+                //StartCoroutine(ShowingPlayerInfoCo(0.5f));
 
-                // old _ Not using
-                /* loginUi.SetActive(false);
-                SuccessUi.SetActive(true); */
-
-                /* SuccessUi.transform.Find("Desc").GetComponent<TextMeshProUGUI>().text = "Id: " + result.User.UserId; */
                 id.text = $"ID: {result.User.UserId}";
 
                 //? gan userId cho saveLoadHander Firebase | FireStore
@@ -370,18 +399,69 @@ public class EmailLogin : MonoBehaviour
             //? Load data after Login with UserID
             DataSaver.Instance.LoadData();
             DataSaveLoadHander.Instance.LoadPlayerDataFireStore();
+
+            // chuyen qua scene MainLobby
+            StartCoroutine(LoadMainLobbySceneCo());
+            
         });
     }
 
-    IEnumerator DelayCo(float time) {
+    IEnumerator LoadMainLobbySceneCo() {
+        yield return new WaitForSeconds(1f);
+        SceneManager.LoadSceneAsync("MainLobby");
+    }
+
+    IEnumerator ShowingPlayerInfoCo(float time) {
         SuccessUi.SetActive(true);
         yield return new WaitForSeconds(time);
         loginUi.SetActive(false);
+        
         yield return new WaitForSeconds(0.2f);
         if(PlayerInfoUI != null) PlayerInfoUI.SetActive(true);
     }
 
-    #endregion
+    // Login As Guest
+    public void LoginGuest()
+    {
+        loadingScreen.SetActive(true);
+        FirebaseAuth auth = FirebaseAuth.DefaultInstance;
+        auth.SignInAnonymouslyAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsCanceled) {
+                Debug.LogError("SignIn Guest was canceled.");
+                StartCoroutine(ResetLoadingScreenCo());
+                return;
+            }
+            if (task.IsFaulted) {
+                Debug.LogError("SignIn Guest encountered an error: " + task.Exception);
+                StartCoroutine(ResetLoadingScreenCo());
+                return;
+            }
+
+            StartCoroutine(ResetLoadingScreenCo());
+            AuthResult result = task.Result;
+            Debug.LogFormat("User signed in successfully: {0} ({1})",
+                result.User.DisplayName, result.User.UserId);
+
+            //? dave userId cho saveLoadHander Firebase | FireStore
+            string userNameTemp = GameManager.GetRandomPlayerNickName();
+            DataSaveLoadHander.Instance.SavePlayerDataToSignup(userNameTemp, result.User.UserId); 
+
+            ShowLogMsg("Log in Successful");
+            loginUi.SetActive(false);
+            SuccessUi.SetActive(true);
+            id.text = $"ID: {result.User.UserId}";
+
+            DataSaveLoadHander.Instance.userId = result.User.UserId;
+            DataSaveLoadHander.Instance.LoadPlayerDataFireStore();
+
+            // chuyen qua scene MainLobby
+            StartCoroutine(LoadMainLobbySceneCo());
+        });
+    }
+    // Login As Guest
+
+    #endregion Login
 
     #region extra
     void ShowLogMsg(string msg)

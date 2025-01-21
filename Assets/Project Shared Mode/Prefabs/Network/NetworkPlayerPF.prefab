@@ -1180,6 +1180,10 @@ MonoBehaviour:
   isEnemy: 0
   _isEnemy_Network:
     _value: 0
+  _isWin_Network:
+    _value: 0
+  _isFinished_Network:
+    _value: 0
   sceneToStart: 
 --- !u!114 &3451420460079219840
 MonoBehaviour:
@@ -1977,6 +1981,14 @@ PrefabInstance:
     - target: {fileID: 3588158893060481587, guid: 025b4237e4427c64db2a6f87f84d5e9c, type: 3}
       propertyPath: m_Name
       value: EquipedWeapon Slots
+      objectReference: {fileID: 0}
+    - target: {fileID: 3588158893060481587, guid: 025b4237e4427c64db2a6f87f84d5e9c, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5193170312808293380, guid: 025b4237e4427c64db2a6f87f84d5e9c, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6089912202362215827, guid: 025b4237e4427c64db2a6f87f84d5e9c, type: 3}
       propertyPath: m_AnchorMax.y

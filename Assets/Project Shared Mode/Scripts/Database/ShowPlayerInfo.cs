@@ -3,6 +3,9 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System;
+using NaughtyAttributes;
+using Firebase.Auth;
 
 //gameobject = 
 public class ShowPlayerInfo : MonoBehaviour
@@ -16,18 +19,24 @@ public class ShowPlayerInfo : MonoBehaviour
     [SerializeField] GameObject loadingScreen;  // loading animation
 
     // buttons
-    [SerializeField] Button saveFirebaseButton; // playerdata test
-    [SerializeField] Button loadFirebaseButton; // playerdata test
+    [SerializeField] Button saveFirebasePlayerData_Button; // playerdata test
+    [SerializeField] Button loadFirebasePlayerData_Button; // playerdata test
 
-    [SerializeField] Button saveFireStoreSignUpButton;
-    [SerializeField] Button saveFireStoreRealtimeButton;
-    [SerializeField] Button loadFireStoreButton;
+    [SerializeField] Button saveFireStoreInvenSignUp_Button;
+    [SerializeField] Button saveFireStoreInvenRealtime_Button;
+    [SerializeField] Button loadFireStoreInven_Button;
+    [SerializeField] Button backToLoginScene_Button;
 
     [SerializeField] Button gotoMainMenu;
     [SerializeField] Button quickPlay;
+    [SerializeField] Button playerStats_Button;
+    [SerializeField] GameObject playerStats_Panel;
+    bool isPlayerStatsPopUp = false;
 
     const string MAINMENU = "MainMenu";
-    const string WORLD1 = "World1";
+    const string WORLD_1 = "World_1";
+    const string LOGIN = "Login";
+
 
     //ohters
     DataSaver _dataSaver;
@@ -38,20 +47,31 @@ public class ShowPlayerInfo : MonoBehaviour
     }
 
     private void Start() {
-        saveFirebaseButton.onClick.AddListener(SaveManualTest);
-        loadFirebaseButton.onClick.AddListener(LoadMaunalTest);
+        playerStats_Panel.SetActive(false);
+        isPlayerStatsPopUp = false;
 
-        saveFireStoreSignUpButton.onClick.AddListener(SaveFireStoreManulTest);
-        loadFireStoreButton.onClick.AddListener(LoadFireStoreManulTest);
+        saveFirebasePlayerData_Button.onClick.AddListener(SaveFBPlayerData);
+        loadFirebasePlayerData_Button.onClick.AddListener(LoadFBPlayerData);
 
-        saveFireStoreRealtimeButton.onClick.AddListener(LoadFireStoreManulTestRealTime);
+        saveFireStoreInvenSignUp_Button.onClick.AddListener(SaveFSInvenSignUp);
+        saveFireStoreInvenRealtime_Button.onClick.AddListener(SaveFSInvenRealtime);
+        loadFireStoreInven_Button.onClick.AddListener(LoadFSInvenRealtime);
 
 
-        gotoMainMenu.onClick.AddListener(GoToLobby);
+        gotoMainMenu.onClick.AddListener(GoToMainMenu);
         quickPlay.onClick.AddListener(GoToQickBattle);
 
-
+        playerStats_Button.onClick.AddListener(PlayerStatsOnClick);
+        backToLoginScene_Button.onClick.AddListener(GoToLoginOnClick);
         StartCoroutine(ShowPlayerDataCo(0.5f));
+    }
+
+    private void PlayerStatsOnClick()
+    {
+        isPlayerStatsPopUp = !isPlayerStatsPopUp;
+        if (isPlayerStatsPopUp) {
+            playerStats_Panel.SetActive(true);
+        } else playerStats_Panel.SetActive(false);
     }
 
     IEnumerator ShowPlayerDataCo(float time) {
@@ -60,13 +80,15 @@ public class ShowPlayerInfo : MonoBehaviour
         StopAllCoroutines();
     }
 
-    void SaveManualTest() {
+    [Button]
+    void SaveFBPlayerData() {
         //_dataSaver.SaveData();  // save realtime database
 
         _dataSaveLoadHander.SavePlayerDataFireStore();
     }
 
-    void LoadMaunalTest() {
+    [Button]
+    void LoadFBPlayerData() {
         // _dataSaver.LoadData();
         // StartCoroutine(ShowPlayerDataCo(0.5f));
 
@@ -74,24 +96,25 @@ public class ShowPlayerInfo : MonoBehaviour
         StartCoroutine(ShowPlayerDataCo(0.5f));
     }
 
-
-    private void SaveFireStoreManulTest()
+    [Button]
+    private void SaveFSInvenSignUp()
     {
         _dataSaveLoadHander.SaveInventoryDataFireStoreToSignUp();
     }
-    
-    private void LoadFireStoreManulTestRealTime(){
+    [Button]
+    private void SaveFSInvenRealtime(){
         _dataSaveLoadHander.SaveInventoryDataFireStoreRealtime();
     }
 
-    private async void LoadFireStoreManulTest()
+    [Button]
+    private async void LoadFSInvenRealtime()
     {
         await _dataSaveLoadHander.LoadInventoryDataFireStore_();
 
         StartCoroutine(ShowPlayerDataCo(0.5f));
     }
     
-    private void GoToLobby()
+    private void GoToMainMenu()
     {
         StartCoroutine(LoadToMainLobby(1f));
     }
@@ -112,7 +135,26 @@ public class ShowPlayerInfo : MonoBehaviour
 
     IEnumerator LoadToQuickBattle(float time) {
         yield return new WaitForSeconds(time);
-        SceneManager.LoadSceneAsync(WORLD1);
+        SceneManager.LoadSceneAsync(WORLD_1);
+    }
+
+    private void GoToLoginOnClick() {
+        SignOut();
+        StartCoroutine(GoToLoginCo(0.5f));
+    }
+
+    IEnumerator GoToLoginCo(float time) {
+        loadingScreen.SetActive(true);
+        yield return new WaitForSeconds(time);
+        SceneManager.LoadSceneAsync(LOGIN);
+    }
+
+    public void SignOut()
+    {
+        DataSaveLoadHander.Instance.ResetDataLogout();
+        // Firebase sign-out
+        FirebaseAuth auth = FirebaseAuth.DefaultInstance;
+        auth.SignOut();
     }
     
     void ShowInfoFireStore() {

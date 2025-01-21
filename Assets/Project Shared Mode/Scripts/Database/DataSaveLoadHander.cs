@@ -65,9 +65,6 @@ public class InventoryDataToFireStore {
             //item.itemScriptableObject = item.GetScriptableObject();
         }
     }
-
-    
-
 }
 
 public class DataSaveLoadHander : MonoBehaviour
@@ -306,4 +303,11 @@ public class DataSaveLoadHander : MonoBehaviour
     }
 }
 #endregion INVENOTRY
+
+    public void ResetDataLogout() {
+        playerDataToFireStore.UserName = "";
+        playerDataToFireStore.KilledCount = 0;
+        playerDataToFireStore.DeathCount = 0;
+        playerDataToFireStore.Coins = 0;
+    }
 }

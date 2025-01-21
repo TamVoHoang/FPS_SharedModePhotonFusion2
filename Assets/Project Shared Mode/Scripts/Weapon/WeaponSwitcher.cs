@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 //todo gameobject = networkPlayerPF
 //todo chuyen doi gun
 
-public class WeaponSwitcher : NetworkBehaviour
+public class WeaponSwitcher : NetworkBehaviour, IGameManager
 {
     [Networked]
     public NetworkBool isGunChange { get; set; }
@@ -53,7 +53,7 @@ public class WeaponSwitcher : NetworkBehaviour
     [Networked] public NetworkObject CurrentObjectTouched_Network {get; set;}
     [Networked] public NetworkObject CurrentPlayerTouched_Network {get; set;}
 
-    
+    bool isFinished = false;
     public override void Spawned() {
         Debug.Log($"co override spawned weapon switcher.cs");
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
@@ -65,9 +65,7 @@ public class WeaponSwitcher : NetworkBehaviour
         slots_LocalHolder = new Transform[local_GunHolder.GetComponent<Transform>().childCount -1];
         slots_RemoteHolder = new Transform[remote_GunHolder.GetComponent<Transform>().childCount -1];
 
-        /* if(SceneManager.GetActiveScene().name == "Ready") {
-            uIWeapon.gameObject.SetActive(false);
-        } else uIWeapon.gameObject.SetActive(true); */
+        
     }
 
     private void Start() {
@@ -84,10 +82,18 @@ public class WeaponSwitcher : NetworkBehaviour
         if(Object.HasInputAuthority) {
             uIWeapon.Set(this);
         }
-        
+
+    }
+
+    IEnumerator DelayCo(float time) {
+        yield return new WaitForSeconds(time);
+        if(SceneManager.GetActiveScene().name == "Ready") {
+            uIWeapon.gameObject.SetActive(false);
+        } else uIWeapon.gameObject.SetActive(true);
     }
 
     private void Update() {
+        if(isFinished) return;
         if(Input.GetKeyDown(KeyCode.Q)) {
             isWeaponSwitched = true;
         }
@@ -95,6 +101,8 @@ public class WeaponSwitcher : NetworkBehaviour
         if(Input.GetKeyDown(KeyCode.X)) {
             isWeaponDroped = true;
         }
+
+        
     }
 
     public override void FixedUpdateNetwork()
@@ -413,4 +421,8 @@ public class WeaponSwitcher : NetworkBehaviour
         this.CurrentPlayerTouched_Network = currentNetworkPlayerTouch;
     }
 
+    public void IsFinished(bool isFinished)
+    {
+        this.isFinished = isFinished;
+    }
 }

@@ -1,7 +1,7 @@
 using UnityEngine;
 using Fusion;
 using UnityEngine.SceneManagement;
-public class CharacterMovementHandler : NetworkBehaviour
+public class CharacterMovementHandler : NetworkBehaviour, IGameManager
 {
     //input
     bool _jumpPressed;
@@ -25,6 +25,7 @@ public class CharacterMovementHandler : NetworkBehaviour
     NetworkInGameMessages networkInGameMessages;
     NetworkPlayer networkPlayer;
     HPHandler hPHandler;
+    bool isFinished = false;
     private void Awake() {
         networkCharacterController = GetComponent<NetworkCharacterController>();
         localCameraHandler = GetComponentInChildren<LocalCameraHandler>();
@@ -36,9 +37,9 @@ public class CharacterMovementHandler : NetworkBehaviour
 
 
     void Update() {
+        if(isFinished) return;
         //lock input to move and jump if Ready scene
         if(SceneManager.GetActiveScene().name == "Ready") return;
-
 
         //? move input local
         if (Input.GetButtonDown("Jump")) _jumpPressed = true;
@@ -134,5 +135,10 @@ public class CharacterMovementHandler : NetworkBehaviour
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_SetNetworkedIsDead(bool isRespawnRequested) {
         this.isRespawnRequested_ = isRespawnRequested;
+    }
+
+    public void IsFinished(bool isFinished)
+    {
+        this.isFinished = isFinished;
     }
 }

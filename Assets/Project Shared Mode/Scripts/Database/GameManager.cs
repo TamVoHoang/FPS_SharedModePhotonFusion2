@@ -1,4 +1,6 @@
 
+using UnityEngine;
+
 public static class GameManager
 {
     public static string[] names = new string[] {
@@ -17,4 +19,7 @@ public static class GameManager
     public static string playerNickName = null;
     public static bool isEnemy;
 
+    public static string GetRandomPlayerNickName() {
+        return "Guest_" + names[Random.Range(0, names.Length)].ToString();
+    }
 }
