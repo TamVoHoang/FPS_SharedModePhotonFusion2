@@ -28,6 +28,8 @@ public class ReadyUIHandler : NetworkBehaviour
     [Header("Buttons")]
     [SerializeField] Button OnReadyClick_Button;
     [SerializeField] Button OnLeaveClick_Button;
+    [SerializeField] Button OnChangeTeamClick_Button;
+
 
     [SerializeField] Button OnHeadChageClick_Button;
     [SerializeField] Button OnArmorChageClick_Button;
@@ -40,11 +42,12 @@ public class ReadyUIHandler : NetworkBehaviour
     
     string sceneToStart;
 
-
     private void Awake() {
         OnReadyClick_Button.onClick.AddListener(OnReadyClicked);
         OnLeaveClick_Button.onClick.AddListener(OnLeaveClicked);
+        OnChangeTeamClick_Button.onClick.AddListener(OnRequestTeamClicked);
     }
+
 
     private void Start() {
         countDownText.text = "";
@@ -53,6 +56,10 @@ public class ReadyUIHandler : NetworkBehaviour
         OnHeadChageClick_Button.onClick.AddListener(OnChangeCharacter_Head);
         OnArmorChageClick_Button.onClick.AddListener(OnChangeCharacter_Body);
         OnSkinsChageClick_Button.onClick.AddListener(OnChangeCharacter_Skin);
+
+        // hien thi nut change team neu la team mode
+        UpdateToggleChangeTeamButton();
+
     }
 
     public override void Spawned() {
@@ -245,13 +252,43 @@ public class ReadyUIHandler : NetworkBehaviour
             NetworkPlayer.Local.ShutdownLeftRoom();
     }
 
+    private void OnRequestTeamClicked() {
+        if(!CheckCanChangeTeam()) return;
+        NetworkPlayer.Local.RPC_RequestChangeTeamAtReadyScene();
+    }
+
     void OnCountDownChanged() {
         if(countDown == 0) countDownText.text = $"";
         else countDownText.text = $"THE BATTLES STARTS IN {countDown}";
     }
 
+    void UpdateToggleChangeTeamButton() {
+        bool isTeam = FindObjectOfType<Spawner>().TypeGame == TypeGame.Team;
+        if(isTeam) OnChangeTeamClick_Button.gameObject.SetActive(true);
+        else OnChangeTeamClick_Button.gameObject.SetActive(false);
+    }
+
+    bool CheckCanChangeTeam() {
+        bool isEnemyCurr = NetworkPlayer.Local.isEnemy_Network;
+        var activePlayers = FindObjectsOfType<NetworkPlayer>();
+        int teamA = 0;
+        int teamB = 0;
+        foreach (var item in activePlayers)
+        {
+            if(!item.isEnemy_Network) teamA ++;
+            else teamB ++;
+        }
+
+        if(teamA == teamB && teamA >= 2 && teamB >= 2) return true;
+        if(teamA == teamB + 1 && !isEnemyCurr) return true;
+        if(teamB == teamA + 1 && isEnemyCurr) return true;
+        else return false;
+    }
+
     // disable Leve butotn if networkObject is host session
     public void SetOnLeaveButtonActive(bool isActice) => OnLeaveClick_Button.interactable = isActice;
+
+    
 
     public void ReadyUIhandlerRequestStateAuthority() {
         if (Object == null) return;

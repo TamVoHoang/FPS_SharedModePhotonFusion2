@@ -754,6 +754,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7597330012236474709, guid: 3abc50d02acdaaa41b565c6f8f305db4, type: 3}
+      propertyPath: m_text
+      value: FS SCIFI SHOOTER
+      objectReference: {fileID: 0}
     - target: {fileID: 8117849844424616057, guid: 3abc50d02acdaaa41b565c6f8f305db4, type: 3}
       propertyPath: m_Pivot.x
       value: 0

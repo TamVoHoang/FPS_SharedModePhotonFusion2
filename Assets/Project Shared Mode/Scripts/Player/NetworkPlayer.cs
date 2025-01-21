@@ -145,6 +145,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
+
             }
             else {
                 Utils.SetRenderLayerInChildren(playerModel, LayerMask.NameToLayer("LocalPlayerModel"));
@@ -169,6 +170,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
                 //? disable mouse de play
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
+
             }
 
             // lay gia tri Gamemanager.playerNickName gan vao
@@ -358,6 +360,12 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
         this.isWin_Network = isWin;
         this.isFinished_Network = isFinish;
         this.isFinishedLocal = isFinished_Network;
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RPC_RequestChangeTeamAtReadyScene(RpcInfo rpcInfo= default) {
+        bool isEnemyCurr = isEnemy_Network;
+        this.isEnemy_Network = !isEnemyCurr;
     }
 
 }

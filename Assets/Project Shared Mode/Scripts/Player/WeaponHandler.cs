@@ -4,7 +4,7 @@ using Fusion;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class WeaponHandler : NetworkBehaviour
+public class WeaponHandler : NetworkBehaviour, IGameManager
 {
     [Header("Prefabs Grande Rocket")]
     [SerializeField] BulletHandler bulletVFXPF; // vien dan chua class BulletHandler (chi co chua hieu ung vxf tai noi raycast hit vao)
@@ -55,6 +55,7 @@ public class WeaponHandler : NetworkBehaviour
     bool isRocketPressed = false;
     bool isGrandePressed = false;
     WeaponSwitcher weaponSwitcher;
+    bool isFinished = false;
 
     private void Awake() {
         
@@ -84,6 +85,7 @@ public class WeaponHandler : NetworkBehaviour
     }
 
     private void Update() {
+        if(isFinished) return;
         if(SceneManager.GetActiveScene().name == "Ready") return;
         if (HasStateAuthority == false) return;
         if(GetComponent<HPHandler>().Networked_IsDead) return;
@@ -340,4 +342,8 @@ public class WeaponHandler : NetworkBehaviour
         GetComponent<NetworkInGameTeamResult>().SendInGameResultTeamRPC(isEnemy, killCountNetwork);
     }
 
+    public void IsFinished(bool isFinished)
+    {
+        this.isFinished = isFinished;
+    }
 }

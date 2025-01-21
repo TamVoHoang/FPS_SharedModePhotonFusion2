@@ -912,10 +912,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   readyButtonText: {fileID: 1640543792}
   countDownText: {fileID: 207064105}
-  isReady: 0
   timeRemainingToBattle: 5
   OnReadyClick_Button: {fileID: 1640543791}
   OnLeaveClick_Button: {fileID: 1640543790}
+  OnChangeTeamClick_Button: {fileID: 708282117}
   OnHeadChageClick_Button: {fileID: 1640543795}
   OnArmorChageClick_Button: {fileID: 1640543794}
   OnSkinsChageClick_Button: {fileID: 1640543793}

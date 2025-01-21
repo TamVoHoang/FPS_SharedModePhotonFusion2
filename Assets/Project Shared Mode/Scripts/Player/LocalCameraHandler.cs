@@ -2,7 +2,7 @@ using Fusion;
 using UnityEngine;
 using Cinemachine;
 
-public class LocalCameraHandler : NetworkBehaviour
+public class LocalCameraHandler : NetworkBehaviour, IGameManager
 {
     public Camera localCamera;
     [SerializeField] Transform cameraAnchorPoint; // localCam se di theo camereAnchorPoint
@@ -35,6 +35,7 @@ public class LocalCameraHandler : NetworkBehaviour
     CinemachineVirtualCamera cinemachineVirtualCamera;
     WeaponSwitcher weaponSwitcher;
 
+    bool isFinished = false;
     private void Awake() {
         localCamera = GetComponent<Camera>();
         networkCharacterController = GetComponentInParent<NetworkCharacterController>();
@@ -44,6 +45,7 @@ public class LocalCameraHandler : NetworkBehaviour
     }
 
     private void Update() {
+        if(isFinished) return;
         //? view input local
         viewInput.x = Input.GetAxis("Mouse X");
         viewInput.y = Input.GetAxis("Mouse Y") * -1f;
@@ -139,5 +141,10 @@ public class LocalCameraHandler : NetworkBehaviour
         Debug.Log($"[RPC] Set hitPointVector {spawnedPointVector} for localPlayer");
         this.spawnedPointOnCam_Network = spawnedPointVector;
         this.spawnedPointOnHand_Network = spawnedPointVector_;
+    }
+
+    public void IsFinished(bool isFinished)
+    {
+        this.isFinished = isFinished;
     }
 }

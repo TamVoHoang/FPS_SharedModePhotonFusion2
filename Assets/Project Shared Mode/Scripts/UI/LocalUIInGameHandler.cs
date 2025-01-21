@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -7,7 +8,7 @@ using UnityEngine.UI;
 // game object = canvas in batlle scene game
 // using to show local UI + realtime result table
 
-public class LocalUIInGameHandler : MonoBehaviour
+public class LocalUIInGameHandler : MonoBehaviour, IGameManager
 {
     [Header("       Panels")]
     [SerializeField] GameObject howToPlay_Panel;
@@ -31,12 +32,16 @@ public class LocalUIInGameHandler : MonoBehaviour
     [SerializeField] NetworkPlayer networkPlayer;
     public bool isShowed = false;
     
-
+    bool isFinished = false;
+    List<IGameManager> IGameManagerInGame_List;
+    GameManagerUIHandler gameManagerUIHandler;
+    
     private void Awake() {
         //resultListUIHandler = GetComponentInChildren<ResultListUIHandler>(true);
         resultListUIHandler_Solo = realtTimeResultSolo_Panel.GetComponent<ResultListUIHandler>();
         resultListUIHandler_Team = realtTimeResultTeam_Panel.GetComponent<ResultListUIHandler_Team>();
         networkPlayer = FindObjectOfType<NetworkPlayer>();
+        gameManagerUIHandler = FindObjectOfType<GameManagerUIHandler>();
 
         if(!NetworkPlayer.Local) {
             Debug.Log($"_____ solo mode is true player directly join at battle scene");
@@ -57,9 +62,17 @@ public class LocalUIInGameHandler : MonoBehaviour
         isShowingRealtimeResultLocal = false;
         realtTimeResultSolo_Panel.gameObject.SetActive(false);
         backToMainMenuInQuitPanel_Button.onClick.AddListener(OnLeaveRoomButtonClicked);
+        IGameManagerInGame_List = FindAllIGamanager();
+        gameManagerUIHandler.GameFinishedAction += OnGameFinished_LocalUIInGameHandler;
     }
 
+    private void OnDisable() {
+        gameManagerUIHandler.GameFinishedAction -= OnGameFinished_LocalUIInGameHandler;
+    }
     private void Update() {
+        
+        if(isFinished) return;
+
         // showing tutorial
         if(Input.GetKey(KeyCode.Tab)) {
             howToPlay_Panel.SetActive(true);
@@ -185,5 +198,20 @@ public class LocalUIInGameHandler : MonoBehaviour
 
     public void SetNetworkPlayer(NetworkPlayer networkPlayer) {
         this.networkPlayer = networkPlayer;
+    }
+
+    List<IGameManager> FindAllIGamanager() {
+        IEnumerable<IGameManager> a = FindObjectsOfType<MonoBehaviour>().OfType<IGameManager>();
+        return new List<IGameManager>(a);
+    }
+
+    public void IsFinished(bool isFinished) {
+        this.isFinished = isFinished;
+    }
+
+    void OnGameFinished_LocalUIInGameHandler(bool isFinished) {
+        foreach (var item in IGameManagerInGame_List) {
+            item.IsFinished(isFinished);
+        }
     }
 }

@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 //todo gameobject = networkPlayerPF
 //todo chuyen doi gun
 
-public class WeaponSwitcher : NetworkBehaviour
+public class WeaponSwitcher : NetworkBehaviour, IGameManager
 {
     [Networked]
     public NetworkBool isGunChange { get; set; }
@@ -53,12 +53,11 @@ public class WeaponSwitcher : NetworkBehaviour
     [Networked] public NetworkObject CurrentObjectTouched_Network {get; set;}
     [Networked] public NetworkObject CurrentPlayerTouched_Network {get; set;}
 
-    
+    bool isFinished = false;
     public override void Spawned() {
         Debug.Log($"co override spawned weapon switcher.cs");
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
 
-        
     }
 
 
@@ -94,6 +93,7 @@ public class WeaponSwitcher : NetworkBehaviour
     }
 
     private void Update() {
+        if(isFinished) return;
         if(Input.GetKeyDown(KeyCode.Q)) {
             isWeaponSwitched = true;
         }
@@ -421,4 +421,8 @@ public class WeaponSwitcher : NetworkBehaviour
         this.CurrentPlayerTouched_Network = currentNetworkPlayerTouch;
     }
 
+    public void IsFinished(bool isFinished)
+    {
+        this.isFinished = isFinished;
+    }
 }

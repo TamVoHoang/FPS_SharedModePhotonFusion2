@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Fusion;
 using TMPro;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -47,6 +46,7 @@ public class GameManagerUIHandler : NetworkBehaviour
     [Networked] public int KillCountTeamB {get; set;}
 
     public static Func<bool, int> action_;
+    public Action<bool> GameFinishedAction;
 
     public override void Spawned() {
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
@@ -85,6 +85,7 @@ public class GameManagerUIHandler : NetworkBehaviour
 
         resultTableSolo_Panel.gameObject.SetActive(false);
         resultTableTeam_Panel.gameObject.SetActive(false);
+
     }
 
     private void Update() {
@@ -190,7 +191,9 @@ public class GameManagerUIHandler : NetworkBehaviour
 
         StartCoroutine(ShowResultTableCO(0.09f));
 
+        GameFinishedAction?.Invoke(isFinished);
     }
+
     List<NetworkPlayer> FinActivePlayersGeneric(List<NetworkPlayer> activePlayersList)
     {
         GameObject[] gameObjectsToTransfer = GameObject.FindGameObjectsWithTag("Player");
