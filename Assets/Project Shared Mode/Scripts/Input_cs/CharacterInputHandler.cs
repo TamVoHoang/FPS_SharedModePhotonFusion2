@@ -23,6 +23,8 @@ public class CharacterInputHandler : MonoBehaviour
     public bool IsFired{get => isFired;}
     public bool IsGrenadeFired{get => isGrenadeFired;}
     public bool IsRocketFired{get => isRocketFired;}
+    public bool IsRealtimeResultPanel {get => isRealtimeResultPanel;}
+    public bool IsExitPanel {get => isExitPanel;}
     // others
     InputActions inputActions;
     CharacterMovementHandler characterMovementHandler;
@@ -75,8 +77,7 @@ public class CharacterInputHandler : MonoBehaviour
 
     }
 
-    private void RealtimeTable()
-    {
+    private void RealtimeTable() {
         isRealtimeResultPanel = !isRealtimeResultPanel;
         OnRealtimeResultTable?.Invoke(isRealtimeResultPanel);
     }

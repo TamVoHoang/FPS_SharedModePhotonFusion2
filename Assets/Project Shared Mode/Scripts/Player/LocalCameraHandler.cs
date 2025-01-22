@@ -61,7 +61,11 @@ public class LocalCameraHandler : NetworkBehaviour, IGameManager
     }
 
     private void Update() {
+        if(characterInputHandler.IsRealtimeResultPanel) return;
+        if(characterInputHandler.IsExitPanel) return;
+
         if(isFinished) return;
+
         //? view input local
         aimDir = characterInputHandler.AimDir;
 
@@ -72,6 +76,9 @@ public class LocalCameraHandler : NetworkBehaviour, IGameManager
 
     void LateUpdate()
     {
+        if(characterInputHandler.IsRealtimeResultPanel) return;
+        if(characterInputHandler.IsExitPanel) return;
+
         //? xet cho local cam
         if(cameraAnchorPoint == null) return;
         if(!localCamera.enabled) return;

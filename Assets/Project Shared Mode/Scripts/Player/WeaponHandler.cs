@@ -91,6 +91,9 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
     }
 
     private void Update() {
+        if(characterInputHandler.IsRealtimeResultPanel) return;
+        if(characterInputHandler.IsExitPanel) return;
+        
         if(isFinished) return;
         if(SceneManager.GetActiveScene().name == "Ready") return;
         if (HasStateAuthority == false) return;
