@@ -1094,6 +1094,7 @@ GameObject:
   - component: {fileID: 6887026489448785633}
   - component: {fileID: 7581653673994853113}
   - component: {fileID: 5178788558240440730}
+  - component: {fileID: 1314706216312592758}
   m_Layer: 0
   m_Name: NetworkPlayerPF
   m_TagString: Player
@@ -1184,6 +1185,7 @@ MonoBehaviour:
     _value: 0
   _isFinished_Network:
     _value: 0
+  isFinishedLocal: 0
   sceneToStart: 
 --- !u!114 &3451420460079219840
 MonoBehaviour:
@@ -1430,6 +1432,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9aaef9e8640c31b47bd80d957f022ea1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1314706216312592758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7314756524467492152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56d23b03e3a20d24cab616351d9553f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &8013862553777737680

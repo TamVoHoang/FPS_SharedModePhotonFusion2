@@ -425,4 +425,8 @@ public class WeaponSwitcher : NetworkBehaviour, IGameManager
     {
         this.isFinished = isFinished;
     }
+
+    public int GetIndexSlotActive() {
+        return indexLocalSlotActive;
+    }
 }
