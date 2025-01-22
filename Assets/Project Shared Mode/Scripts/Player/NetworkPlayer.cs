@@ -57,35 +57,26 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     
     // camera mode
     public bool is3rdPersonCamera {get; set;}
+    CharacterInputHandler characterInputHandler;
     
     private void Awake() {
         localCameraHandler = GetComponentInChildren<LocalCameraHandler>();
         networkInGameMessages = GetComponent<NetworkInGameMessages>();
         spawner = FindObjectOfType<Spawner>();
+        characterInputHandler = GetComponent<CharacterInputHandler>();
 
         DontDestroyOnLoad(this.gameObject);
-
-        is3rdPersonCamera = false;
+    }
+    private void Start() {
+        characterInputHandler.OnSwitchCamera += OnSwitchCamera_NetworkPlayer;
     }
 
+    private void OnDisable() {
+        characterInputHandler.OnSwitchCamera -= OnSwitchCamera_NetworkPlayer;
+    }
 
-    private void Update() {
-        if(Input.GetKeyDown(KeyCode.U)) {
-            /* foreach (var player in Runner.ActivePlayers)
-            {
-                PlayerRef playerRef = player;
-                NetworkObject playerObject = Runner.GetPlayerObject(playerRef);
-                if(playerObject != null && playerObject.TryGetComponent<NetworkPlayer>(out var nameComponent)) {
-                    Debug.Log($"playerID - {playerRef.PlayerId} | name - {nameComponent.nickName_Network}");
-                    NetDict.Add(playerRef.PlayerId, nameComponent.nickName_Network.ToString());
-                }
-            } */
-        }
-
-        if(Input.GetKeyDown(KeyCode.C)) {
-            is3rdPersonCamera = !is3rdPersonCamera;
-        }
-
+    private void OnSwitchCamera_NetworkPlayer(bool obj) {
+        this.is3rdPersonCamera = obj;
     }
 
     //? nhung thay doi cua bien Network

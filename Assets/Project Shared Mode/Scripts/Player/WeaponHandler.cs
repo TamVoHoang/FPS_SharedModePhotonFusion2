@@ -37,7 +37,6 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
     //? network object nao tao ra tia raycast
     NetworkPlayer networkPlayer;
     NetworkObject networkObject;
-    //[SerializeField] HPHandler hPHandler;
 
     //! testing
     [SerializeField] LocalCameraHandler localCameraHandler;

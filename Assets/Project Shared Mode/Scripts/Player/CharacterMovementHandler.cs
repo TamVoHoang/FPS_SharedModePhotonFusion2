@@ -1,13 +1,8 @@
 using UnityEngine;
 using Fusion;
 using UnityEngine.SceneManagement;
-using System;
-using System.Collections;
 public class CharacterMovementHandler : NetworkBehaviour, IGameManager
 {
-    //input
-    bool _jumpPressed;
-    bool isJumping = false;
     Vector3 aimForwardVector;
     Vector2 movementInput;
 
@@ -31,8 +26,6 @@ public class CharacterMovementHandler : NetworkBehaviour, IGameManager
     bool isFinished = false;
     CharacterInputHandler characterInputHandler;
 
-    const float JUMP_DELAY_TIME = 0.5f;
-
     private void Awake() {
         characterInputHandler = GetComponent<CharacterInputHandler>();
         networkCharacterController = GetComponent<NetworkCharacterController>();
@@ -43,16 +36,20 @@ public class CharacterMovementHandler : NetworkBehaviour, IGameManager
         animator = GetComponentInChildren<Animator>();
     }
 
+    private void Start() {
+        characterInputHandler.OnJump += () => networkCharacterController.Jump();;
+    }
+
+    private void OnDisable() {
+        characterInputHandler.OnJump -= () => networkCharacterController.Jump();
+    }
+
     void Update() {
         if(isFinished) return;
         //lock input to move and jump if Ready scene
         if(SceneManager.GetActiveScene().name == "Ready") return;
 
         //? move input local
-        /* if (Input.GetButtonDown("Jump")) _jumpPressed = true; */
-        _jumpPressed = characterInputHandler.IsJumped;
-
-        /* movementInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")); */
         movementInput = characterInputHandler.Move;
         aimForwardVector = localCameraHandler.transform.forward;
     }
@@ -88,37 +85,15 @@ public class CharacterMovementHandler : NetworkBehaviour, IGameManager
         if(GetComponent<CharacterController>().enabled == false) return;
         networkCharacterController.Move(moveDir);
 
-        //jump network
-        /* if(_jumpPressed) {
-            networkCharacterController.Jump();
-            _jumpPressed = !_jumpPressed;
-        } */
-        Jump(JUMP_DELAY_TIME);
-
         //? animator
         Vector2 walkVector = new Vector2(networkCharacterController.Velocity.x,
                                         networkCharacterController.Velocity.z);
         walkVector.Normalize(); // ko cho lon hon 1
 
-        /* walkSpeed = Mathf.Clamp01(walkVector.magnitude); */ // chuyen vector 2 sang gia tri 0 or 1
-
         walkSpeed = Mathf.Lerp(walkSpeed, Mathf.Clamp01(walkVector.magnitude), Runner.DeltaTime * 10f);
         animator.SetFloat("walkSpeed", walkSpeed);  // xet gia tri float "walkSpeed" trong animator
         
         CheckFallToRespawn();
-    }
-
-    void Jump(float time) {
-        if(!isJumping && _jumpPressed) {
-            isJumping = true;
-            StartCoroutine(JumpingCo(time));
-        }
-    }
-
-    IEnumerator JumpingCo(float time) {
-        networkCharacterController.Jump();
-        yield return new WaitForSeconds(time);
-        isJumping = false;
     }
 
     private void CheckFallToRespawn() {
@@ -161,8 +136,7 @@ public class CharacterMovementHandler : NetworkBehaviour, IGameManager
         this.isRespawnRequested_ = isRespawnRequested;
     }
 
-    public void IsFinished(bool isFinished)
-    {
+    public void IsFinished(bool isFinished) {
         this.isFinished = isFinished;
     }
 }

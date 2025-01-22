@@ -326,6 +326,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "RealtimeTable",
+                    "type": "Button",
+                    "id": "1147a85d-e2ce-4166-b7bc-d16f8e8f8825",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -348,6 +357,17 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "ExitPanel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ee77098a-8e70-41e6-8d12-282d4791a34e",
+                    "path": "<Keyboard>/v",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard&Mouse",
+                    "action": "RealtimeTable",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

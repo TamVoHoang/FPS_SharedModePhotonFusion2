@@ -348,6 +348,15 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RealtimeTable"",
+                    ""type"": ""Button"",
+                    ""id"": ""1147a85d-e2ce-4166-b7bc-d16f8e8f8825"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -370,6 +379,17 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": ""Keyboard&Mouse"",
                     ""action"": ""ExitPanel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ee77098a-8e70-41e6-8d12-282d4791a34e"",
+                    ""path"": ""<Keyboard>/v"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard&Mouse"",
+                    ""action"": ""RealtimeTable"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -407,6 +427,7 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Tutorial = m_UI.FindAction("Tutorial", throwIfNotFound: true);
         m_UI_ExitPanel = m_UI.FindAction("ExitPanel", throwIfNotFound: true);
+        m_UI_RealtimeTable = m_UI.FindAction("RealtimeTable", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -626,12 +647,14 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     private List<IUIActions> m_UIActionsCallbackInterfaces = new List<IUIActions>();
     private readonly InputAction m_UI_Tutorial;
     private readonly InputAction m_UI_ExitPanel;
+    private readonly InputAction m_UI_RealtimeTable;
     public struct UIActions
     {
         private @InputActions m_Wrapper;
         public UIActions(@InputActions wrapper) { m_Wrapper = wrapper; }
         public InputAction @Tutorial => m_Wrapper.m_UI_Tutorial;
         public InputAction @ExitPanel => m_Wrapper.m_UI_ExitPanel;
+        public InputAction @RealtimeTable => m_Wrapper.m_UI_RealtimeTable;
         public InputActionMap Get() { return m_Wrapper.m_UI; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -647,6 +670,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @ExitPanel.started += instance.OnExitPanel;
             @ExitPanel.performed += instance.OnExitPanel;
             @ExitPanel.canceled += instance.OnExitPanel;
+            @RealtimeTable.started += instance.OnRealtimeTable;
+            @RealtimeTable.performed += instance.OnRealtimeTable;
+            @RealtimeTable.canceled += instance.OnRealtimeTable;
         }
 
         private void UnregisterCallbacks(IUIActions instance)
@@ -657,6 +683,9 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
             @ExitPanel.started -= instance.OnExitPanel;
             @ExitPanel.performed -= instance.OnExitPanel;
             @ExitPanel.canceled -= instance.OnExitPanel;
+            @RealtimeTable.started -= instance.OnRealtimeTable;
+            @RealtimeTable.performed -= instance.OnRealtimeTable;
+            @RealtimeTable.canceled -= instance.OnRealtimeTable;
         }
 
         public void RemoveCallbacks(IUIActions instance)
@@ -712,5 +741,6 @@ public partial class @InputActions: IInputActionCollection2, IDisposable
     {
         void OnTutorial(InputAction.CallbackContext context);
         void OnExitPanel(InputAction.CallbackContext context);
+        void OnRealtimeTable(InputAction.CallbackContext context);
     }
 }
