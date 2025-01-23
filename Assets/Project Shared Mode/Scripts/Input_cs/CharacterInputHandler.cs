@@ -27,7 +27,6 @@ public class CharacterInputHandler : MonoBehaviour
     public bool IsExitPanel {get => isExitPanel;}
     // others
     InputActions inputActions;
-    CharacterMovementHandler characterMovementHandler;
 
     public Action OnJump;
     public Action<bool> OnDropWeapon;
@@ -39,9 +38,6 @@ public class CharacterInputHandler : MonoBehaviour
 
     private void Awake() {
         inputActions = new InputActions();
-
-        // move
-        characterMovementHandler = GetComponent<CharacterMovementHandler>();
 
         //switch camera
         inputActions.PlayerMovement.SwitchCam.started += _=> SwitchCamera();
@@ -74,7 +70,6 @@ public class CharacterInputHandler : MonoBehaviour
 
         inputActions.UI.RealtimeTable.started += _ => RealtimeTable();
         inputActions.UI.RealtimeTable.canceled -= _ => RealtimeTable();
-
     }
 
     private void RealtimeTable() {
@@ -149,8 +144,29 @@ public class CharacterInputHandler : MonoBehaviour
 
     private void Update() {
         move = inputActions.PlayerMovement.Move.ReadValue<Vector2>();
-        move.Normalize();
+        // move.Normalize();
+        move = ConvertCadirnalDir(move);
 
         aimDir = inputActions.PlayerMovement.Look.ReadValue<Vector2>();
+    }
+
+    public void SetAim(Vector2 aim) {
+        this.aimDir = aim;
+    }
+
+    Vector2  ConvertCadirnalDir(Vector2 move) {
+        // Small deadzone to prevent drift
+        if (move.magnitude > 0.1f) {
+            // Determine which direction is stronger
+            if (Mathf.Abs(move.x) > Mathf.Abs(move.y)) {
+                // Horizontal movement is stronger
+                return new Vector2(Mathf.Sign(move.x), 0);
+            } else {
+                // Vertical movement is stronger
+                return new Vector2(0, Mathf.Sign(move.y));
+            }
+        } else {
+            return Vector2.zero;
+        }
     }
 }

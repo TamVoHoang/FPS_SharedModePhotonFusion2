@@ -37,7 +37,7 @@ public class CharacterMovementHandler : NetworkBehaviour, IGameManager
     }
 
     private void Start() {
-        characterInputHandler.OnJump += () => networkCharacterController.Jump();;
+        characterInputHandler.OnJump += () => networkCharacterController.Jump();
     }
 
     private void OnDisable() {
