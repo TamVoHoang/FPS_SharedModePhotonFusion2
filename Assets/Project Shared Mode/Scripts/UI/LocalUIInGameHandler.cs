@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -16,6 +15,7 @@ public class LocalUIInGameHandler : MonoBehaviour, IGameManager
     [SerializeField] GameObject realtTimeResultSolo_Panel;
     [SerializeField] GameObject realtTimeResultTeam_Panel;
     [SerializeField] GameObject inGameTeamResult_Panel;
+
 
     [Header("       Buttons")]
     [SerializeField] Button backToMainMenuInQuitPanel_Button;

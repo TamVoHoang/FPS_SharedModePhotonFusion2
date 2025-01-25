@@ -26,6 +26,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
     // UI chua crossHair, red image get damage
     [SerializeField] GameObject localUI; // game object = PlayerUICanvas (canvas cua ca player)
+    [SerializeField] GameObject UIWeaponGo;
 
     // TESTING PLAYER DATA LIST ACTIVED PLAYERS
     [Networked]
@@ -130,6 +131,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
                 // OF localPlayer UI
                 localUI.SetActive(false);
+                UIWeaponGo.SetActive(false);
 
                 // ON nickName if readyScene
                 nickName_TM.gameObject.SetActive(true);
@@ -154,6 +156,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
 
                 //? bat local UI | canvas cua ca local player(crossHair, onDamageImage, messages rpc send)
                 localUI.SetActive(true); // con cua localCamera transform
+                UIWeaponGo.SetActive(true);
 
                 //? OFF nickName if ko dang o readyScene
                 nickName_TM.gameObject.SetActive(false);
@@ -187,6 +190,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
             localCameraHandler.localCamera.enabled = false;
             localCameraHandler.gameObject.SetActive(false);
             localUI.SetActive(false);
+            UIWeaponGo.SetActive(false);
         }
 
         //? set player as a player object -> khi player left se chi hien dung ten player roi
@@ -253,7 +257,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     IEnumerator SendPlayerNameJointToAllCO() {
         yield return new WaitForSeconds(0.5f);
         if(!isPublicJoinMessageSent) {
-            networkInGameMessages.SendInGameRPCMessage(nickName_Network.ToString(), " -> Joined Room");
+            networkInGameMessages.SendInGameRPCMessage(nickName_Network.ToString(), " -> joined room");
             isPublicJoinMessageSent = true;
         }
     }
@@ -262,7 +266,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     public void PlayerLeft(PlayerRef player) {
         // Who create room will send message playerLeft
         if(LocalDict.TryGetValue(player.PlayerId, out var value)) {
-            networkInGameMessages.SendInGameRPCMessage(value.ToString(), " -> Left room");
+            networkInGameMessages.SendInGameRPCMessage(value.ToString(), " -> left room");
         }
         
         if(player == Object.InputAuthority) {
@@ -275,7 +279,7 @@ public class NetworkPlayer : NetworkBehaviour, IPlayerLeft, IPlayerJoined
     IEnumerator PlayerLeftRoomManualCO(PlayerRef player) {
         yield return new WaitForSeconds(0f);
         if(NetDict.TryGet(player.PlayerId, out var value)) {
-            networkInGameMessages.SendInGameRPCMessage(value.ToString(), " -> Left Maual Testing");
+            networkInGameMessages.SendInGameRPCMessage(value.ToString(), " -> left maual testing");
         }
     }
 

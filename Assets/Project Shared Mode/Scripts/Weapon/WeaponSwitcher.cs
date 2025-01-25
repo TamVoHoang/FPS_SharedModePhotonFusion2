@@ -106,13 +106,6 @@ public class WeaponSwitcher : NetworkBehaviour, IGameManager
         isWeaponDroped = obj;
     }
 
-    IEnumerator DelayCo(float time) {
-        yield return new WaitForSeconds(time);
-        if(SceneManager.GetActiveScene().name == "Ready") {
-            uIWeapon.gameObject.SetActive(false);
-        } else uIWeapon.gameObject.SetActive(true);
-    }
-
     private void Update() {
         if(isFinished) return;
 

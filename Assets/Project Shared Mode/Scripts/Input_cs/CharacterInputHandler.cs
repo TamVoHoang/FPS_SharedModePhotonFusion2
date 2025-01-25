@@ -36,6 +36,10 @@ public class CharacterInputHandler : MonoBehaviour
     public Action<bool> OnExitTable;
     public Action<bool> OnRealtimeResultTable;
 
+    [SerializeField] int aimSentivity = 2;
+    const float AIM_SENTIVITY_RATIO = 0.25f;
+    public static Action<int> OnSetAimSentivity;
+    public static Action<Vector2> OnSetAimDir;
     private void Awake() {
         inputActions = new InputActions();
 
@@ -72,6 +76,10 @@ public class CharacterInputHandler : MonoBehaviour
         inputActions.UI.RealtimeTable.canceled -= _ => RealtimeTable();
     }
 
+    private void Start() {
+        aimSentivity = 2;
+    }
+
     private void RealtimeTable() {
         isRealtimeResultPanel = !isRealtimeResultPanel;
         OnRealtimeResultTable?.Invoke(isRealtimeResultPanel);
@@ -80,6 +88,11 @@ public class CharacterInputHandler : MonoBehaviour
     private void ExitPanel() {
         isExitPanel = !isExitPanel;
         OnExitTable?.Invoke(isExitPanel);
+
+        // cap nhat gia tri aim sentivity tai day cho uI
+        // ko can chay lien tuc
+        if(isExitPanel == true)
+            SettingAimSentivity.OnUpdateSentivitySlider?.Invoke(aimSentivity);
     }
 
     private void Tutorial() {
@@ -121,6 +134,9 @@ public class CharacterInputHandler : MonoBehaviour
         inputActions.UI.ExitPanel.Enable();
 
         inputActions.UI.RealtimeTable.Enable();
+
+        OnSetAimSentivity += SetSentivityAim;
+        OnSetAimDir += SetAimFromTouchArea;
     }
 
     private void OnDisable() {
@@ -140,6 +156,9 @@ public class CharacterInputHandler : MonoBehaviour
         inputActions.UI.ExitPanel.Disable();
 
         inputActions.UI.RealtimeTable.Disable();
+
+        OnSetAimSentivity -= SetSentivityAim;
+        OnSetAimDir -= SetAimFromTouchArea;
     }
 
     private void Update() {
@@ -147,11 +166,12 @@ public class CharacterInputHandler : MonoBehaviour
         // move.Normalize();
         move = ConvertCadirnalDir(move);
 
-        aimDir = inputActions.PlayerMovement.Look.ReadValue<Vector2>();
+        //! can phai co de chay PC
+        aimDir = inputActions.PlayerMovement.Look.ReadValue<Vector2>() * aimSentivity * AIM_SENTIVITY_RATIO;
     }
 
-    public void SetAim(Vector2 aim) {
-        this.aimDir = aim;
+    void SetAimFromTouchArea(Vector2 aim) {
+        this.aimDir = aim * aimSentivity * AIM_SENTIVITY_RATIO;
     }
 
     Vector2  ConvertCadirnalDir(Vector2 move) {
@@ -169,4 +189,9 @@ public class CharacterInputHandler : MonoBehaviour
             return Vector2.zero;
         }
     }
+
+    void SetSentivityAim(int aimSentivity) {
+        this.aimSentivity = aimSentivity;
+    }
+
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.SceneManagement;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
+
 public class TouchRotationView : MonoBehaviour
 {
     private RectTransform rectTransform;
@@ -12,17 +13,15 @@ public class TouchRotationView : MonoBehaviour
     const string REAY_SCENE = "Ready";
 
     //others
-    CharacterInputHandler characterInputHandler;
     private void Awake()
     {
         EnhancedTouchSupport.Enable();
         rectTransform = GetComponent<RectTransform>();
-        characterInputHandler = FindObjectOfType<CharacterInputHandler>();
     }
     private void Update()
     {
         if(SceneManager.GetActiveScene().name == REAY_SCENE) return;
-        
+
         var activeTouches = Touch.activeTouches;
         for (var i = 0; i < activeTouches.Count; ++i)
             Debug.Log("Active touch: " + activeTouches[i]);
@@ -82,7 +81,7 @@ public class TouchRotationView : MonoBehaviour
         {
             delta = touch.delta;
             // InputManager.Instance.SetAim(delta);
-            characterInputHandler.SetAim(delta);
+            CharacterInputHandler.OnSetAimDir?.Invoke(delta);
         }
     }
     private void End(Touch touch)
@@ -93,7 +92,8 @@ public class TouchRotationView : MonoBehaviour
             isAiming = false;
             touchID = -1;
             // InputManager.Instance.SetAim(delta);
-            characterInputHandler.SetAim(delta);
+            CharacterInputHandler.OnSetAimDir?.Invoke(delta);
+
 
         }
     }
@@ -103,7 +103,8 @@ public class TouchRotationView : MonoBehaviour
         {
             delta = Vector2.zero;
             // InputManager.Instance.SetAim(delta);
-            characterInputHandler.SetAim(delta);
+            CharacterInputHandler.OnSetAimDir?.Invoke(delta);
+
 
         }
     }

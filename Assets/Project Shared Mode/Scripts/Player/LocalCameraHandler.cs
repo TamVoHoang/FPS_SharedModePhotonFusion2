@@ -1,6 +1,7 @@
 using Fusion;
 using UnityEngine;
 using Cinemachine;
+using System;
 
 public class LocalCameraHandler : NetworkBehaviour, IGameManager
 {
@@ -181,4 +182,5 @@ public class LocalCameraHandler : NetworkBehaviour, IGameManager
         targetRotation = Vector3.Lerp(targetRotation, Vector3.zero, returnSpeed * Time.deltaTime);
         currentRotation = Vector3.Slerp(currentRotation, targetRotation, snappiness * Time.fixedDeltaTime);
     }
+
 }

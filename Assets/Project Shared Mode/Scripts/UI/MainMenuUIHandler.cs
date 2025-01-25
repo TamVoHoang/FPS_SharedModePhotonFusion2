@@ -64,6 +64,8 @@ public class MainMenuUIHandler : MonoBehaviour
         else {
             playerNameInputField.text = GameManager.names[Random.Range(0, GameManager.names.Length)];
         }
+
+        sessionNameInputField.text = GameManager.GetRandomRoomName();
     }
 
     void HidePanels() {
