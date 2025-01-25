@@ -1149,7 +1149,7 @@ MonoBehaviour:
   jumpImpulse: 8
   acceleration: 50
   braking: 50
-  maxSpeed: 5
+  maxSpeed: 4
   rotationSpeed: 10
   viewRotationSpeed: 10
 --- !u!114 &4111817304655517300
@@ -1349,6 +1349,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 56d23b03e3a20d24cab616351d9553f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  aimSentivity: 2
 --- !u!114 &8458596773145563089
 MonoBehaviour:
   m_ObjectHideFlags: 0

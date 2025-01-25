@@ -163,8 +163,8 @@ public class CharacterInputHandler : MonoBehaviour
 
     private void Update() {
         move = inputActions.PlayerMovement.Move.ReadValue<Vector2>();
-        // move.Normalize();
-        move = ConvertCadirnalDir(move);
+        move.Normalize();
+        //move = ConvertCadirnalDir(move);
 
         //! can phai co de chay PC
         aimDir = inputActions.PlayerMovement.Look.ReadValue<Vector2>() * aimSentivity * AIM_SENTIVITY_RATIO;
