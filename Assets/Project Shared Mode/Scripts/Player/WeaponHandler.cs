@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using Fusion;
 using UnityEngine;
@@ -38,7 +37,6 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
     //? network object nao tao ra tia raycast
     NetworkPlayer networkPlayer;
     NetworkObject networkObject;
-    //[SerializeField] HPHandler hPHandler;
 
     //! testing
     [SerializeField] LocalCameraHandler localCameraHandler;
@@ -57,6 +55,12 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
     WeaponSwitcher weaponSwitcher;
     bool isFinished = false;
 
+    CharacterInputHandler characterInputHandler;
+    float bulletFiredCoolTime = 0.5f;
+    float granadeFiredCoolTime = 2f;
+    float rocketFiredCoolTime = 4f;
+
+
     private void Awake() {
         
         networkPlayer = GetComponent<NetworkPlayer>();
@@ -66,6 +70,8 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
 
         weaponSwitcher = GetComponent<WeaponSwitcher>();
         spawner = FindObjectOfType<Spawner>();
+
+        characterInputHandler = GetComponent<CharacterInputHandler>();
     }
 
     public override void Spawned() {
@@ -85,22 +91,26 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
     }
 
     private void Update() {
+        if(characterInputHandler.IsRealtimeResultPanel) return;
+        if(characterInputHandler.IsExitPanel) return;
+        
         if(isFinished) return;
         if(SceneManager.GetActiveScene().name == "Ready") return;
         if (HasStateAuthority == false) return;
         if(GetComponent<HPHandler>().Networked_IsDead) return;
 
         // nhan mouse 0 fire bullet + co sung trong slot
-        if(Input.GetKeyDown(KeyCode.Mouse0) && weaponSwitcher.IsGunInIndexSlotActive()) {
-            isFirePressed = true;
+        if(weaponSwitcher.IsGunInIndexSlotActive()) {
+            isFirePressed = characterInputHandler.IsFired;
         }
+
+        if(weaponSwitcher.IsGunInIndexSlotActive() && weaponSwitcher.GetIndexSlotActive() == 1)
+            isGrandePressed = characterInputHandler.IsGrenadeFired;
             
         // nhan R -> fire Rocket
-        if(Input.GetKeyDown(KeyCode.R) && weaponSwitcher.IsGunInIndexSlotActive())
-            isRocketPressed = true;
-
-        if(Input.GetKeyDown(KeyCode.Mouse1) && weaponSwitcher.IsGunInIndexSlotActive())
-            isGrandePressed = true;
+        if(weaponSwitcher.IsGunInIndexSlotActive() && weaponSwitcher.GetIndexSlotActive() == 2) {
+            isRocketPressed = characterInputHandler.IsRocketFired;
+        }
     }
 
     public override void FixedUpdateNetwork()
@@ -109,6 +119,7 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
         // dam bao chi send RPC every 0.2s | se ko goi lien tuc du FireButton lien tuc
 
         if(isFirePressed) {
+            //_isFiringLocal = true;
             if(bulletFireDelay.ExpiredOrNotRunning(Runner)) {
                 // chi tao ra hieu ung laser no o nong sung va bay toi muc tieu va cham
                 localCameraHandler.RaycastHitPoint();
@@ -118,9 +129,8 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
                 
                 Fire(localCameraHandler.transform.forward, aimPoint);  // neu player thi aimpoint = vi tri 1st cam
 
-                bulletFireDelay = TickTimer.CreateFromSeconds(Runner, 0.2f); // sau 0.15 s se exp or notRunning
+                bulletFireDelay = TickTimer.CreateFromSeconds(Runner, bulletFiredCoolTime); // sau 0.15 s se exp or notRunning
             }
-            isFirePressed = false;
         }
 
         if(isRocketPressed) {
@@ -139,7 +149,6 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
             else {
                 FireRocket(localCameraHandler.transform.forward, aimPoint);    // aimpoint tren local cam
             }
-            isRocketPressed = false;
         }
 
         if(isGrandePressed) {
@@ -154,10 +163,11 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
 
             else
                 FireGrenade(localCameraHandler.transform.forward, aimPoint); // aimpoint tren local cam // khi raycast local cam ko tim thay muc tieu
-
-            isGrandePressed = false;
         }
     }
+
+
+
 
     //? fire bullet laser VFX => chi tao ra virtual o nong sung + bullet trails + impact
     void FireBulletVFX(Vector3 hitPoint) {
@@ -230,7 +240,7 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
                 });
 
             //? bat dau dem tickTimer cho lan ban ke tiep
-            rocketFireDelay = TickTimer.CreateFromSeconds(Runner, 3.0f); // sau 3 s se exp or notRunning
+            rocketFireDelay = TickTimer.CreateFromSeconds(Runner, rocketFiredCoolTime); // sau 3 s se exp or notRunning
         }
     }
 
@@ -251,7 +261,7 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
                 });
 
             //? bat dau dem tickTimer cho lan ban ke tiep
-            rocketFireDelay = TickTimer.CreateFromSeconds(Runner, 3.0f); // sau 3 s se exp or notRunning
+            rocketFireDelay = TickTimer.CreateFromSeconds(Runner, rocketFiredCoolTime); // sau 3 s se exp or notRunning
         }
     }
 #endregion ROCKET
@@ -268,7 +278,7 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
                 });
 
             //? bat dau dem tickTimer cho lan ban ke tiep
-            grenadeFireDelay = TickTimer.CreateFromSeconds(Runner, 1.0f); // sau 1 s se exp or notRunning
+            grenadeFireDelay = TickTimer.CreateFromSeconds(Runner, granadeFiredCoolTime); // sau 1 s se exp or notRunning
         }
     }
     //! SPAWN GRANDE FROM FIRE POINT ON GUN
@@ -283,7 +293,7 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
                 });
 
             //? bat dau dem tickTimer cho lan ban ke tiep
-            grenadeFireDelay = TickTimer.CreateFromSeconds(Runner, 1.0f); // sau 1 s se exp or notRunning
+            grenadeFireDelay = TickTimer.CreateFromSeconds(Runner, granadeFiredCoolTime); // sau 1 s se exp or notRunning
         }
     }
 #endregion GRANDE 

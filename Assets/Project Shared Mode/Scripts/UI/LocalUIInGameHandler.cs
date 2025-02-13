@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -16,6 +15,7 @@ public class LocalUIInGameHandler : MonoBehaviour, IGameManager
     [SerializeField] GameObject realtTimeResultSolo_Panel;
     [SerializeField] GameObject realtTimeResultTeam_Panel;
     [SerializeField] GameObject inGameTeamResult_Panel;
+
 
     [Header("       Buttons")]
     [SerializeField] Button backToMainMenuInQuitPanel_Button;
@@ -35,6 +35,7 @@ public class LocalUIInGameHandler : MonoBehaviour, IGameManager
     bool isFinished = false;
     List<IGameManager> IGameManagerInGame_List;
     GameManagerUIHandler gameManagerUIHandler;
+    [SerializeField] CharacterInputHandler characterInputHandler;
     
     private void Awake() {
         //resultListUIHandler = GetComponentInChildren<ResultListUIHandler>(true);
@@ -42,6 +43,7 @@ public class LocalUIInGameHandler : MonoBehaviour, IGameManager
         resultListUIHandler_Team = realtTimeResultTeam_Panel.GetComponent<ResultListUIHandler_Team>();
         networkPlayer = FindObjectOfType<NetworkPlayer>();
         gameManagerUIHandler = FindObjectOfType<GameManagerUIHandler>();
+        characterInputHandler = FindObjectOfType<CharacterInputHandler>();
 
         if(!NetworkPlayer.Local) {
             Debug.Log($"_____ solo mode is true player directly join at battle scene");
@@ -63,34 +65,43 @@ public class LocalUIInGameHandler : MonoBehaviour, IGameManager
         realtTimeResultSolo_Panel.gameObject.SetActive(false);
         backToMainMenuInQuitPanel_Button.onClick.AddListener(OnLeaveRoomButtonClicked);
         IGameManagerInGame_List = FindAllIGamanager();
-        gameManagerUIHandler.GameFinishedAction += OnGameFinished_LocalUIInGameHandler;
     }
+
+    private void OnEnable() {
+        gameManagerUIHandler.GameFinishedAction += OnGameFinished_LocalUIInGameHandler;
+        characterInputHandler.OnTutorial += OnTutorial_LocalUIInGameHandler;
+        characterInputHandler.OnExitTable += OnOnExitTable_LocalUIInGameHandler;
+        characterInputHandler.OnRealtimeResultTable += ShowingRealtimeResultTable_LocalUIGameHandler;
+    }
+
 
     private void OnDisable() {
         gameManagerUIHandler.GameFinishedAction -= OnGameFinished_LocalUIInGameHandler;
+        characterInputHandler.OnTutorial -= OnTutorial_LocalUIInGameHandler;
+        characterInputHandler.OnExitTable -= OnOnExitTable_LocalUIInGameHandler;
+        characterInputHandler.OnRealtimeResultTable -= ShowingRealtimeResultTable_LocalUIGameHandler;
     }
+
+    private void OnOnExitTable_LocalUIInGameHandler(bool obj) {
+        OnLockCursor();
+        backToMainMenu_Panel.SetActive(obj);
+    }
+
+    private void OnTutorial_LocalUIInGameHandler(bool obj) {
+        howToPlay_Panel.SetActive(obj);
+    }
+
     private void Update() {
         
         if(isFinished) return;
 
-        // showing tutorial
-        if(Input.GetKey(KeyCode.Tab)) {
-            howToPlay_Panel.SetActive(true);
-        } else howToPlay_Panel.SetActive(false);
-
-        // showing panel to return mainmenu
         /* if(Input.GetKeyDown(KeyCode.Escape)) {
-            backToMainMenu_Panel.SetActive(!backToMainMenu_Panel.activeSelf);
-            ToggleCursor();
-        } */
-
-        if(Input.GetKeyDown(KeyCode.Escape)) {
             OnLockCursor();
             backToMainMenu_Panel.SetActive(!backToMainMenu_Panel.activeSelf);
-        }
+        } */
 
-        // showing realtime result table
-        if(Input.GetKeyDown(KeyCode.V)) {
+        //? showing realtime result table
+        /* if(Input.GetKeyDown(KeyCode.V)) {
             OnLockCursor();
 
             isShowingRealtimeResultLocal = !isShowingRealtimeResultLocal;
@@ -101,12 +112,23 @@ public class LocalUIInGameHandler : MonoBehaviour, IGameManager
                 realtTimeResultSolo_Panel.SetActive(false);
                 realtTimeResultTeam_Panel.SetActive(false);
             }
-        }
+        } */
 
         // hci hien thi win or loss cho che do team + finish battle
         if(!isShowed && networkPlayer.isFinishedLocal && !networkPlayer.IsSoloMode()) {
             isShowed = true;
             ShowWinOrLossResult();
+        }
+    }
+
+    void ShowingRealtimeResultTable_LocalUIGameHandler(bool isShowed) {
+        OnLockCursor();
+        
+        if(isShowed) {
+            RealTimeResultLocal();
+        } else {
+            realtTimeResultSolo_Panel.SetActive(false);
+            realtTimeResultTeam_Panel.SetActive(false);
         }
     }
 

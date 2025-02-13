@@ -45,11 +45,12 @@ MonoBehaviour:
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SortKey: 0
+  SortKey: 1549111123
   ObjectInterest: 1
-  Flags: 0
+  Flags: 1
   NestedObjects: []
-  NetworkedBehaviours: []
+  NetworkedBehaviours:
+  - {fileID: 6362703958589087237}
 --- !u!114 &6362703958589087237
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -143,11 +144,12 @@ MonoBehaviour:
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SortKey: 0
+  SortKey: 3855525650
   ObjectInterest: 1
-  Flags: 0
+  Flags: 1
   NestedObjects: []
-  NetworkedBehaviours: []
+  NetworkedBehaviours:
+  - {fileID: 3090990642575975131}
 --- !u!114 &3090990642575975131
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -374,11 +376,12 @@ MonoBehaviour:
   m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SortKey: 0
+  SortKey: 527256280
   ObjectInterest: 1
-  Flags: 0
+  Flags: 1
   NestedObjects: []
-  NetworkedBehaviours: []
+  NetworkedBehaviours:
+  - {fileID: 7517093841441448636}
 --- !u!114 &7517093841441448636
 MonoBehaviour:
   m_ObjectHideFlags: 0

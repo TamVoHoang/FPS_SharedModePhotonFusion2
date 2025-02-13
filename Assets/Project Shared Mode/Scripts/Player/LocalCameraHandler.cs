@@ -1,6 +1,7 @@
 using Fusion;
 using UnityEngine;
 using Cinemachine;
+using System;
 
 public class LocalCameraHandler : NetworkBehaviour, IGameManager
 {
@@ -14,6 +15,7 @@ public class LocalCameraHandler : NetworkBehaviour, IGameManager
     float _cameraRotationX = 0f;
     float _cameraRotationY = 0f;
     Vector2 viewInput;
+    Vector2 aimDir;
     NetworkCharacterController networkCharacterController;
 
     //Raycast from local camera
@@ -36,8 +38,23 @@ public class LocalCameraHandler : NetworkBehaviour, IGameManager
     WeaponSwitcher weaponSwitcher;
 
     bool isFinished = false;
+    CharacterInputHandler characterInputHandler;
+
+    #region Recoil
+    public Vector3 currentRotation;
+    public Vector3 targetRotation;
+
+    [Header("Recoil")]
+    [SerializeField] float recoilX = -2;
+    [SerializeField] float recoilY = 2;
+    [SerializeField] float recoilZ = 0.4f;
+    [SerializeField] float snappiness = 6;
+    [SerializeField] float returnSpeed = 2;
+    #endregion Recoil
+
     private void Awake() {
         localCamera = GetComponent<Camera>();
+        characterInputHandler = GetComponentInParent<CharacterInputHandler>();
         networkCharacterController = GetComponentInParent<NetworkCharacterController>();
         inGameMessagesUIHandler = GetComponentInChildren<InGameMessagesUIHandler>();
 
@@ -45,14 +62,24 @@ public class LocalCameraHandler : NetworkBehaviour, IGameManager
     }
 
     private void Update() {
+        if(characterInputHandler.IsRealtimeResultPanel) return;
+        if(characterInputHandler.IsExitPanel) return;
+
         if(isFinished) return;
+
         //? view input local
-        viewInput.x = Input.GetAxis("Mouse X");
-        viewInput.y = Input.GetAxis("Mouse Y") * -1f;
+        aimDir = characterInputHandler.AimDir;
+
+        viewInput.x = aimDir.x;
+        viewInput.y = aimDir.y * -1f;
+        RecoilUpdate();
     }
 
     void LateUpdate()
     {
+        if(characterInputHandler.IsRealtimeResultPanel) return;
+        if(characterInputHandler.IsExitPanel) return;
+
         //? xet cho local cam
         if(cameraAnchorPoint == null) return;
         if(!localCamera.enabled) return;
@@ -81,9 +108,14 @@ public class LocalCameraHandler : NetworkBehaviour, IGameManager
                         slotIndexLocalTransform.gameObject.SetActive(false);
                         Debug.Log($"co OFF local gun holder transform trong localCam.cs");
                     }
-                    
                 }
                 // dung lai tai day ko chay cho phan ben duoi do dang su dung 3rd person Cam
+                cinemachineVirtualCamera.transform.position = cameraAnchorPoint.position; // localCam di theo | ko phai nam ben trong
+                _cameraRotationX += viewInput.y * Time.deltaTime * networkCharacterController.viewRotationSpeed;
+                _cameraRotationX = Mathf.Clamp(_cameraRotationX, -90, 90);
+                _cameraRotationY += viewInput.x * Time.deltaTime * networkCharacterController.rotationSpeed;
+
+                cinemachineVirtualCamera.transform.rotation = Quaternion.Euler(_cameraRotationX, _cameraRotationY, 0);
                 return;
             }
             else {
@@ -100,7 +132,6 @@ public class LocalCameraHandler : NetworkBehaviour, IGameManager
                         var slotIndexLocalTransform = weaponSwitcher.GetLocalSlotTransformActive();
                         slotIndexLocalTransform.gameObject.SetActive(true);
                     }
-                    
                 }
             }
         }
@@ -114,7 +145,7 @@ public class LocalCameraHandler : NetworkBehaviour, IGameManager
         _cameraRotationY += viewInput.x * Time.deltaTime * networkCharacterController.rotationSpeed;
 
         //?xoay camera theo mouseX mouseY
-        localCamera.transform.rotation = Quaternion.Euler(_cameraRotationX, _cameraRotationY, 0);
+        localCamera.transform.rotation = Quaternion.Euler(new Vector3(_cameraRotationX, _cameraRotationY, 0) + currentRotation);
     }
 
     //? Ban tia ray chi diem muc tieu. tim ra diem ban trung. luu len network
@@ -143,8 +174,13 @@ public class LocalCameraHandler : NetworkBehaviour, IGameManager
         this.spawnedPointOnHand_Network = spawnedPointVector_;
     }
 
-    public void IsFinished(bool isFinished)
-    {
+    public void IsFinished(bool isFinished) {
         this.isFinished = isFinished;
     }
+
+    void RecoilUpdate() {
+        targetRotation = Vector3.Lerp(targetRotation, Vector3.zero, returnSpeed * Time.deltaTime);
+        currentRotation = Vector3.Slerp(currentRotation, targetRotation, snappiness * Time.fixedDeltaTime);
+    }
+
 }

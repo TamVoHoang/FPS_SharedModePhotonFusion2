@@ -49,8 +49,13 @@ public class MainMenuUIHandler : MonoBehaviour
         OnQuickPlayClick_Button.onClick.AddListener(OnQuickPlayClicked);
         OnFindGameClick_Button.onClick.AddListener(OnFindGameClicked);
         OnEquipClick_Button.onClick.AddListener(OnEquipClicked);
-        OnQuitGameClick_Button.onClick.AddListener(OnQuitGameClicked);
+
+#if UNITY_WEBGL
+
+#else
         OnBackLoginClick_Button.onClick.AddListener(OnBackLoginClicked);
+        OnQuitGameClick_Button.onClick.AddListener(OnQuitGameClicked);
+#endif
 
         OnCreateSessionClick_Button.onClick.AddListener(OnActiveCreateGamePanelClicked);
         OnCreateAndJoinSessionClick_Button.onClick.AddListener(OnCreateJoinSessionClicked);
@@ -64,6 +69,8 @@ public class MainMenuUIHandler : MonoBehaviour
         else {
             playerNameInputField.text = GameManager.names[Random.Range(0, GameManager.names.Length)];
         }
+
+        sessionNameInputField.text = GameManager.GetRandomRoomName();
     }
 
     void HidePanels() {

@@ -3,6 +3,7 @@ using UnityEngine;
 using Fusion;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System;
 
 
 public class HPHandler : NetworkBehaviour
@@ -44,6 +45,8 @@ public class HPHandler : NetworkBehaviour
     bool isPublicDeathMessageSent = false;
     string killerName;
 
+    public Action<byte, byte> UpdateSliderHealth;
+
     private void Awake() {
         characterMovementHandler = GetComponent<CharacterMovementHandler>();
         hitboxRoot = GetComponent<HitboxRoot>();
@@ -56,7 +59,7 @@ public class HPHandler : NetworkBehaviour
             /* local_HP = startingHP;
             deadCount = 0; */
         }
-
+        UpdateSliderHealth?.Invoke(startingHP, startingHP);
         ResetMeshRenders();
 
         isInitialized = true;
@@ -147,7 +150,7 @@ public class HPHandler : NetworkBehaviour
             isPublicDeathMessageSent = true;
             if(Object.HasStateAuthority) {
                 networkInGameMessages.SendInGameRPCMessage(Networked_Killer.ToString(), 
-                    $" killed <b>{networkPlayer.nickName_Network.ToString()}<b>");
+                    $" -> killed <b>{networkPlayer.nickName_Network.ToString()}<b>");
             }
         }
     }
@@ -194,6 +197,7 @@ public class HPHandler : NetworkBehaviour
     IEnumerator OnHitCountine() {
         // this.Object Run this.cs (do dang bi ban trung) 
         // render for Screen of this.Object - localPlayer + remotePlayer
+        UpdateSliderHealth?.Invoke(startingHP, Networked_HP);
         foreach (FlashMeshRender flashMeshRender in flashMeshRenders) {
             flashMeshRender.ChangeColor(Color.red);
         }
@@ -268,7 +272,7 @@ public class HPHandler : NetworkBehaviour
     public void OnRespawned_ResetHPIsDead() {
         // khoi toa lai gia tri bat dau
         RPC_SetNetworkedHP(startingHP, null);
-
+        UpdateSliderHealth?.Invoke(startingHP, startingHP);
         /* RPC_SetNetworkedIsDead(false); */    // can use
     }
 

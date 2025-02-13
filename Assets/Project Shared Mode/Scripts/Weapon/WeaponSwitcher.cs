@@ -54,10 +54,12 @@ public class WeaponSwitcher : NetworkBehaviour, IGameManager
     [Networked] public NetworkObject CurrentPlayerTouched_Network {get; set;}
 
     bool isFinished = false;
+
+    CharacterInputHandler characterInputHandler;
+
     public override void Spawned() {
         Debug.Log($"co override spawned weapon switcher.cs");
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
-
     }
 
 
@@ -65,7 +67,7 @@ public class WeaponSwitcher : NetworkBehaviour, IGameManager
         slots_LocalHolder = new Transform[local_GunHolder.GetComponent<Transform>().childCount -1];
         slots_RemoteHolder = new Transform[remote_GunHolder.GetComponent<Transform>().childCount -1];
 
-        
+        characterInputHandler = GetComponent<CharacterInputHandler>();
     }
 
     private void Start() {
@@ -82,25 +84,38 @@ public class WeaponSwitcher : NetworkBehaviour, IGameManager
         if(Object.HasInputAuthority) {
             uIWeapon.Set(this);
         }
-
     }
 
-    IEnumerator DelayCo(float time) {
-        yield return new WaitForSeconds(time);
-        if(SceneManager.GetActiveScene().name == "Ready") {
-            uIWeapon.gameObject.SetActive(false);
-        } else uIWeapon.gameObject.SetActive(true);
+    private void OnEnable() {
+        characterInputHandler.OnSwitchWeapon += OnSwitchWeapon_WeaponSwitcher;
+        characterInputHandler.OnDropWeapon += OnDropWeapon_WeaponSwitcher;
+    }
+
+    private void OnDisable() {
+        characterInputHandler.OnSwitchWeapon -= OnSwitchWeapon_WeaponSwitcher;
+        characterInputHandler.OnDropWeapon -= OnDropWeapon_WeaponSwitcher;
+    }
+
+    private void OnSwitchWeapon_WeaponSwitcher(bool obj) {
+        if(isFinished) return;
+        isWeaponSwitched = obj;
+    }
+
+    private void OnDropWeapon_WeaponSwitcher(bool obj) {
+        if(isFinished) return;
+        isWeaponDroped = obj;
     }
 
     private void Update() {
         if(isFinished) return;
-        if(Input.GetKeyDown(KeyCode.Q)) {
-            isWeaponSwitched = true;
-        }
 
-        if(Input.GetKeyDown(KeyCode.X)) {
+        /* if(Input.GetKeyDown(KeyCode.Q)) {
+            isWeaponSwitched = true;
+        } */
+
+        /* if(Input.GetKeyDown(KeyCode.X)) {
             isWeaponDroped = true;
-        }
+        } */
 
         
     }
@@ -424,5 +439,9 @@ public class WeaponSwitcher : NetworkBehaviour, IGameManager
     public void IsFinished(bool isFinished)
     {
         this.isFinished = isFinished;
+    }
+
+    public int GetIndexSlotActive() {
+        return indexLocalSlotActive;
     }
 }
