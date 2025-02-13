@@ -5140,7 +5140,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3262869880558243594}
-  m_Mesh: {fileID: -3659486509095445690, guid: 6ab9d3a67c2c9414cbb52ae48a54c960, type: 3}
+  m_Mesh: {fileID: 4300004, guid: 016ea97ab0214d34aad9159be4f4198e, type: 3}
 --- !u!23 &1973507058122073850
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5161,7 +5161,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0fa2101a430524a488d6d2ee56041b23, type: 2}
+  - {fileID: 2100000, guid: 04e71246c75bcad4bb526ab1430652ce, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -15202,6 +15202,7 @@ GameObject:
   - component: {fileID: 7250158246853625366}
   - component: {fileID: 1799895753467337454}
   - component: {fileID: 2545904070507655270}
+  - component: {fileID: 4452918686570415678}
   m_Layer: 0
   m_Name: Gun_Remote
   m_TagString: Untagged
@@ -15245,6 +15246,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 2545904070507655270}
+  - {fileID: 4452918686570415678}
 --- !u!114 &2545904070507655270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15261,6 +15263,20 @@ MonoBehaviour:
   SyncParent: 0
   _autoAOIOverride: 1
   DisableSharedModeInterpolation: 0
+--- !u!114 &4452918686570415678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6343228881872539608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 488828f56f4e60e4bb02139cc9de899a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slotIndex: 0
+  weaponPickup: {fileID: 0}
 --- !u!1 &6649054195769389789
 GameObject:
   m_ObjectHideFlags: 0
@@ -15301,7 +15317,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6649054195769389789}
-  m_Mesh: {fileID: 1647653741036696748, guid: 6ab9d3a67c2c9414cbb52ae48a54c960, type: 3}
+  m_Mesh: {fileID: 4300002, guid: 016ea97ab0214d34aad9159be4f4198e, type: 3}
 --- !u!23 &3730523814561937424
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -15322,7 +15338,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0fa2101a430524a488d6d2ee56041b23, type: 2}
+  - {fileID: 2100000, guid: 04e71246c75bcad4bb526ab1430652ce, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

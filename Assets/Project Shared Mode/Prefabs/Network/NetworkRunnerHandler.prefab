@@ -45,3 +45,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   networkRunnerPF: {fileID: 1829756197935571816, guid: 2779deaa036403142b1322bb985f52eb, type: 3}
+  playerCount: 0

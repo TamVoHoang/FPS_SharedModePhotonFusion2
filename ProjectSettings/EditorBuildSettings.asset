@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Login.unity
     guid: 930302accfc251749966a5cb911f39d7
   - enabled: 1
+    path: Assets/Scenes/MainLobby.unity
+    guid: 4740070e8631cbc4f8355c7e76c7c3d5
+  - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: ca50f00294c5180469d36449194b51af
   - enabled: 1
@@ -19,9 +22,9 @@ EditorBuildSettings:
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
     path: Assets/Scenes/World_2.unity
-    guid: 524d54562b0ebdf49b71507a602daaa4
+    guid: 600f4745c76f04340bf1bacea9fafc81
   - enabled: 1
     path: Assets/Scenes/World_3.unity
-    guid: 962020f38f03bc94faa5594b5460aebb
+    guid: a1337a67c3c8a914e8d0af1088ac40e0
   m_configObjects:
-    com.unity.input.settings: {fileID: 11400000, guid: 480195b08386fc14cb338c2422c21324, type: 2}
+    com.unity.input.settings: {fileID: 11400000, guid: 8c3260c5a7dfd5342ae5cb3cd924ce5f, type: 2}

@@ -3,9 +3,14 @@ using Fusion;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class WeaponHandler : NetworkBehaviour
+public class WeaponHandler : NetworkBehaviour, IGameManager
 {
+    [Header("Prefabs Grande Rocket")]
     [SerializeField] BulletHandler bulletVFXPF; // vien dan chua class BulletHandler (chi co chua hieu ung vxf tai noi raycast hit vao)
+    [SerializeField] RocketHandler rocketPF; //? networkObject RocketHandler (co chua RocketHandler.cs)
+    [SerializeField] GrandeHandler grenadePF; //? networkObject GrandeHandler (co chua GrandeHandler.cs)
+
+    
     [Header("Effects")]
     [SerializeField] ParticleSystem fireParticleSystemLocal;// hieu ung nong sung localCam thay | nen phai gan tag = ignoreLayerChange
     [SerializeField] ParticleSystem fireParticleSystemRemote; // hieu ung nong sung chi remotePlayerCam thay | unTag
@@ -22,7 +27,7 @@ public class WeaponHandler : NetworkBehaviour
     public bool isFiring{get; set;}
     ChangeDetector changeDetector;
 
-    float lastTimeFired = 0f;
+    [SerializeField] float lastTimeFired = 0f;
 
     //timing cho fire Grenade
     TickTimer grenadeFireDelay = TickTimer.None;
@@ -32,7 +37,6 @@ public class WeaponHandler : NetworkBehaviour
     //? network object nao tao ra tia raycast
     NetworkPlayer networkPlayer;
     NetworkObject networkObject;
-    //[SerializeField] HPHandler hPHandler;
 
     //! testing
     [SerializeField] LocalCameraHandler localCameraHandler;
@@ -40,49 +44,38 @@ public class WeaponHandler : NetworkBehaviour
     Vector3 spawnPointRaycastCam = Vector3.zero;
 
     [Networked]
-    public int killCount{get; set;}
+    public int killCountCurr{get; set;}
 
     // others 
-    bool isMouse0Pressed = false;
     Spawner spawner;
 
+    [SerializeField] bool isFirePressed = false;
+    bool isRocketPressed = false;
+    bool isGrandePressed = false;
+    WeaponSwitcher weaponSwitcher;
+    bool isFinished = false;
+
+    CharacterInputHandler characterInputHandler;
+    float bulletFiredCoolTime = 0.5f;
+    float granadeFiredCoolTime = 2f;
+    float rocketFiredCoolTime = 4f;
+
+
     private void Awake() {
-        //hPHandler = GetComponent<HPHandler>();
+        
         networkPlayer = GetComponent<NetworkPlayer>();
         networkObject = GetComponent<NetworkObject>();
 
         localCameraHandler = FindFirstObjectByType<LocalCameraHandler>();
 
-        //weaponSwitcher = GetComponent<WeaponSwitcher>();
+        weaponSwitcher = GetComponent<WeaponSwitcher>();
         spawner = FindObjectOfType<Spawner>();
+
+        characterInputHandler = GetComponent<CharacterInputHandler>();
     }
 
     public override void Spawned() {
         changeDetector = GetChangeDetector(ChangeDetector.Source.SimulationState);
-    }
-
-    private void Update() {
-        if(SceneManager.GetActiveScene().name == "Ready") return;
-        if (HasStateAuthority == false) return;
-        /* if(hPHandler.isDead) return; */
-
-        // nhan mouse 0 fire bullet
-        if(Input.GetKeyDown(KeyCode.Mouse0)) isMouse0Pressed = true;
-    }
-
-    public override void FixedUpdateNetwork()
-    {
-        if(isMouse0Pressed) {
-            // chi tao ra hieu ung laser no o nong sung va bay toi muc tieu va cham
-            localCameraHandler.RaycastHitPoint();
-
-            var hitPointVector3 = localCameraHandler.hitPoint_Network;
-
-            if(hitPointVector3 != Vector3.zero) FireBulletVFX(hitPointVector3);
-            
-            Fire(localCameraHandler.transform.forward, aimPoint);  // neu player thi aimpoint = vi tri 1st cam
-            isMouse0Pressed = false;
-        }
     }
 
     public override void Render() {
@@ -97,6 +90,85 @@ public class WeaponHandler : NetworkBehaviour
         }
     }
 
+    private void Update() {
+        if(characterInputHandler.IsRealtimeResultPanel) return;
+        if(characterInputHandler.IsExitPanel) return;
+        
+        if(isFinished) return;
+        if(SceneManager.GetActiveScene().name == "Ready") return;
+        if (HasStateAuthority == false) return;
+        if(GetComponent<HPHandler>().Networked_IsDead) return;
+
+        // nhan mouse 0 fire bullet + co sung trong slot
+        if(weaponSwitcher.IsGunInIndexSlotActive()) {
+            isFirePressed = characterInputHandler.IsFired;
+        }
+
+        if(weaponSwitcher.IsGunInIndexSlotActive() && weaponSwitcher.GetIndexSlotActive() == 1)
+            isGrandePressed = characterInputHandler.IsGrenadeFired;
+            
+        // nhan R -> fire Rocket
+        if(weaponSwitcher.IsGunInIndexSlotActive() && weaponSwitcher.GetIndexSlotActive() == 2) {
+            isRocketPressed = characterInputHandler.IsRocketFired;
+        }
+    }
+
+    public override void FixedUpdateNetwork()
+    {   
+        // co input + bulletFireDelay sau 0.2s => thuc hien row 109
+        // dam bao chi send RPC every 0.2s | se ko goi lien tuc du FireButton lien tuc
+
+        if(isFirePressed) {
+            //_isFiringLocal = true;
+            if(bulletFireDelay.ExpiredOrNotRunning(Runner)) {
+                // chi tao ra hieu ung laser no o nong sung va bay toi muc tieu va cham
+                localCameraHandler.RaycastHitPoint();
+                var hitPointVector3 = localCameraHandler.hitPoint_Network;
+
+                if(hitPointVector3 != Vector3.zero) FireBulletVFX(hitPointVector3);
+                
+                Fire(localCameraHandler.transform.forward, aimPoint);  // neu player thi aimpoint = vi tri 1st cam
+
+                bulletFireDelay = TickTimer.CreateFromSeconds(Runner, bulletFiredCoolTime); // sau 0.15 s se exp or notRunning
+            }
+        }
+
+        if(isRocketPressed) {
+            // do delay time chi co trong FireRocket_1 || FireRocket
+            // nhung dong lenh khac se duoc thuc hien lient tuc trong do co send Rpc tu local camera
+
+            localCameraHandler.RaycastHitPoint();
+            var hitPointVector3 = localCameraHandler.hitPoint_Network;
+            var spawnedPoint_OnCam = localCameraHandler.spawnedPointOnCam_Network;
+            var spawnedPoint_OnHand = localCameraHandler.spawnedPointOnHand_Network;
+
+            if(hitPointVector3 != Vector3.zero) {
+                if(NetworkPlayer.Local.is3rdPersonCamera) FireRocket_1(hitPointVector3, spawnedPoint_OnHand);
+                else FireRocket_1(hitPointVector3, spawnedPoint_OnCam);
+            } 
+            else {
+                FireRocket(localCameraHandler.transform.forward, aimPoint);    // aimpoint tren local cam
+            }
+        }
+
+        if(isGrandePressed) {
+            localCameraHandler.RaycastHitPoint();
+            var hitPointVector3 = localCameraHandler.hitPoint_Network;
+            var spawnedPoint_OnCam = localCameraHandler.spawnedPointOnCam_Network;
+            var spawnedPoint_OnHand = localCameraHandler.spawnedPointOnHand_Network;
+
+            if(hitPointVector3 != Vector3.zero)
+                if(NetworkPlayer.Local.is3rdPersonCamera) FireGrenade_1(hitPointVector3, spawnedPoint_OnHand);
+                else FireGrenade_1(hitPointVector3, spawnedPoint_OnCam);
+
+            else
+                FireGrenade(localCameraHandler.transform.forward, aimPoint); // aimpoint tren local cam // khi raycast local cam ko tim thay muc tieu
+        }
+    }
+
+
+
+
     //? fire bullet laser VFX => chi tao ra virtual o nong sung + bullet trails + impact
     void FireBulletVFX(Vector3 hitPoint) {
         Vector3 dir = hitPoint - aimPoint_grandeRocket.position;
@@ -105,59 +177,15 @@ public class WeaponHandler : NetworkBehaviour
             (runner, spawnBullet) => {
                 spawnBullet.GetComponent<BulletHandler>().FireBullet(Object.InputAuthority, networkObject, networkPlayer.nickName_Network.ToString());
             });
-            bulletFireDelay = TickTimer.CreateFromSeconds(Runner, 0.15f); // sau 3 s se exp or notRunning
+            bulletFireDelay = TickTimer.CreateFromSeconds(Runner, 0.2f); // sau 3 s se exp or notRunning
         }
     }
 
     //? FIRE raycast BULLET FROM CAMERA
     void Fire(Vector3 aimForwardVector, Transform aimPoint) {
-        //? AI fire theo AI fireRate
-        //if(networkPlayer.isBot && Time.time - lastTimeFired < aiFireRate) return;
-
-        //? player fire rate theo lasTimeLimit
-        if(Time.time - lastTimeFired < 0.15f) return;
-
         StartCoroutine(FireEffect());
 
-        /* var spawnPointRaycastCam = localCameraHandler.raycastSpawnPointCam_Network; */
-
-        //? neu la AI thi diem ban se la camera anrcho
-        /* if(!networkPlayer.isBot) 
-            spawnPointRaycastCam = localCameraHandler.raycastSpawnPointCam_Network;
-        else spawnPointRaycastCam = aiCameraAnchor.position; */
-        
-        
         spawnPointRaycastCam = localCameraHandler.raycastSpawnPointCam_Network;
-
-        /* if(Runner.GetPhysicsScene().Raycast(spawnPointRaycastCam, aimForwardVector, out var hitInfo, 100, collisionLayers, QueryTriggerInteraction.Collide)) {
-            // neu hitInfo do this.gameObject ban ra thi return
-            if(hitInfo.transform.GetComponent<WeaponHandler>() == this) return;
-
-            float hitDis = 100f;
-            bool isHitOtherRemotePlayers = false;
-
-            if(hitInfo.distance > 0) hitDis = hitInfo.distance;
-
-            if(hitInfo.transform.TryGetComponent<HPHandler>(out var health)) {
-                Debug.Log($"{Time.time} {transform.name} hit HitBox {hitInfo.transform.root.name}");
-
-                if(Object.HasStateAuthority) {
-                    //tim xem networkObject nao da tao ra vien dan
-                    hitInfo.collider.GetComponent<HPHandler>().OnTakeDamage(networkPlayer.nickName_Network.ToString(), 1, this);
-                }
-
-                isHitOtherRemotePlayers = true;
-            }
-            else if(hitInfo.collider != null){
-                Debug.Log($"{Time.time} {transform.name} hit PhysiX Collier {hitInfo.transform.root.name}");
-            }
-
-            //? ve ra tia neu ban trung remotePlayers
-            if(isHitOtherRemotePlayers)
-                Debug.DrawRay(aimPoint.position, aimForwardVector * hitDis, Color.red, 1f); // aimForwardVector
-            else 
-                Debug.DrawRay(aimPoint.position, aimForwardVector * hitDis, Color.green, 1f); // aimForwardVector
-        } */
 
         if(Physics.Raycast(spawnPointRaycastCam,aimForwardVector, out var hit, 100, collisionLayers)) {
             // neu hitInfo do this.gameObject ban ra thi return
@@ -173,7 +201,7 @@ public class WeaponHandler : NetworkBehaviour
                 
                 // kiem tra co phai dong doi hay khong
                 bool isEnemyCheck = hit.transform.GetComponent<NetworkPlayer>().isEnemy_Network;
-                if(spawner.customLobbyName == "OurLobbyID_Team" && networkPlayer.isEnemy_Network == isEnemyCheck) return;
+                if(spawner.CustomLobbyName == "OurLobbyID_Team" && networkPlayer.isEnemy_Network == isEnemyCheck) return;
                 // kiem tra co phai dong doi hay khong
 
                 if(Object.HasStateAuthority) {
@@ -194,25 +222,91 @@ public class WeaponHandler : NetworkBehaviour
                 Debug.DrawRay(aimPoint.position, aimForwardVector * hitDis, Color.red, 1f); // aimForwardVector
             else 
                 Debug.DrawRay(aimPoint.position, aimForwardVector * hitDis, Color.green, 1f); // aimForwardVector
-
         }
-        
-        lastTimeFired = Time.time;
 
-        // lam cho ai ban theo tan suat random khoang time
-        aiFireRate = Random.Range(0.1f, 1.5f);
+        //? player fire rate theo lasTimeLimit - neu luon chay lien tuc trong update thi oK
+        /* if(Time.time - lastTimeFired < 0.15f) return;
+        lastTimeFired = Time.time; */
     }
+
+    #region ROCKET
+    //? SPAWN ROCKET FROM CAMERA
+    void FireRocket(Vector3 aimForwardVector, Transform aimPoint) {
+        if(rocketFireDelay.ExpiredOrNotRunning(Runner) && Object.HasStateAuthority) {
+            //? runner spawn ra 1 
+            Runner.Spawn(rocketPF, aimPoint.position + aimForwardVector * 1f, Quaternion.LookRotation(aimForwardVector), Object.InputAuthority,
+                (runner, spawnRocket) => {
+                    spawnRocket.GetComponent<RocketHandler>().Fire(Object.InputAuthority, networkObject, networkPlayer.nickName_Network.ToString(), this);
+                });
+
+            //? bat dau dem tickTimer cho lan ban ke tiep
+            rocketFireDelay = TickTimer.CreateFromSeconds(Runner, rocketFiredCoolTime); // sau 3 s se exp or notRunning
+        }
+    }
+
+    //! SPAWN ROCKET FROM NONG SUNG
+    void FireRocket_1(Vector3 hitPoint, Vector3 spawnedPoint) {
+        
+        /* Vector3 dir = Vector3.zero;
+        if(Object.HasInputAuthority) dir = hitPoint - localCameraHandler.spawnedPointOnCam_Network;
+        else if(!Object.HasInputAuthority) dir = hitPoint - localCameraHandler.spawnedPointOnHand_Network; */
+        
+        Vector3 dir = hitPoint - spawnedPoint;
+        //Vector3 dir = hitPoint - aimPoint_grandeRocket.position; //! OK original
+        if(rocketFireDelay.ExpiredOrNotRunning(Runner) && Object.HasStateAuthority) {
+            //? runner spawn ra 1 | aimPoint_grandeRocket.position 
+            Runner.Spawn(rocketPF, spawnedPoint, Quaternion.LookRotation(dir), Object.InputAuthority,
+                (runner, spawnRocket) => {
+                    spawnRocket.GetComponent<RocketHandler>().Fire(Object.InputAuthority, networkObject, networkPlayer.nickName_Network.ToString(), this);
+                });
+
+            //? bat dau dem tickTimer cho lan ban ke tiep
+            rocketFireDelay = TickTimer.CreateFromSeconds(Runner, rocketFiredCoolTime); // sau 3 s se exp or notRunning
+        }
+    }
+#endregion ROCKET
+
+#region GRANDE
+    //? SPAWN FIRE GRANDE FORM CAMERA
+    void FireGrenade(Vector3 aimForwardVector, Transform aimPoint) {
+        // kiem tra dang thuc su ko co ban grenade
+        if(grenadeFireDelay.ExpiredOrNotRunning(Runner) && Object.HasStateAuthority) {
+            //? runner spawn ra 1 
+            Runner.Spawn(grenadePF, aimPoint.position + aimForwardVector * 1f, Quaternion.LookRotation(aimForwardVector), Object.InputAuthority,
+                (runner, spawnGrenade) => {
+                    spawnGrenade.GetComponent<GrandeHandler>().Throw(aimForwardVector * 15f, Object.InputAuthority, networkPlayer.nickName_Network.ToString(), this);
+                });
+
+            //? bat dau dem tickTimer cho lan ban ke tiep
+            grenadeFireDelay = TickTimer.CreateFromSeconds(Runner, granadeFiredCoolTime); // sau 1 s se exp or notRunning
+        }
+    }
+    //! SPAWN GRANDE FROM FIRE POINT ON GUN
+    void FireGrenade_1(Vector3 hitPoint, Vector3 spawnedPoint) {
+        Vector3 dir = hitPoint - spawnedPoint;
+        // kiem tra dang thuc su ko co ban grenade
+        if(grenadeFireDelay.ExpiredOrNotRunning(Runner) && Object.HasStateAuthority) {
+            //? runner spawn ra 1 
+            Runner.Spawn(grenadePF, spawnedPoint, Quaternion.LookRotation(dir), Object.InputAuthority,
+                (runner, spawnGrenade) => {
+                    spawnGrenade.GetComponent<GrandeHandler>().Throw(dir * 1.2f, Object.InputAuthority, networkPlayer.nickName_Network.ToString(), this);
+                });
+
+            //? bat dau dem tickTimer cho lan ban ke tiep
+            grenadeFireDelay = TickTimer.CreateFromSeconds(Runner, granadeFiredCoolTime); // sau 1 s se exp or notRunning
+        }
+    }
+#endregion GRANDE 
 
     // fire particle on aimPoint
     IEnumerator FireEffect()    
     {
         isFiring = true;
-        /* if(NetworkPlayer.Local.is3rdPersonCamera)
+        if(NetworkPlayer.Local.is3rdPersonCamera)
             fireParticleSystemRemote.Play();
         else 
-            fireParticleSystemLocal.Play(); */ // show cho localPlayer thay hieu ung ban ra
+            fireParticleSystemLocal.Play(); // show cho localPlayer thay hieu ung ban ra
         
-        fireParticleSystemLocal.Play();
         yield return new WaitForSeconds(0.09f);
         isFiring = false;
     }
@@ -229,5 +323,37 @@ public class WeaponHandler : NetworkBehaviour
         //(!Object.HasInputAuthority) => this.Object dang xuat hien o man hinh cua other clients
         // hien thi cho cac man hinh Clients noi this.Object nay dang xuat hien
         if(!Object.HasInputAuthority) fireParticleSystemRemote.Play();
+    }
+
+    // save killedCount to firestore
+    public void SaveKilledCount() {
+        if(!DataSaveLoadHander.Instance) return;
+        DataSaveLoadHander.Instance.playerDataToFireStore.KilledCount += 1;
+        DataSaveLoadHander.Instance.SavePlayerDataFireStore();
+    }
+
+    public void SendKillCountCurrToTeamResult() {
+        if(Object.HasStateAuthority) {
+            bool isEnemy = NetworkPlayer.Local.isEnemy_Network;
+
+            GameManagerUIHandler gameManagerUIHandler = FindObjectOfType<GameManagerUIHandler>();
+            gameManagerUIHandler.RPC_SetKillCount(isEnemy, 1);
+
+            /* int killCountNetwork = gameManagerUIHandler.GetKillCountTeam(isEnemy);
+            GetComponent<NetworkInGameTeamResult>().SendInGameResultTeamRPC(isEnemy, killCountNetwork); */
+
+            StartCoroutine(Delay(0.5f, isEnemy));
+        }
+    }
+
+    IEnumerator Delay(float time, bool isEnemy) {
+        yield return new WaitForSeconds(time);
+        int killCountNetwork = GameManagerUIHandler.action_(isEnemy);
+        GetComponent<NetworkInGameTeamResult>().SendInGameResultTeamRPC(isEnemy, killCountNetwork);
+    }
+
+    public void IsFinished(bool isFinished)
+    {
+        this.isFinished = isFinished;
     }
 }

@@ -10,8 +10,8 @@ public class SessionInfoUIListItem : MonoBehaviour
 {
     // session list panel
     [SerializeField] TextMeshProUGUI sessionNameText;
+    [SerializeField] TextMeshProUGUI typeNameText;
     [SerializeField] TextMeshProUGUI sceneNameText;
-
     [SerializeField] TextMeshProUGUI playerCountText;
     public Button joinButton;
 
@@ -29,10 +29,11 @@ public class SessionInfoUIListItem : MonoBehaviour
         joinButton.onClick.AddListener(OnJoinSessionClicked);
     }
 
-    public void SetInfomation(SessionInfo sessionInfo, string mapName) {
+    public void SetInfomation(SessionInfo sessionInfo, string typeGame, string mapName) {
         this.sessionInfo = sessionInfo;
-        sessionNameText.text = sessionInfo.Name;
-        sceneNameText.text = mapName;
+        sessionNameText.text = sessionInfo.Name;    // ten room
+        typeNameText.text = typeGame;
+        sceneNameText.text = mapName;               // ten map
         playerCountText.text = $"{sessionInfo.PlayerCount.ToString()}/{sessionInfo.MaxPlayers.ToString()}";
 
         bool isJoinButtonActice = true; // enable JoinButton

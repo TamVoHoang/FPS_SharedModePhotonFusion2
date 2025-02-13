@@ -283,6 +283,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2899065279106707719}
+  - component: {fileID: 5326901184572139872}
   - component: {fileID: 7519525026511953750}
   - component: {fileID: 500003851378678042}
   m_Layer: 0
@@ -310,6 +311,21 @@ Transform:
   - {fileID: 9004884299895266353}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5326901184572139872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1885505914971852563}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 488828f56f4e60e4bb02139cc9de899a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slotIndex: 0
+  weaponPickup: {fileID: 4903084290381000161, guid: 932e621863125484ca61f06a2bbff740, type: 3}
+  isLocal: 1
 --- !u!114 &7519525026511953750
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -327,6 +343,7 @@ MonoBehaviour:
   Flags: 262145
   NestedObjects: []
   NetworkedBehaviours:
+  - {fileID: 5326901184572139872}
   - {fileID: 500003851378678042}
 --- !u!114 &500003851378678042
 MonoBehaviour:
@@ -538,7 +555,7 @@ Transform:
   m_GameObject: {fileID: 2225475708611548358}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.0573, z: 0.0856}
+  m_LocalPosition: {x: 0, y: -0.0573, z: 0.17}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

@@ -10,15 +10,15 @@ using Firebase.Database;
 [Serializable]
 public class DataToSave {
     public string userName;
-    public int currLevel;
-    public int highScore;
+    public int killedCount;
+    public int deathCount;
     public int coins;
 
     public DataToSave() {}
-    public DataToSave(string userName, int currLevel, int highScore, int coins) {
+    public DataToSave(string userName, int killedCount, int deathCount, int coins) {
         this.userName = userName;
-        this.currLevel = currLevel;
-        this.highScore = highScore;
+        this.killedCount = killedCount;
+        this.deathCount = deathCount;
         this.coins = coins;
     }
 }
@@ -52,12 +52,12 @@ public class DataSaver : MonoBehaviour
         DontDestroyOnLoad(this);
     }
 
-    public DataToSave ReturnDataToSave(string username, int currLevel, int hightScore, int coins) {
-        return new DataToSave(username, currLevel, hightScore, coins);
+    public DataToSave ReturnDataToSave(string username, int killedCount, int deathCount, int coins) {
+        return new DataToSave(username, killedCount, deathCount, coins);
     }
 
     public void SaveToSignup(string userName, string userId) {
-        DataToSave saveDataToSignup = ReturnDataToSave(userName, 1, 0, 0);
+        DataToSave saveDataToSignup = ReturnDataToSave(userName, 0, 0, 1000);
         // chuyen dataToSave -> json
         string json = JsonUtility.ToJson(saveDataToSignup);
 
@@ -72,7 +72,6 @@ public class DataSaver : MonoBehaviour
 
         // tao folder trong database realtime
         dbRef.Child("Users").Child(userId).SetRawJsonValueAsync(json);
-        
     }
 
     public void LoadData() {

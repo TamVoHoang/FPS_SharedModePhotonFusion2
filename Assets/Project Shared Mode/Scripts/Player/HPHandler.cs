@@ -3,6 +3,8 @@ using UnityEngine;
 using Fusion;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System;
+
 
 public class HPHandler : NetworkBehaviour
 {
@@ -17,7 +19,7 @@ public class HPHandler : NetworkBehaviour
     public NetworkString<_16> Networked_Killer { get; set; }
 
     [Networked]
-    public int deadCount {get; set;}
+    public int deadCountCurr {get; set;}
 
     bool isInitialized = false;
     const byte startingHP = 5;
@@ -43,6 +45,8 @@ public class HPHandler : NetworkBehaviour
     bool isPublicDeathMessageSent = false;
     string killerName;
 
+    public Action<byte, byte> UpdateSliderHealth;
+
     private void Awake() {
         characterMovementHandler = GetComponent<CharacterMovementHandler>();
         hitboxRoot = GetComponent<HitboxRoot>();
@@ -52,10 +56,10 @@ public class HPHandler : NetworkBehaviour
     }
     void Start() {
         if(!isSkipSettingStartValues) {
-            //local_HP = startingHP;
-            deadCount = 0;
+            /* local_HP = startingHP;
+            deadCount = 0; */
         }
-
+        UpdateSliderHealth?.Invoke(startingHP, startingHP);
         ResetMeshRenders();
 
         isInitialized = true;
@@ -107,14 +111,38 @@ public class HPHandler : NetworkBehaviour
 
         if(Networked_HP <= 0) {
             Debug.Log($"{Time.time} {transform.name} is dead by {damageCausedByPlayerNickName}");
-            //RPC_SetNetworkedKiller(damageCausedByPlayerNickName); // can use
+            /* RPC_SetNetworkedKiller(damageCausedByPlayerNickName); */ // can use
             isPublicDeathMessageSent = false;
             StartCoroutine(ServerRespawnCountine());
-            //RPC_SetNetworkedIsDead(true); // can use
+            /* RPC_SetNetworkedIsDead(true); */ // can use
 
-            deadCount ++;
-            weaponHandler.killCount ++;
+            /* deadCount ++; */ //! KO THE XET O DAY, VI BIEN NETWORK KO XET LOCAL TAI DAY
+            
+            if(weaponHandler != GetComponent<WeaponHandler>()) {
+                if(networkPlayer.IsSoloMode()) {
+                    weaponHandler.killCountCurr += 1; // cong diem cho killer
+                    //? SAVE to PlayerDataToFirestore -> save to weaponHander.UserID | save cho nguoi ban
+                    weaponHandler.SaveKilledCount();
+                }
+                else {
+                    bool isWeaponKillerTeam = weaponHandler.GetComponent<NetworkPlayer>().isEnemy_Network;
+                    if(networkPlayer.isEnemy_Network == isWeaponKillerTeam) return;
+                    //? killer gui va cong don cho team
+                    StartCoroutine(SetKillCountFOrTeam(0.1f, weaponHandler));
+                    weaponHandler.killCountCurr += 1; // cong diem cho killer
+                    //? SAVE to PlayerDataToFirestore -> save to weaponHander.UserID | save cho nguoi ban
+                    weaponHandler.SaveKilledCount();
+                }
+            }
+
+            //? SAVE deathCount cho this.UserId | seve cho nguoi bi ban
+            SaveDeathCount();
         }
+    }
+
+    IEnumerator SetKillCountFOrTeam(float time, WeaponHandler weaponHandler) {
+        yield return new WaitForSeconds(time);
+        weaponHandler.SendKillCountCurrToTeamResult();  // tang 1 cho team cua minh
     }
 
     void CheckPlayerDeath(byte networkHP) {
@@ -122,7 +150,7 @@ public class HPHandler : NetworkBehaviour
             isPublicDeathMessageSent = true;
             if(Object.HasStateAuthority) {
                 networkInGameMessages.SendInGameRPCMessage(Networked_Killer.ToString(), 
-                    $" killed <b>{networkPlayer.nickName_Network.ToString()}<b>");
+                    $" -> killed <b>{networkPlayer.nickName_Network.ToString()}<b>");
             }
         }
     }
@@ -141,6 +169,7 @@ public class HPHandler : NetworkBehaviour
 
         if(Networked_HP <= 0) {
             this.Networked_IsDead = true;
+            this.deadCountCurr += 1;
             this.Networked_Killer = name;
         } 
         else {
@@ -168,6 +197,7 @@ public class HPHandler : NetworkBehaviour
     IEnumerator OnHitCountine() {
         // this.Object Run this.cs (do dang bi ban trung) 
         // render for Screen of this.Object - localPlayer + remotePlayer
+        UpdateSliderHealth?.Invoke(startingHP, Networked_HP);
         foreach (FlashMeshRender flashMeshRender in flashMeshRenders) {
             flashMeshRender.ChangeColor(Color.red);
         }
@@ -183,11 +213,11 @@ public class HPHandler : NetworkBehaviour
 
         // render cho man hinh cua this.Object run this.cs - KO HIEN THI O REMOTE
         if(Object.HasInputAuthority && !Networked_IsDead) {
-            uiOnHitImage.color = new Color(0,0,0,0);  
+            uiOnHitImage.color = new Color(0,0,0,0);
         } 
     }
 
-    void ResetMeshRenders() {
+    public void ResetMeshRenders() {
         //clear old
         flashMeshRenders.Clear();
         
@@ -233,13 +263,24 @@ public class HPHandler : NetworkBehaviour
         localGun.SetActive(true);
         hitboxRoot.HitboxRootActive = true;
         characterMovementHandler.CharacterControllerEnable(true);
+
+        // animate equip animation if player having gun on hand
+        GetComponent<WeaponSwitcher>().CheckHolster();
     }
 
     // sau khi resapwn ben movement -> tra ve gia tri HP va isDead
     public void OnRespawned_ResetHPIsDead() {
         // khoi toa lai gia tri bat dau
         RPC_SetNetworkedHP(startingHP, null);
+        UpdateSliderHealth?.Invoke(startingHP, startingHP);
+        /* RPC_SetNetworkedIsDead(false); */    // can use
+    }
 
-        //RPC_SetNetworkedIsDead(false);    // can use
+
+    //? Save deathCount to fireStore
+    void SaveDeathCount() {
+        if(!DataSaveLoadHander.Instance) return;
+        DataSaveLoadHander.Instance.playerDataToFireStore.DeathCount += 1;
+        DataSaveLoadHander.Instance.SavePlayerDataFireStore();
     }
 }

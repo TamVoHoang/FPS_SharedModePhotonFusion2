@@ -4,12 +4,12 @@ public static class Utils
 {
     //random spawnPoint Player
     public static Vector3 GetRandomSpawnPoint() {
-        return new Vector3(Random.Range(-10, 10), 5, Random.Range(0, 5));
+        return new Vector3(Random.Range(-10, 17), 5, Random.Range(0, 3));
     }
 
     // random spawnPoint Weapons
     public static Vector3 GetRandomWeaponSpawnPoint() {
-        return new Vector3(Random.Range(-10, 18), 1, Random.Range(0, 8));
+        return new Vector3(Random.Range(-6, 17), 1, Random.Range(3, 6));
     }
     
     // set layer for model (or for player's body) make sure cam not render this layer

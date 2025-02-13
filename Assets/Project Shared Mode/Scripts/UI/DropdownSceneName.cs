@@ -11,21 +11,21 @@ public class DropdownSceneName : MonoBehaviour
             case 0:
             {
                 //spawner.SceneName = "World_1";
-                spawner.gameMap = GameMap.World_1;
+                spawner.GameMap = GameMap.World_1;
                 break;
             }
             
             case 1:
             {
                 //spawner.SceneName = "World_2";
-                spawner.gameMap = GameMap.World_2;
+                spawner.GameMap = GameMap.World_2;
                 break;
             }
             
             case 2:
             {
                 //spawner.SceneName = "World_3";
-                spawner.gameMap = GameMap.World_3;
+                spawner.GameMap = GameMap.World_3;
                 break;
             }
         }

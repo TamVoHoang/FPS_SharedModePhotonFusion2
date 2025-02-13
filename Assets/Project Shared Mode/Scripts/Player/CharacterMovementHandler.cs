@@ -1,16 +1,14 @@
 using UnityEngine;
 using Fusion;
 using UnityEngine.SceneManagement;
-public class CharacterMovementHandler : NetworkBehaviour
+public class CharacterMovementHandler : NetworkBehaviour, IGameManager
 {
-    // other
-    NetworkCharacterController networkCharacterController;
-    LocalCameraHandler localCameraHandler;
-
-    //input
-    private bool _jumpPressed;
     Vector3 aimForwardVector;
     Vector2 movementInput;
+
+    [Header("Animation")]
+    [SerializeField] Animator animator;  // nam trong doi tuong con cua Model transform
+    [SerializeField] float walkSpeed = 0f;
 
     // request after falling
     [SerializeField] float fallHightToRespawn = -10f;
@@ -20,25 +18,39 @@ public class CharacterMovementHandler : NetworkBehaviour
     public bool isRespawnRequested_{get; set;} = false;
 
     //...
+    NetworkCharacterController networkCharacterController;
+    LocalCameraHandler localCameraHandler;
     NetworkInGameMessages networkInGameMessages;
     NetworkPlayer networkPlayer;
     HPHandler hPHandler;
+    bool isFinished = false;
+    CharacterInputHandler characterInputHandler;
+
     private void Awake() {
+        characterInputHandler = GetComponent<CharacterInputHandler>();
         networkCharacterController = GetComponent<NetworkCharacterController>();
         localCameraHandler = GetComponentInChildren<LocalCameraHandler>();
         networkInGameMessages = GetComponent<NetworkInGameMessages>();
         networkPlayer = GetComponent<NetworkPlayer>();
         hPHandler = GetComponent<HPHandler>();
+        animator = GetComponentInChildren<Animator>();
     }
 
+    private void Start() {
+        characterInputHandler.OnJump += () => networkCharacterController.Jump();
+    }
+
+    private void OnDisable() {
+        characterInputHandler.OnJump -= () => networkCharacterController.Jump();
+    }
 
     void Update() {
+        if(isFinished) return;
         //lock input to move and jump if Ready scene
         if(SceneManager.GetActiveScene().name == "Ready") return;
 
         //? move input local
-        if (Input.GetButtonDown("Jump")) _jumpPressed = true;
-        movementInput = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        movementInput = characterInputHandler.Move;
         aimForwardVector = localCameraHandler.transform.forward;
     }
     
@@ -73,15 +85,13 @@ public class CharacterMovementHandler : NetworkBehaviour
         if(GetComponent<CharacterController>().enabled == false) return;
         networkCharacterController.Move(moveDir);
 
-        //jump network
-        if(_jumpPressed) {
-            networkCharacterController.Jump();
-            _jumpPressed = !_jumpPressed;
-        }
+        //? animator
+        Vector2 walkVector = new Vector2(networkCharacterController.Velocity.x,
+                                        networkCharacterController.Velocity.z);
+        walkVector.Normalize(); // ko cho lon hon 1
 
-        // animator
-
-
+        walkSpeed = Mathf.Lerp(walkSpeed, Mathf.Clamp01(walkVector.magnitude), Runner.DeltaTime * 10f);
+        animator.SetFloat("walkSpeed", walkSpeed);  // xet gia tri float "walkSpeed" trong animator
         
         CheckFallToRespawn();
     }
@@ -109,20 +119,24 @@ public class CharacterMovementHandler : NetworkBehaviour
         networkCharacterController.Teleport(Utils.GetRandomSpawnPoint());
         
         hPHandler.OnRespawned_ResetHPIsDead(); // khoi tao lai gia tri HP isDeath - false
-        //isRespawnRequested = false;
+        /* isRespawnRequested = false; */
         RPC_SetNetworkedIsDead(false);
         Debug.Log($"_____Ending Respawn");
-
+        
     }
     
     public void RequestRespawn() {
         Debug.Log($"_____Requested Respawn");
-        //isRespawnRequested = true;
+        /* isRespawnRequested = true; */
         RPC_SetNetworkedIsDead(true);
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void RPC_SetNetworkedIsDead(bool isRespawnRequested) {
         this.isRespawnRequested_ = isRespawnRequested;
+    }
+
+    public void IsFinished(bool isFinished) {
+        this.isFinished = isFinished;
     }
 }

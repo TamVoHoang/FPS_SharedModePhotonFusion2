@@ -37,7 +37,7 @@ public class NetworkRunnerHandler : MonoBehaviour
             //? Neu ko dang o scene mainMenu -> vao thang game
             if(SceneManager.GetActiveScene().name != "MainMenu") {
                 playerCount = 2;
-                var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, "Test_Session", GameMap.World_1, "Test_Lobby", NetAddress.Any(), SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex), null);
+                var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, "Test_Session", TypeGame.Survival, GameMap.World_1, "Test_Lobby", NetAddress.Any(), SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex), null);
                 /* ConnectToSession(networkRunner, GameMode.Shared, "Room", SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex));
                 ConnectToLobby("Lobby"); */
             }
@@ -55,10 +55,11 @@ public class NetworkRunnerHandler : MonoBehaviour
         return sceneManager;
     }
 
-    protected virtual Task InitializeNetworkRunner(NetworkRunner runner, GameMode gameMode, string sessionName, GameMap gameMap,
+    protected virtual Task InitializeNetworkRunner(NetworkRunner runner, GameMode gameMode, string sessionName, TypeGame typeGame, GameMap gameMap,
             string customLobbyName, NetAddress address, SceneRef scene, Action<NetworkRunner> initialized) {
         var customProps = new Dictionary<string, SessionProperty>();
         customProps["mapName"] = (int)gameMap;
+        customProps["typeName"] = (int)typeGame;
 
         var sceneManager = GetSceneManager(runner);
         runner.ProvideInput = true;
@@ -69,7 +70,7 @@ public class NetworkRunnerHandler : MonoBehaviour
             Scene = scene,
 
             SessionName = sessionName,
-            //CustomLobbyName = "OurLobbyID",
+            /* CustomLobbyName = "OurLobbyID", */
             CustomLobbyName = customLobbyName,
 
             PlayerCount = playerCount,
@@ -86,7 +87,7 @@ public class NetworkRunnerHandler : MonoBehaviour
         Debug.Log("JoinLobby started");
 
         //string lobbyID = "OurLobbyID";
-        string lobbyID = networkRunner.GetComponent<Spawner>().customLobbyName;
+        string lobbyID = networkRunner.GetComponent<Spawner>().CustomLobbyName;
 
         var result = await networkRunner.JoinSessionLobby(SessionLobby.Custom, lobbyID);
 
@@ -97,17 +98,20 @@ public class NetworkRunnerHandler : MonoBehaviour
         }
     }
 
-    public void CreateGame(string sessionName, GameMap gameMap, string sceneName, string customLobbyName) {
+    public void CreateGame(string sessionName, TypeGame typeGame, GameMap gameMap, string sceneName, string customLobbyName) {
         Debug.Log($"Create session {sessionName} scene {sceneName} build Index {SceneUtility.GetBuildIndexByScenePath($"scenes/{sceneName}")}");
         
         //Join game co san
-        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionName, gameMap, customLobbyName, NetAddress.Any(), SceneRef.FromIndex(SceneUtility.GetBuildIndexByScenePath($"scenes/{sceneName}")), null);
+        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionName,typeGame, gameMap, customLobbyName, 
+            NetAddress.Any(), SceneRef.FromIndex(SceneUtility.GetBuildIndexByScenePath($"scenes/{sceneName}")), null);
 
     }
 
-    public void JoinGame(SessionInfo sessionInfo, string customLobbyName, GameMap gameMap) {
+    public void JoinGame(SessionInfo sessionInfo, string customLobbyName, TypeGame typeGame, GameMap gameMap) {
         Debug.Log($"Join session {sessionInfo.Name}");
-        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionInfo.Name, gameMap, customLobbyName, NetAddress.Any(), SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex), null);
+        var clienTask = InitializeNetworkRunner(networkRunner, GameMode.Shared, sessionInfo.Name, typeGame, gameMap, customLobbyName, 
+            NetAddress.Any(), SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex), null);
+
     }
     
 }
