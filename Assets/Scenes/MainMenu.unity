@@ -525,6 +525,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: MainMenu_Canvas
       objectReference: {fileID: 0}
+    - target: {fileID: 4293698362862255193, guid: 645e138d2d582b043971905f35b6ba7b, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 4293698362862255193, guid: 645e138d2d582b043971905f35b6ba7b, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 9.999994
+      objectReference: {fileID: 0}
+    - target: {fileID: 4293698362862255193, guid: 645e138d2d582b043971905f35b6ba7b, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4293698362862255193, guid: 645e138d2d582b043971905f35b6ba7b, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5245398822313628097, guid: 645e138d2d582b043971905f35b6ba7b, type: 3}
       propertyPath: m_Pivot.x
       value: 0
