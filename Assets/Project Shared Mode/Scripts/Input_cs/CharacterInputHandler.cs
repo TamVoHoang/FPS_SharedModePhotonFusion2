@@ -11,8 +11,8 @@ public class CharacterInputHandler : MonoBehaviour
     bool isRocketFired = false;
     bool isGrenadeFired = false;
     bool is3rdPersonCam = false;
-    bool isDropWeapon = false;
-    bool isSwitchWeapon = false;
+    //bool isDropWeapon = false;
+    //bool isSwitchWeapon = false;
     bool isTutorialActived = false;
     bool isExitPanel = false;
     bool isRealtimeResultPanel = false;
@@ -40,6 +40,7 @@ public class CharacterInputHandler : MonoBehaviour
     const float AIM_SENTIVITY_RATIO = 0.25f;
     public static Action<int> OnSetAimSentivity;
     public static Action<Vector2> OnSetAimDir;
+    public bool Is3rdPersonCam{get => is3rdPersonCam;}
     private void Awake() {
         inputActions = new InputActions();
 
@@ -163,7 +164,11 @@ public class CharacterInputHandler : MonoBehaviour
 
     private void Update() {
         move = inputActions.PlayerMovement.Move.ReadValue<Vector2>();
+
+        //! di theo duong cheo
         //move.Normalize();
+        
+        //! ko di theo duong cheo 
         move = ConvertCadirnalDir(move);
 
         //! can phai co de chay PC

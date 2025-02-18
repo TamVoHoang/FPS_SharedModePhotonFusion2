@@ -73,7 +73,7 @@ MonoBehaviour:
 
     X
 
-    Hold V
+    V
 
     Escape'
   m_isRightToLeft: 0
@@ -217,7 +217,7 @@ MonoBehaviour:
 
     Drop
 
-    Chat Voice
+    Standings
 
     Quit'
   m_isRightToLeft: 0
@@ -380,7 +380,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3104573627342550743
 RectTransform:
   m_ObjectHideFlags: 0

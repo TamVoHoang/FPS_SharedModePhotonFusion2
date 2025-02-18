@@ -125,8 +125,14 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
                 localCameraHandler.RaycastHitPoint();
                 var hitPointVector3 = localCameraHandler.hitPoint_Network;
 
-                if(hitPointVector3 != Vector3.zero) FireBulletVFX(hitPointVector3);
-                
+                if(hitPointVector3 != Vector3.zero) {
+                    if(!characterInputHandler.Is3rdPersonCam) {
+                        FireBulletVFX(hitPointVector3, aimPoint_grandeRocket);
+                    } else {
+                        FireBulletVFX(hitPointVector3, aimPoint_grandeRocket_3rd);
+                    }
+                } 
+
                 Fire(localCameraHandler.transform.forward, aimPoint);  // neu player thi aimpoint = vi tri 1st cam
 
                 bulletFireDelay = TickTimer.CreateFromSeconds(Runner, bulletFiredCoolTime); // sau 0.15 s se exp or notRunning
@@ -170,7 +176,7 @@ public class WeaponHandler : NetworkBehaviour, IGameManager
 
 
     //? fire bullet laser VFX => chi tao ra virtual o nong sung + bullet trails + impact
-    void FireBulletVFX(Vector3 hitPoint) {
+    void FireBulletVFX(Vector3 hitPoint, Transform aimPoint_grandeRocket) {
         Vector3 dir = hitPoint - aimPoint_grandeRocket.position;
         if(bulletFireDelay.ExpiredOrNotRunning(Runner)) {
             Runner.Spawn(bulletVFXPF, aimPoint_grandeRocket.position, Quaternion.LookRotation(dir), Object.InputAuthority,
