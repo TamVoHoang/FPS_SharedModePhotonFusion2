@@ -191,7 +191,7 @@ public class GameManagerUIHandler : NetworkBehaviour
 
         StartCoroutine(ShowResultTableCO(0.09f));
 
-        GameFinishedAction?.Invoke(isFinished);
+        /* GameFinishedAction?.Invoke(isFinished); */
     }
 
     List<NetworkPlayer> FinActivePlayersGeneric(List<NetworkPlayer> activePlayersList)
@@ -244,6 +244,7 @@ public class GameManagerUIHandler : NetworkBehaviour
             else isWin = true;
         }
 
+        Debug.Log($"_____" + isWin);
         networkPlayer.RPC_SetWinOrLoss(isWin, true);
     }
 
@@ -251,6 +252,7 @@ public class GameManagerUIHandler : NetworkBehaviour
         isFinished = true;
         yield return new WaitForSeconds(time);
         isFinished = false;
+        GameFinishedAction?.Invoke(isFinished);
     }
     
     //? remote result table change after isFinish == true
