@@ -24228,10 +24228,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameManagerUI_Canvas
       objectReference: {fileID: 0}
-    - target: {fileID: 7997587762269845732, guid: 9f8ac87d5cd760a4c84e8d4692bfd913, type: 3}
-      propertyPath: timeRemainingToFinish
-      value: 30
-      objectReference: {fileID: 0}
     - target: {fileID: 8338352567276823092, guid: 9f8ac87d5cd760a4c84e8d4692bfd913, type: 3}
       propertyPath: SortKey
       value: 4285255253

@@ -702,14 +702,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 4058515894107972616, guid: 3abc50d02acdaaa41b565c6f8f305db4, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4058515894107972616, guid: 3abc50d02acdaaa41b565c6f8f305db4, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6889428069931013809, guid: 3abc50d02acdaaa41b565c6f8f305db4, type: 3}
       propertyPath: m_Name
       value: Canvas_EmailLoginHandler
